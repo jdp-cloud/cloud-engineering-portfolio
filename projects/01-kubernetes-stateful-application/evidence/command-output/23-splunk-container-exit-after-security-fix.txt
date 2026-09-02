@@ -1,0 +1,4 @@
+reason=Error
+exitCode=2
+startedAt=2026-09-02T21:21:56Z
+finishedAt=2026-09-02T21:28:39Z

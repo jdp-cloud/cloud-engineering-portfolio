@@ -1,0 +1,9 @@
+NAME       READY   STATUS    RESTARTS   AGE
+splunk-0   1/1     Running   0          7m43s
+NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+splunk-storage-splunk-0   Bound    pvc-88cb060a-8a86-4b6e-8fc3-6672f146a5e8   10Gi       RWO            standard       <unset>                 63m
+NAME              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+splunk            ClusterIP   10.100.106.31   <none>        8000/TCP   65m
+splunk-headless   ClusterIP   None            <none>        8000/TCP   65m
+NAME     ENDPOINTS         AGE
+splunk   10.244.0.7:8000   65m

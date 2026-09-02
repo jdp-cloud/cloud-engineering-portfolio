@@ -1,0 +1,10 @@
+Events:
+  Type     Reason            Age                    From               Message
+  ----     ------            ----                   ----               -------
+  Warning  FailedScheduling  3m52s (x4 over 3m52s)  default-scheduler  0/1 nodes are available: pod has unbound immediate PersistentVolumeClaims. not found
+  Normal   Scheduled         3m52s                  default-scheduler  Successfully assigned splunk/splunk-0 to splunk
+  Normal   Pulling           57s (x5 over 3m52s)    kubelet            spec.containers{splunk}: Pulling image "splunk/splunk:10.4.0"
+  Warning  Failed            56s (x5 over 3m51s)    kubelet            spec.containers{splunk}: Failed to pull image "splunk/splunk:10.4.0": no matching manifest for linux/arm64/v8 in the manifest list entries
+  Warning  Failed            56s (x5 over 3m51s)    kubelet            spec.containers{splunk}: Error: ErrImagePull
+  Normal   BackOff           2s (x14 over 3m51s)    kubelet            spec.containers{splunk}: Back-off pulling image "splunk/splunk:10.4.0"
+  Warning  Failed            2s (x14 over 3m51s)    kubelet            spec.containers{splunk}: Error: ImagePullBackOff

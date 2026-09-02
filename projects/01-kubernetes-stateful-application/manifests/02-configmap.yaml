@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: splunk-config
+  namespace: splunk
+data:
+  SPLUNK_START_ARGS: "--accept-license"
+  SPLUNK_GENERAL_TERMS: "--accept-sgt-current-at-splunk-com"
+
+  # Splunk 10.x requirement: SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com explicitly
+  # acknowledges Splunk's current General Terms and is required in addition to --accept-license when starting the container.

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: splunk
+  namespace: splunk
+  labels:
+    app: splunk
+spec:
+  serviceName: splunk-headless
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: splunk
+
+  template:
+    metadata:
+      labels:
+        app: splunk
+    spec:
+      securityContext:
+        runAsUser: 41812
+        fsGroup: 41812
+
+      containers:
+        - name: splunk
+          image: splunk/splunk:10.4.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: web
+              containerPort: 8000
+
+          env:
+            - name: SPLUNK_START_ARGS
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: SPLUNK_START_ARGS
+
+            - name: SPLUNK_GENERAL_TERMS
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: SPLUNK_GENERAL_TERMS
+
+            - name: SPLUNK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-secret
+                  key: SPLUNK_PASSWORD
+
+            - name: SPLUNK_HOME_OWNERSHIP_ENFORCEMENT
+              value: "false"
+
+          volumeMounts:
+            - name: splunk-storage
+              mountPath: /opt/splunk/var
+
+  volumeClaimTemplates:
+    - metadata:
+        name: splunk-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

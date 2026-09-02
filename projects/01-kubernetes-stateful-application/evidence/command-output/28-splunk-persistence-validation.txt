@@ -1,0 +1,10 @@
+=== POD ===
+NAME       READY   STATUS    RESTARTS   AGE
+splunk-0   1/1     Running   0          3m15s
+
+=== PVC ===
+NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+splunk-storage-splunk-0   Bound    pvc-88cb060a-8a86-4b6e-8fc3-6672f146a5e8   10Gi       RWO            standard       <unset>                 78m
+
+=== PERSISTED MARKER ===
+Wed Sep  2 22:13:04 UTC 2026

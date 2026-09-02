@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Local secrets and environment files
+.env
+.env.*
+*.secret
+*.secrets
+secrets/
+credentials/
+
+# Kubernetes local/generated secret material
+*secret*.yaml
+*secret*.yml
+
+# Terraform local state, if Terraform is added later
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Local editor / IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo

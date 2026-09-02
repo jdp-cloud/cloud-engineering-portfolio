@@ -1,0 +1,2 @@
+NAME     STATUS   AGE
+splunk   Active   3m55s
