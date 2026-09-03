@@ -1,0 +1,23 @@
+=== ARGO CD PODS ===
+NAME                                                READY   STATUS    RESTARTS   AGE
+argocd-application-controller-0                     1/1     Running   0          10m
+argocd-applicationset-controller-594f899b97-kpbhg   1/1     Running   0          10m
+argocd-dex-server-f79496dd4-cvjxx                   1/1     Running   0          10m
+argocd-notifications-controller-765bcb5997-6n664    1/1     Running   0          10m
+argocd-redis-7bc765678f-6vnd9                       1/1     Running   0          10m
+argocd-repo-server-74fdfb957d-kqs7j                 1/1     Running   0          10m
+argocd-server-67c449cbc8-jvdnf                      1/1     Running   0          10m
+
+=== ARGO CD API RESOURCES ===
+applications                        app,apps           argoproj.io/v1alpha1              true         Application
+applicationsets                     appset,appsets     argoproj.io/v1alpha1              true         ApplicationSet
+appprojects                         appproj,appprojs   argoproj.io/v1alpha1              true         AppProject
+
+=== ARGO CD SERVICE ACCOUNTS ===
+argocd-application-controller      10m
+argocd-applicationset-controller   10m
+argocd-dex-server                  10m
+argocd-notifications-controller    10m
+argocd-redis                       10m
+argocd-repo-server                 10m
+argocd-server                      10m

@@ -1,0 +1,11 @@
+=== ARGO CD APPLICATIONS ===
+NAME     SYNC STATUS   HEALTH STATUS
+splunk   Synced        Healthy
+
+=== SPLUNK APPLICATION STATUS ===
+NAME     SYNC     HEALTH    REVISION
+splunk   Synced   Healthy   10947dc12ab3ef3409fb4cb87eec69b86ff2610e
+
+=== SPLUNK POD ===
+NAME       READY   STATUS    RESTARTS   AGE
+splunk-0   1/1     Running   0          6m41s

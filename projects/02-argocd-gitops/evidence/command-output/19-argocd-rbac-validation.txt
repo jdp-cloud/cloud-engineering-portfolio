@@ -1,0 +1,14 @@
+=== AUTHENTICATED IDENTITY ===
+Logged In: true
+Username: platform-operator
+Issuer: argocd
+Groups:
+
+=== DEV SYNC PERMISSION ===
+yes
+
+=== TEST SYNC PERMISSION ===
+yes
+
+=== PROD SYNC PERMISSION ===
+no

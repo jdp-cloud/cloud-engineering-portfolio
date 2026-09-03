@@ -1,0 +1,14 @@
+=== AUTHENTICATED IDENTITY ===
+Logged In: true
+Username: admin
+Issuer: argocd
+Groups:
+
+=== APPLICATION STATUS ===
+NAME             SYNC STATUS   HEALTH STATUS
+rbac-demo-dev    Synced        Healthy
+rbac-demo-prod   Synced        Healthy
+
+=== PROD WORKLOAD ===
+NAME               DATA   AGE
+gitops-rbac-demo   2      2m57s

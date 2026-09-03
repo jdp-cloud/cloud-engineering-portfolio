@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: splunk-dev
+  namespace: argocd
+spec:
+  description: "Splunk DEV: only deploy to splunk-dev namespace"
+
+  sourceRepos:
+    - "https://github.com/jdp-cloud/cloud-engineering-portfolio.git"
+
+  destinations:
+    - namespace: splunk-dev
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

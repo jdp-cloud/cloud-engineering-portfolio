@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  policy.default: role:readonly
+  policy.matchMode: glob
+
+  policy.csv: |
+    # Non-production operator permissions
+    p, role:nonprod-operator, applications, get, */*, allow
+    p, role:nonprod-operator, applications, sync, splunk-dev/*, allow
+    p, role:nonprod-operator, applications, sync, splunk-test/*, allow
+
+    # Explicit production restriction
+    p, role:nonprod-operator, applications, sync, splunk-prod/*, deny
+
+    # Project visibility
+    p, role:nonprod-operator, projects, get, splunk-dev, allow
+    p, role:nonprod-operator, projects, get, splunk-test, allow
+    p, role:nonprod-operator, projects, get, splunk-prod, allow
+
+    # Local lab identity
+    g, platform-operator, role:nonprod-operator

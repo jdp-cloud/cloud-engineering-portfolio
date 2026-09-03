@@ -1,0 +1,17 @@
+=== VALUE BEFORE DRIFT ===
+--accept-license
+
+=== INTRODUCE LIVE DRIFT ===
+configmap/splunk-config patched
+
+=== VALUE IMMEDIATELY AFTER PATCH ===
+--accept-license --drift-test
+
+=== WAIT FOR ARGO CD SELF-HEAL ===
+
+=== VALUE AFTER RECONCILIATION ===
+--accept-license
+
+=== ARGO CD APPLICATION STATUS ===
+NAME     SYNC     HEALTH
+splunk   Synced   Healthy

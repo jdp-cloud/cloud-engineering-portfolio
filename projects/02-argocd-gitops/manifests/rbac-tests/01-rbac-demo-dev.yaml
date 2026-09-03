@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rbac-demo-dev
+  namespace: argocd
+spec:
+  project: splunk-dev
+  source:
+    repoURL: https://github.com/jdp-cloud/cloud-engineering-portfolio.git
+    targetRevision: main
+    path: projects/02-argocd-gitops/workloads/rbac-demo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: splunk-dev

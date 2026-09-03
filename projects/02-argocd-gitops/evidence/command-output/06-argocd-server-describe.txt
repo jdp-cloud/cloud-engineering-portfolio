@@ -1,0 +1,68 @@
+Name:             argocd-server-5d547d85b5-9kw9k
+Namespace:        argocd
+Priority:         0
+Service Account:  default
+Node:             argocd/192.168.64.6
+Start Time:       Thu, 03 Sep 2026 14:28:29 -0500
+Labels:           app.kubernetes.io/name=argocd-server
+                  pod-template-hash=5d547d85b5
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.4
+IPs:
+  IP:           10.244.0.4
+Controlled By:  ReplicaSet/argocd-server-5d547d85b5
+Containers:
+  argocd-server:
+    Container ID:  docker://6e99f3b86a2c1acae3c02b4e438052d546f69888251e8f0826867ff1ae6bf7ff
+    Image:         quay.io/argoproj/argocd:v2.10.7
+    Image ID:      docker-pullable://quay.io/argoproj/argocd@sha256:83c86003b781d43d5a02a4fe80cec7f7a249e90ec07b72a9af6f9a6538e468ff
+    Port:          8080/TCP
+    Host Port:     0/TCP
+    Args:
+      /usr/local/bin/argocd-server
+      --insecure
+    State:          Running
+      Started:      Thu, 03 Sep 2026 14:33:29 -0500
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    143
+      Started:      Thu, 03 Sep 2026 14:31:59 -0500
+      Finished:     Thu, 03 Sep 2026 14:33:29 -0500
+    Ready:          False
+    Restart Count:  3
+    Liveness:       http-get http://:8080/healthz delay=30s timeout=1s period=30s #success=1 #failure=3
+    Readiness:      http-get http://:8080/healthz delay=10s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-vc6zf (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-vc6zf:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  6m21s                  default-scheduler  Successfully assigned argocd/argocd-server-5d547d85b5-9kw9k to argocd
+  Normal   Pulling    6m21s                  kubelet            spec.containers{argocd-server}: Pulling image "quay.io/argoproj/argocd:v2.10.7"
+  Normal   Pulled     6m9s                   kubelet            spec.containers{argocd-server}: Successfully pulled image "quay.io/argoproj/argocd:v2.10.7" in 11.441s (11.441s including waiting). Image size: 433661706 bytes.
+  Warning  Unhealthy  3m7s (x20 over 5m58s)  kubelet            spec.containers{argocd-server}: Readiness probe failed: Get "http://10.244.0.4:8080/healthz": dial tcp 10.244.0.4:8080: connect: connection refused
+  Normal   Created    81s (x4 over 6m9s)     kubelet            spec.containers{argocd-server}: Container created
+  Normal   Started    81s (x4 over 6m9s)     kubelet            spec.containers{argocd-server}: Container started
+  Normal   Killing    81s (x3 over 4m21s)    kubelet            spec.containers{argocd-server}: Container argocd-server failed liveness probe, will be restarted
+  Normal   Pulled     81s (x3 over 4m21s)    kubelet            spec.containers{argocd-server}: Container image "quay.io/argoproj/argocd:v2.10.7" already present on machine and can be accessed by the pod
+  Warning  Unhealthy  51s (x10 over 5m21s)   kubelet            spec.containers{argocd-server}: Liveness probe failed: Get "http://10.244.0.4:8080/healthz": dial tcp 10.244.0.4:8080: connect: connection refused

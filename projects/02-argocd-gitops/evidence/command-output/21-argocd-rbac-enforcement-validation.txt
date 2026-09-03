@@ -1,0 +1,17 @@
+=== AUTHENTICATED IDENTITY ===
+Logged In: true
+Username: platform-operator
+Issuer: argocd
+Groups:
+
+=== APPLICATION STATUS ===
+NAME             SYNC STATUS   HEALTH STATUS
+rbac-demo-dev    Synced        Healthy
+rbac-demo-prod   OutOfSync     Healthy
+
+=== DEV WORKLOAD ===
+NAME               DATA   AGE
+gitops-rbac-demo   2      6m19s
+
+=== PROD WORKLOAD SHOULD NOT EXIST ===
+Error from server (NotFound): configmaps "gitops-rbac-demo" not found

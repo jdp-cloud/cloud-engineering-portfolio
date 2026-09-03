@@ -1,0 +1,13 @@
+=== CONFIGMAP ACCESS ===
+no
+
+=== SECRET ACCESS ===
+no
+
+=== NAMESPACE RBAC ===
+NAME                     AGE
+serviceaccount/default   26m
+
+=== CLUSTER RBAC ===
+
+=== ARGO CD CRDS ===

@@ -1,0 +1,11 @@
+=== CURRENT CONTEXT ===
+argocd
+
+=== NAMESPACES ===
+NAME              STATUS   AGE
+default           Active   16m
+kube-node-lease   Active   16m
+kube-public       Active   16m
+kube-system       Active   16m
+
+=== ARGO CD API RESOURCES ===

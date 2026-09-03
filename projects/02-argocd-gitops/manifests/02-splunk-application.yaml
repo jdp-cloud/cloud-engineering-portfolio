@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: splunk
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/jdp-cloud/cloud-engineering-portfolio.git
+    targetRevision: main
+    path: projects/01-kubernetes-stateful-application/manifests
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: splunk
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
