@@ -43,7 +43,9 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 8. [What I changed from the original lab](#what-i-changed-from-the-original-lab)
 9. [Known limitations](#known-limitations)
 10. [Future enhancements](#future-enhancements)
-11. [References](#references)
+11. [Lessons learned](#lessons-learned)
+12. [References](#references)
+13. [Author](#author)
 
 ## Architecture
 
@@ -236,6 +238,27 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 - TLS on the ALBs and WAF in front of them
 - A CI job (`terraform fmt`, `validate`, `tflint`, `checkov`) on every pull request
 
+## Lessons learned
+
+**What I learned technically**
+- A Transit Gateway spoke needs routes in three places: the spoke VPC route tables, the spoke TGW route table and the hub TGW route table. Missing any one of them fails silently. The original lab had this gap, and it would have stopped logs from ever arriving.
+- A security group is not the only isolation tool. Putting the SIEM and database in Availability Zones with no public subnet, and adding Terraform `precondition` checks, makes the isolation hard to undo by accident.
+- Loki serves queries on the same port that accepts logs. Network rules alone could not separate "can write" from "can read", so an application-layer gateway was needed.
+- Moving from AWS provider 5.x to 6.x needed no code changes, but the lock file matters: it pins the version and keeps `init` identical on every machine.
+
+**What was hard**
+- Refactoring six near-identical region files into one module while keeping the provider aliases straight.
+- Getting the cross-region peering order right. Associations and routes must wait until the hub has accepted each peering.
+
+**What I would do differently**
+- Design the isolation model first and add features second. I found the Loki query exposure while adding features, not while designing.
+- Move Loki storage to S3 so the log store survives instance replacement.
+
+**What matters to a customer**
+- Logs from every region land in one place, that place has no public exposure, and regulated data stays in one region with proof (`terraform output isolation_proof`).
+
+> JP: add the cost lesson here after teardown (what the run actually cost and whether anything was left behind).
+
 ## References
 
 - [Amazon VPC Transit Gateway: inter-Region peering](https://docs.aws.amazon.com/vpc/latest/tgw/tgw-peering.html)
@@ -245,6 +268,12 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 - [Terraform: module composition and provider passing](https://developer.hashicorp.com/terraform/language/modules/develop/providers)
 - [Grafana Loki documentation](https://grafana.com/docs/loki/latest/)
 - [Promtail documentation](https://grafana.com/docs/loki/latest/send-data/promtail/)
+
+## Author
+
+- **Author:** Jacques (JP) Payne — [GitHub](https://github.com/jdp-cloud) · [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43)
+- **Contributors:** _add names and what each person contributed, plus your group name and group leader_
+- **Version:** 1.0 · September 2026
 
 ## Repository layout
 
