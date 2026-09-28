@@ -3,7 +3,7 @@
 ![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A51.10-7B42BC?logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-7%20regions-FF9900?logo=amazonaws&logoColor=white)
 ![Grafana Loki](https://img.shields.io/badge/Grafana%20Loki-2.8.2-F46800?logo=grafana&logoColor=white)
-![Status](https://img.shields.io/badge/status-plan%20passes%2C%20apply%20pending-yellow)
+![Status](https://img.shields.io/badge/status-deployed%20and%20verified-brightgreen)
 
 Terraform for a seven-region AWS web application with a Transit Gateway hub-and-spoke network and a central log-collection stack (Promtail, Loki, Grafana) and a Tokyo-only Aurora database in a dedicated security zone. Rebuilt from an instructor-led lab into a modular, security-hardened design.
 
@@ -180,7 +180,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | `terraform plan` (344 resources to add, 0 to change, 0 to destroy) | Passed | [`01`](evidence/screenshots/01-plan-summary-344-to-add.png), [`02`](evidence/screenshots/02-plan-outputs-subnet-layout.png), [`03`](evidence/screenshots/03-plan-outputs-and-approval-prompt.png), [text summary](evidence/command-output/01-terraform-plan-summary.txt) |
 | `terraform apply` (344 added, 0 changed, 0 destroyed, 13m30s) | Passed | [`04`](evidence/screenshots/04-apply-complete-isolation-proof.png), [`05`](evidence/screenshots/05-apply-outputs-endpoints.png) |
 | Isolation outputs (`terraform output isolation_proof`): all five checks `false` | Passed | [`04-apply-complete-isolation-proof.png`](evidence/screenshots/04-apply-complete-isolation-proof.png) |
-| Negative test: a web instance can push to Loki but cannot query it (expect 403) | Pending apply | Screenshot to be added under `evidence/` |
+| Negative test: from a Tokyo web instance over Session Manager, Loki `/ready` returns 200 and the query API returns 403 | Passed | [`08-negative-test-web-instance.png`](evidence/screenshots/08-negative-test-web-instance.png) |
 | Deployed in AWS: each regional ALB serves a page showing its own region | Passed | [Sydney](evidence/screenshots/07-alb-sydney-region.png), [Tokyo](evidence/screenshots/07-alb-tokyo-region.png), [California](evidence/screenshots/07-alb-california-region.png), [London](evidence/screenshots/07-alb-london-region.png), [São Paulo](evidence/screenshots/07-alb-sao-paulo-region.png), [Hong Kong](evidence/screenshots/07-alb-hong-kong-region.png), [New York](evidence/screenshots/07-alb-new-york-region.png) |
 | Deployed in AWS: Grafana showing logs from all seven regions | Passed | [`06-grafana-logs-all-seven-regions.png`](evidence/screenshots/06-grafana-logs-all-seven-regions.png) |
 
