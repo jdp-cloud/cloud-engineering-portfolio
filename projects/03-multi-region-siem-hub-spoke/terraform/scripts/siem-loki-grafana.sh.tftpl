@@ -1,0 +1,110 @@
+#!/bin/bash
+# SIEM server bootstrap: Loki (log storage) + Grafana (visualisation).
+# Rendered by Terraform's templatefile(); "$${...}" is a literal shell variable.
+set -euo pipefail
+
+dnf install -y unzip
+
+# --- Loki: pinned version, checksum verified, unprivileged user --------------
+cd /tmp
+curl -fsSLO "https://github.com/grafana/loki/releases/download/v${loki_version}/loki-linux-amd64.zip"
+echo "${loki_sha256}  loki-linux-amd64.zip" | sha256sum -c -
+unzip -o loki-linux-amd64.zip
+install -m 0755 loki-linux-amd64 /usr/local/bin/loki
+
+useradd --system --no-create-home --shell /sbin/nologin loki || true
+mkdir -p /etc/loki /var/lib/loki
+chown -R loki:loki /var/lib/loki
+
+# Single-node Loki with local filesystem storage (lab configuration).
+cat > /etc/loki/config.yaml <<'CONFIG'
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /var/lib/loki
+  storage:
+    filesystem:
+      chunks_directory: /var/lib/loki/chunks
+      rules_directory: /var/lib/loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+analytics:
+  reporting_enabled: false
+CONFIG
+
+cat > /etc/systemd/system/loki.service <<'UNIT'
+[Unit]
+Description=Loki log aggregation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=loki
+Group=loki
+ExecStart=/usr/local/bin/loki -config.file=/etc/loki/config.yaml
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/loki
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+# --- Grafana from the official signed RPM repository -------------------------
+rpm --import https://rpm.grafana.com/gpg.key
+cat > /etc/yum.repos.d/grafana.repo <<'REPO'
+[grafana]
+name=grafana
+baseurl=https://rpm.grafana.com
+repo_gpgcheck=1
+enabled=1
+gpgcheck=1
+gpgkey=https://rpm.grafana.com/gpg.key
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+REPO
+dnf install -y grafana
+
+# Listen on loopback only. Operators reach the UI through an SSM port-forward,
+# so no inbound security-group rule is needed for port 3000.
+cat >> /etc/sysconfig/grafana-server <<'ENVFILE'
+GF_SERVER_HTTP_ADDR=127.0.0.1
+GF_ANALYTICS_REPORTING_ENABLED=false
+ENVFILE
+
+# Pre-provision Loki as the default data source.
+mkdir -p /etc/grafana/provisioning/datasources
+cat > /etc/grafana/provisioning/datasources/loki.yaml <<'DS'
+apiVersion: 1
+datasources:
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://127.0.0.1:3100
+    isDefault: true
+DS
+
+systemctl daemon-reload
+systemctl enable --now loki
+systemctl enable --now grafana-server

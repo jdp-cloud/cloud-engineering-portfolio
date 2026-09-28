@@ -1,0 +1,15 @@
+# Optional: remote state. Copy this file to backend.tf (which is git-ignored)
+# and replace the placeholder values with your own bucket. Backend blocks cannot
+# use variables, so the bucket name has to be written here.
+#
+# `use_lockfile` (S3-native state locking) requires Terraform >= 1.10.
+
+terraform {
+  backend "s3" {
+    bucket       = "<your-terraform-state-bucket>"
+    key          = "siem-hub-spoke/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+}

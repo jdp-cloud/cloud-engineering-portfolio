@@ -1,10 +1,48 @@
 # Argo CD GitOps and RBAC on Kubernetes
 
+![Argo CD](https://img.shields.io/badge/Argo%20CD-v2.10.7-EF7B4D?logo=argo&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.35.1-326CE5?logo=kubernetes&logoColor=white)
+![GitOps](https://img.shields.io/badge/GitOps-self--healing-2E7D32)
+![RBAC](https://img.shields.io/badge/RBAC-least%20privilege-B71C1C)
+![Status](https://img.shields.io/badge/status-validated%20locally-brightgreen)
+
 This project reproduces and extends an instructor-led Argo CD lab on a local Kubernetes cluster. The work focuses on GitOps deployment, drift reconciliation, Argo CD `AppProject` boundaries, and least-privilege RBAC.
 
 The lab was rebuilt on a clean Minikube profile and validated against my own public GitHub portfolio repository. During the rebuild, I diagnosed an incomplete training installation, replaced the partial Argo CD control-plane resources with the official pinned Argo CD v2.10.7 install manifest, and then completed the GitOps and authorization tests.
 
 > **Scope:** This is a local portfolio lab, not a production deployment. Names such as `splunk-prod` represent logical environment boundaries inside the lab.
+
+## At a glance
+
+| | |
+| --- | --- |
+| **Problem** | Deploy applications from Git and stop the wrong people, or the wrong Git paths, from changing production-designated environments. |
+| **Solution** | Argo CD with automated sync and self-healing, `AppProject` boundaries per environment, and a restricted operator role that can sync dev and test but not prod. |
+| **Environment** | Minikube on Apple Silicon, Kubernetes v1.35.1, Argo CD v2.10.7 (pinned) |
+| **Proof** | Live drift was reverted by Argo CD. A wrong-destination Application was rejected. The restricted operator's prod sync returned `PermissionDenied` while the same sync succeeded as admin. |
+| **Hardest problem** | The instructor's partial Argo CD install left the server unhealthy. I diagnosed missing RBAC and CRDs and replaced it with the official pinned release rather than granting the default service account broad permissions. |
+| **Skills shown** | GitOps, Argo CD, `AppProject` policy, Kubernetes RBAC, negative testing, incident-style diagnosis, evidence-based documentation |
+
+## Interview talk track
+
+**Recruiter or hiring manager (30 seconds)**
+"I built a GitOps setup with Argo CD and proved that it enforces boundaries, not just that it deploys. When I changed a live setting by hand, Argo CD put it back. A restricted user could deploy to dev but was denied in prod, and the admin could do the same prod deployment, which showed the denial was a real permission decision and not a broken setup."
+
+**Security engineer**
+"The training install was missing its roles and CRDs, and the tempting fix was to give the default service account broad rights. I didn't. I inspected the upstream manifest, replaced the install with the official pinned release, and moved on to least privilege: separate projects per environment, a role that denies prod sync, and a real sync test as both the restricted user and admin. I also kept secrets out of Git and deleted the test resources afterwards."
+
+## Contents
+
+1. [What this project demonstrates](#what-this-project-demonstrates)
+2. [Architecture](#architecture)
+3. [Environment](#environment)
+4. [Repository layout](#repository-layout)
+5. [Walkthrough (steps 1 to 8)](#1-clean-cluster-baseline)
+6. [Validation summary](#validation-summary)
+7. [Security decisions](#security-decisions)
+8. [Troubleshooting highlight](#troubleshooting-highlight-cliserver-version-mismatch)
+9. [Project context and attribution](#project-context-and-attribution)
+10. [Scope and limitations](#scope-and-limitations)
 
 ## What this project demonstrates
 

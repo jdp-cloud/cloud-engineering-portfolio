@@ -1,45 +1,56 @@
 # Jacques Payne | Cloud Engineering Portfolio
 
-Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering.
+![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?logo=amazonaws&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-GitOps-326CE5?logo=kubernetes&logoColor=white)
+![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?logo=jenkins&logoColor=white)
+![Focus](https://img.shields.io/badge/focus-cloud%20security-B71C1C)
 
-## Technical Focus
+Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting **Senior Cloud Security Engineer** roles.
 
-- AWS
-- Terraform
-- Kubernetes
-- Docker
-- CI/CD
-- Jenkins
-- GitOps
-- Cloud Security
-- Infrastructure Automation
+[LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43) | [GitHub](https://github.com/jdp-cloud)
 
-## Featured Projects
+## Start here
 
-### 1. AWS Infrastructure CI/CD
-**Technologies:** AWS, Terraform, Jenkins, Docker, PortSwigger Dastardly
+Each project has its own README with an at-a-glance summary, architecture, validation steps and evidence. If you have two minutes, read the summary table at the top of one.
 
-Terraform-based AWS infrastructure deployment through a Jenkins CI/CD pipeline, including infrastructure validation, deployment approval, automated security testing, and infrastructure teardown.
+| # | Project | What it shows | Technologies | Status |
+| --- | --- | --- | --- | --- |
+| 01 | [Kubernetes Stateful Application](projects/01-kubernetes-stateful-application/) | A stateful workload with persistent storage, runtime secrets and a non-root security context, with data proven to survive pod replacement | Kubernetes, Minikube, StatefulSet, Splunk | Complete (validated locally) |
+| 02 | [Argo CD GitOps and RBAC](projects/02-argocd-gitops/) | Git-driven deployment, drift self-healing, environment boundaries and least-privilege access, with real allow and deny tests | Argo CD, AppProject, Kubernetes RBAC | Complete (validated locally) |
+| 03 | [Multi-Region Hub-and-Spoke SIEM](projects/03-multi-region-siem-hub-spoke/) | A seven-region AWS network with centralized log collection, no SSH access and least-privilege security groups | Terraform, AWS Transit Gateway, ALB, Loki, Grafana | Code complete. AWS deployment evidence pending. |
 
-**Status:** Portfolio documentation in progress.
+### In progress
 
----
+- **AWS infrastructure CI/CD:** Terraform deployment through a Jenkins pipeline with infrastructure validation, an approval gate, automated security testing (PortSwigger Dastardly) and teardown
+- **Kubernetes platform work:** ingress, TLS with cert-manager, and Splunk on Kubernetes
+- **Kubernetes policy and gateways:** OPA, Flux and Kong labs
 
-### 2. Kubernetes Platform Engineering
-**Technologies:** Kubernetes, Ingress, TLS, persistent storage, cert-manager
+## Skills demonstrated
 
-Hands-on Kubernetes labs covering application deployment, networking, persistent storage, TLS certificate management, and platform configuration.
+| Area | Where to see it |
+| --- | --- |
+| Infrastructure as Code (modules, provider aliases, remote state) | Project 03 |
+| Network security (Transit Gateway routing, security groups, no SSH) | Project 03 |
+| Kubernetes workloads and storage | Project 01 |
+| GitOps and policy boundaries | Project 02 |
+| Access control and least privilege | Projects 02 and 03 |
+| Secrets handling (kept out of Git) | Projects 01 and 02 |
+| Troubleshooting and evidence-based documentation | All projects |
 
-**Status:** Portfolio documentation in progress.
+## How the projects are documented
 
----
+Every project follows the same pattern, so you can find things quickly:
 
-### 3. Kubernetes GitOps and Policy
-**Technologies:** Argo CD, Flux, OPA, Kong, Kustomize
+```text
+projects/NN-project-name/
+├── README.md      # At a glance, talk track, architecture, validation, scope
+├── manifests/     # or terraform/ for infrastructure code
+├── notes/         # Troubleshooting write-ups
+└── evidence/      # Command output and screenshots
+```
 
-Hands-on work with GitOps deployment patterns, Kubernetes policy enforcement, API gateway concepts, and declarative configuration management.
-
-**Status:** Portfolio documentation in progress.
+Each README states its scope and limitations plainly. These are learning and portfolio projects, and I describe what was actually validated.
 
 ## Certifications
 

@@ -1,0 +1,98 @@
+#!/bin/bash
+# Web tier bootstrap: Apache + Promtail (ships logs to the central Loki server).
+# Rendered by Terraform's templatefile(); "$${...}" is a literal shell variable.
+set -euo pipefail
+
+dnf install -y httpd unzip
+systemctl enable --now httpd
+
+# --- IMDSv2 metadata (the launch template enforces IMDSv2) -------------------
+TOKEN=$(curl -fsS -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 300")
+imds() { curl -fsS -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/$1"; }
+LOCAL_IP=$(imds local-ipv4)
+AZ=$(imds placement/availability-zone)
+REGION=$(imds placement/region)
+
+# --- Promtail: pinned version, checksum verified, runs as an unprivileged user
+cd /tmp
+curl -fsSLO "https://github.com/grafana/loki/releases/download/v${loki_version}/promtail-linux-amd64.zip"
+echo "${promtail_sha256}  promtail-linux-amd64.zip" | sha256sum -c -
+unzip -o promtail-linux-amd64.zip
+install -m 0755 promtail-linux-amd64 /usr/local/bin/promtail
+
+useradd --system --no-create-home --shell /sbin/nologin promtail || true
+mkdir -p /etc/promtail /var/lib/promtail
+chown promtail:promtail /var/lib/promtail
+
+cat > /etc/promtail/config.yaml <<CONFIG
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
+clients:
+  - url: ${loki_push_url}
+
+scrape_configs:
+  - job_name: httpd
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: httpd
+          region: $${REGION}
+          instance: $(hostname -f)
+          __path__: /var/log/httpd/*log
+  - job_name: system
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: system
+          region: $${REGION}
+          instance: $(hostname -f)
+          __path__: /var/log/*.log
+CONFIG
+
+# /var/log/httpd is root-only. Rather than run Promtail as root, grant just the
+# capability to read files and drop everything else.
+cat > /etc/systemd/system/promtail.service <<'UNIT'
+[Unit]
+Description=Promtail log shipper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=promtail
+Group=promtail
+ExecStart=/usr/local/bin/promtail -config.file=/etc/promtail/config.yaml
+Restart=on-failure
+AmbientCapabilities=CAP_DAC_READ_SEARCH
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/promtail
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable --now promtail
+
+# --- Simple page that proves which region/AZ served the request -------------
+cat > /var/www/html/index.html <<HTML
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Web tier</title></head>
+<body>
+  <h1>Multi-Region Web Tier</h1>
+  <p><b>Region:</b> $${REGION}</p>
+  <p><b>Availability Zone:</b> $${AZ}</p>
+  <p><b>Instance:</b> $(hostname -f) ($${LOCAL_IP})</p>
+</body>
+</html>
+HTML
