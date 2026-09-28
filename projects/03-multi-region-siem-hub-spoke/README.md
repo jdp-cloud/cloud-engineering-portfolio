@@ -196,7 +196,13 @@ cd terraform
 terraform destroy
 ```
 
-Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balancers or Transit Gateway attachments remain in any of the seven regions.
+Afterwards, confirm that nothing billable is left behind. The helper script checks all seven regions for NAT gateways, Elastic IPs, load balancers, Transit Gateways, EC2 instances and Aurora clusters:
+
+```bash
+./scripts/verify-teardown.sh
+```
+
+Every count should be `0`, and the script ends with `CLEAN: no billable resources found in any of the 7 regions.` If anything remains, it prints `NOT CLEAN`, lists the resource and exits with code 1. Hong Kong (`ap-east-1`) is an opt-in region, so the script reports an error there if the account has not enabled it.
 
 ## Troubleshooting
 
@@ -292,6 +298,8 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 ├── README.md
 ├── .gitignore
 ├── diagrams/                  # draw.io architecture diagram; Excalidraw log-flow diagram (PNG/SVG exports)
+├── scripts/
+│   └── verify-teardown.sh     # Checks all seven regions for leftover billable resources
 └── terraform/
     ├── versions.tf            # Terraform and provider constraints
     ├── providers.tf           # One aliased provider per region + default tags
