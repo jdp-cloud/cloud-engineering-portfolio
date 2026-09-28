@@ -22,6 +22,17 @@ locals {
   hub_region = "ap-northeast-1"
   hub_cidrs  = [local.hub_web_cidr, local.security_cidr]
 
+  # Loki listens on localhost only; an nginx gateway on :3100 exposes the push path.
+  loki_internal_port = 3101
+
+  # Only the Tokyo web VPC may reach the database. No spoke CIDR is listed here.
+  db_allowed_cidrs = [local.hub_web_cidr]
+
+  # Availability Zones that contain a public subnet / database subnets, used by the
+  # guard-rail preconditions in hub.tf.
+  public_subnet_azs = [aws_subnet.security_public.availability_zone]
+  db_az_names       = [aws_subnet.security_db_a.availability_zone, aws_subnet.security_db_b.availability_zone]
+
   # Loki / Promtail release, with SHA-256 checksums pinned from the upstream
   # release's SHA256SUMS file. Bump the version and the hashes together.
   loki_version    = "2.8.2"

@@ -105,7 +105,7 @@
           "type": "text"
         },
         {
-          "id": "arr20",
+          "id": "arr22",
           "type": "arrow"
         }
       ],
@@ -179,7 +179,7 @@
           "type": "text"
         },
         {
-          "id": "arr21",
+          "id": "arr23",
           "type": "arrow"
         }
       ],
@@ -249,11 +249,11 @@
       "isDeleted": false,
       "boundElements": [
         {
-          "id": "arr20",
+          "id": "arr22",
           "type": "arrow"
         },
         {
-          "id": "arr22",
+          "id": "arr24",
           "type": "arrow"
         }
       ],
@@ -812,15 +812,15 @@
           "type": "text"
         },
         {
-          "id": "arr22",
-          "type": "arrow"
-        },
-        {
           "id": "arr24",
           "type": "arrow"
         },
         {
-          "id": "arr25",
+          "id": "arr26",
+          "type": "arrow"
+        },
+        {
+          "id": "arr27",
           "type": "arrow"
         }
       ],
@@ -894,11 +894,11 @@
           "type": "text"
         },
         {
-          "id": "arr21",
+          "id": "arr23",
           "type": "arrow"
         },
         {
-          "id": "arr24",
+          "id": "arr26",
           "type": "arrow"
         }
       ],
@@ -1010,10 +1010,10 @@
     {
       "id": "siem",
       "type": "rectangle",
-      "x": 780,
-      "y": 540,
-      "width": 420,
-      "height": 190,
+      "x": 770,
+      "y": 530,
+      "width": 340,
+      "height": 200,
       "angle": 0,
       "strokeColor": "#e03131",
       "backgroundColor": "#ffffff",
@@ -1037,11 +1037,11 @@
           "type": "text"
         },
         {
-          "id": "arr25",
+          "id": "arr27",
           "type": "arrow"
         },
         {
-          "id": "arr26",
+          "id": "arr28",
           "type": "arrow"
         }
       ],
@@ -1052,10 +1052,10 @@
     {
       "id": "tex16",
       "type": "text",
-      "x": 796.8,
-      "y": 597.5,
-      "width": 386.40000000000003,
-      "height": 75.0,
+      "x": 783.2,
+      "y": 586.25,
+      "width": 313.6,
+      "height": 87.5,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1075,25 +1075,25 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "SIEM server 10.77.0.10\nLoki :3100  (ingest from the 7 web CIDRs only)\nGrafana 127.0.0.1:3000  (localhost only)\nIMDSv2 required \u00b7 encrypted volume",
-      "fontSize": 15,
+      "text": "SIEM server 10.77.0.10\nnginx :3100 = push-only gateway\nLoki on 127.0.0.1 \u00b7 Grafana on 127.0.0.1\nIMDSv2 \u00b7 encrypted \u00b7 auto-recovery alarm\nprivate AZ-a, no public subnet",
+      "fontSize": 14,
       "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "siem",
-      "originalText": "SIEM server 10.77.0.10\nLoki :3100  (ingest from the 7 web CIDRs only)\nGrafana 127.0.0.1:3000  (localhost only)\nIMDSv2 required \u00b7 encrypted volume",
+      "originalText": "SIEM server 10.77.0.10\nnginx :3100 = push-only gateway\nLoki on 127.0.0.1 \u00b7 Grafana on 127.0.0.1\nIMDSv2 \u00b7 encrypted \u00b7 auto-recovery alarm\nprivate AZ-a, no public subnet",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "nat",
+      "id": "db",
       "type": "rectangle",
-      "x": 1260,
-      "y": 560,
-      "width": 270,
-      "height": 80,
+      "x": 1130,
+      "y": 530,
+      "width": 210,
+      "height": 200,
       "angle": 0,
-      "strokeColor": "#868e96",
+      "strokeColor": "#e03131",
       "backgroundColor": "#ffffff",
       "fillStyle": "solid",
       "strokeWidth": 2,
@@ -1122,10 +1122,10 @@
     {
       "id": "tex17",
       "type": "text",
-      "x": 1277.4,
-      "y": 582.5,
-      "width": 235.20000000000002,
-      "height": 35.0,
+      "x": 1133.08,
+      "y": 589.375,
+      "width": 203.84000000000003,
+      "height": 81.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1145,25 +1145,25 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "NAT gateway\n(package installs, HTTPS only)",
-      "fontSize": 14,
+      "text": "Aurora MySQL (Tokyo only)\nprivate AZ-a + AZ-b\nencrypted \u00b7 Secrets Manager\npassword \u00b7 no internet route\n3306 from Tokyo web only",
+      "fontSize": 13,
       "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "nat",
-      "originalText": "NAT gateway\n(package installs, HTTPS only)",
+      "containerId": "db",
+      "originalText": "Aurora MySQL (Tokyo only)\nprivate AZ-a + AZ-b\nencrypted \u00b7 Secrets Manager\npassword \u00b7 no internet route\n3306 from Tokyo web only",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "sg",
+      "id": "nat",
       "type": "rectangle",
-      "x": 1260,
-      "y": 670,
-      "width": 270,
-      "height": 70,
+      "x": 1360,
+      "y": 530,
+      "width": 180,
+      "height": 110,
       "angle": 0,
-      "strokeColor": "#e03131",
+      "strokeColor": "#868e96",
       "backgroundColor": "#ffffff",
       "fillStyle": "solid",
       "strokeWidth": 2,
@@ -1192,10 +1192,10 @@
     {
       "id": "tex18",
       "type": "text",
-      "x": 1300.92,
-      "y": 687.5,
-      "width": 188.16000000000003,
-      "height": 35.0,
+      "x": 1377.2,
+      "y": 560.625,
+      "width": 145.60000000000002,
+      "height": 48.75,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1215,13 +1215,119 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Security group\nno SSH \u00b7 no inbound 3000",
-      "fontSize": 14,
+      "text": "NAT gateway\nAZ-c public subnet\n(only public subnet)",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "nat",
+      "originalText": "NAT gateway\nAZ-c public subnet\n(only public subnet)",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "sg",
+      "type": "rectangle",
+      "x": 1360,
+      "y": 660,
+      "width": 180,
+      "height": 70,
+      "angle": 0,
+      "strokeColor": "#e03131",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 127992539,
+      "version": 1,
+      "versionNonce": 1329312985,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "tex19",
+          "type": "text"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
+      "id": "tex19",
+      "type": "text",
+      "x": 1395.4,
+      "y": 678.75,
+      "width": 109.20000000000002,
+      "height": 32.5,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 442292976,
+      "version": 1,
+      "versionNonce": 1066042003,
+      "isDeleted": false,
+      "boundElements": [],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "SG: no SSH\nno inbound 3000",
+      "fontSize": 13,
       "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "sg",
-      "originalText": "Security group\nno SSH \u00b7 no inbound 3000",
+      "originalText": "SG: no SSH\nno inbound 3000",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "tex20",
+      "type": "text",
+      "x": 1150,
+      "y": 745,
+      "width": 276.64000000000004,
+      "height": 48.75,
+      "angle": 0,
+      "strokeColor": "#e03131",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1461147819,
+      "version": 1,
+      "versionNonce": 1141860530,
+      "isDeleted": false,
+      "boundElements": [],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "Log store and database stay in Tokyo\n(data residency). Spokes can push logs\nbut cannot query them or reach the DB.",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "Log store and database stay in Tokyo\n(data residency). Spokes can push logs\nbut cannot query them or reach the DB.",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -1245,17 +1351,17 @@
       "roundness": {
         "type": 3
       },
-      "seed": 127992539,
+      "seed": 918247488,
       "version": 1,
-      "versionNonce": 1329312985,
+      "versionNonce": 1669086093,
       "isDeleted": false,
       "boundElements": [
         {
-          "id": "tex19",
+          "id": "tex21",
           "type": "text"
         },
         {
-          "id": "arr26",
+          "id": "arr28",
           "type": "arrow"
         }
       ],
@@ -1264,7 +1370,7 @@
       "locked": false
     },
     {
-      "id": "tex19",
+      "id": "tex21",
       "type": "text",
       "x": 1242.8,
       "y": 928.0,
@@ -1281,9 +1387,9 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 442292976,
+      "seed": 674625912,
       "version": 1,
-      "versionNonce": 1066042003,
+      "versionNonce": 999872393,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1300,7 +1406,7 @@
       "lineHeight": 1.25
     },
     {
-      "id": "arr20",
+      "id": "arr22",
       "type": "arrow",
       "x": 250,
       "y": 166,
@@ -1319,9 +1425,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1461147819,
+      "seed": 1257484521,
       "version": 1,
-      "versionNonce": 1141860530,
+      "versionNonce": 1983075268,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1353,7 +1459,7 @@
       "elbowed": false
     },
     {
-      "id": "arr21",
+      "id": "arr23",
       "type": "arrow",
       "x": 1380,
       "y": 166,
@@ -1372,9 +1478,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 918247488,
+      "seed": 973206041,
       "version": 1,
-      "versionNonce": 1669086093,
+      "versionNonce": 776492205,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1406,7 +1512,7 @@
       "elbowed": false
     },
     {
-      "id": "arr22",
+      "id": "arr24",
       "type": "arrow",
       "x": 460,
       "y": 335,
@@ -1425,9 +1531,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 674625912,
+      "seed": 643744727,
       "version": 1,
-      "versionNonce": 999872393,
+      "versionNonce": 533492028,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1459,11 +1565,11 @@
       "elbowed": false
     },
     {
-      "id": "tex23",
+      "id": "tex25",
       "type": "text",
       "x": 500,
       "y": 285,
-      "width": 196.00000000000003,
+      "width": 219.52,
       "height": 35.0,
       "angle": 0,
       "strokeColor": "#6741d9",
@@ -1476,26 +1582,26 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 1257484521,
+      "seed": 1705916948,
       "version": 1,
-      "versionNonce": 1983075268,
+      "versionNonce": 386046158,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Transit Gateway peering\nPromtail \u2192 Loki, TCP 3100",
+      "text": "Transit Gateway peering\nPromtail push only, TCP 3100",
       "fontSize": 14,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Transit Gateway peering\nPromtail \u2192 Loki, TCP 3100",
+      "originalText": "Transit Gateway peering\nPromtail push only, TCP 3100",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "arr24",
+      "id": "arr26",
       "type": "arrow",
       "x": 1040,
       "y": 335.0,
@@ -1514,9 +1620,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 973206041,
+      "seed": 1501079115,
       "version": 1,
-      "versionNonce": 776492205,
+      "versionNonce": 1674671377,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1548,7 +1654,7 @@
       "elbowed": false
     },
     {
-      "id": "arr25",
+      "id": "arr27",
       "type": "arrow",
       "x": 890,
       "y": 390,
@@ -1567,9 +1673,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 643744727,
+      "seed": 524193278,
       "version": 1,
-      "versionNonce": 533492028,
+      "versionNonce": 175782304,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1601,11 +1707,11 @@
       "elbowed": false
     },
     {
-      "id": "arr26",
+      "id": "arr28",
       "type": "arrow",
       "x": 1310,
       "y": 910,
-      "width": 260,
+      "width": 310,
       "height": 180,
       "angle": 0,
       "strokeColor": "#495057",
@@ -1620,9 +1726,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1705916948,
+      "seed": 1233565528,
       "version": 1,
-      "versionNonce": 386046158,
+      "versionNonce": 644780075,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1634,7 +1740,7 @@
           0
         ],
         [
-          -260,
+          -310,
           -180
         ]
       ],
@@ -1654,10 +1760,10 @@
       "elbowed": false
     },
     {
-      "id": "tex27",
+      "id": "tex29",
       "type": "text",
-      "x": 1205,
-      "y": 775,
+      "x": 1290,
+      "y": 800,
       "width": 196.00000000000003,
       "height": 35.0,
       "angle": 0,
@@ -1671,9 +1777,9 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 1501079115,
+      "seed": 1127850897,
       "version": 1,
-      "versionNonce": 1674671377,
+      "versionNonce": 1063254276,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1690,7 +1796,7 @@
       "lineHeight": 1.25
     },
     {
-      "id": "tex28",
+      "id": "tex30",
       "type": "text",
       "x": 270,
       "y": 172,
@@ -1707,9 +1813,9 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 524193278,
+      "seed": 1879343460,
       "version": 1,
-      "versionNonce": 175782304,
+      "versionNonce": 737608423,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1726,7 +1832,7 @@
       "lineHeight": 1.25
     },
     {
-      "id": "tex29",
+      "id": "tex31",
       "type": "text",
       "x": 1400,
       "y": 200,
@@ -1743,9 +1849,9 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 1233565528,
+      "seed": 1566471825,
       "version": 1,
-      "versionNonce": 644780075,
+      "versionNonce": 963864094,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,
@@ -1762,7 +1868,7 @@
       "lineHeight": 1.25
     },
     {
-      "id": "tex30",
+      "id": "tex32",
       "type": "text",
       "x": 60,
       "y": 905,
@@ -1779,9 +1885,9 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 1127850897,
+      "seed": 618341637,
       "version": 1,
-      "versionNonce": 1063254276,
+      "versionNonce": 1307729535,
       "isDeleted": false,
       "boundElements": [],
       "updated": 1,

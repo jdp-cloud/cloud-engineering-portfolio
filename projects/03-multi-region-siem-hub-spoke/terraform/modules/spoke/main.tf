@@ -23,6 +23,8 @@ module "web" {
   vpc_cidr      = var.vpc_cidr
   instance_type = var.web_instance_type
   user_data     = var.user_data
+
+  instance_profile_name = var.instance_profile_name
 }
 
 # --- Local Transit Gateway ----------------------------------------------------

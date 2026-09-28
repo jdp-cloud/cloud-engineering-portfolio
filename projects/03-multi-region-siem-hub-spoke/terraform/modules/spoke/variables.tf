@@ -37,3 +37,8 @@ variable "hub_cidrs" {
   description = "Hub-side CIDRs this spoke must be able to reach (Tokyo web VPC and the security zone)."
   type        = list(string)
 }
+
+variable "instance_profile_name" {
+  description = "IAM instance profile for the web instances (Session Manager access)."
+  type        = string
+}

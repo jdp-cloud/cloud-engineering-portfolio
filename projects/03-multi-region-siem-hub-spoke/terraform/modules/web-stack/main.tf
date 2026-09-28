@@ -232,6 +232,10 @@ resource "aws_launch_template" "web" {
   instance_type = var.instance_type
   user_data     = base64encode(var.user_data)
 
+  iam_instance_profile {
+    name = var.instance_profile_name
+  }
+
   # IMDSv2 only: blocks SSRF-style credential theft through the metadata service.
   metadata_options {
     http_endpoint               = "enabled"

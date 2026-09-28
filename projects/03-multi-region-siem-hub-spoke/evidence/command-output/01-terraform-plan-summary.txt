@@ -1,3 +1,4 @@
+# NOTE: captured BEFORE the isolation upgrades (Aurora, AZ redesign, push-only gateway). Re-run terraform plan and replace this file.
 # terraform plan (run from projects/03-multi-region-siem-hub-spoke/terraform)
 # Date: 2026-09-28. Output trimmed to the summary lines.
 

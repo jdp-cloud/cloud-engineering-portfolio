@@ -44,3 +44,8 @@ variable "asg_desired_capacity" {
   type    = number
   default = 2
 }
+
+variable "instance_profile_name" {
+  description = "IAM instance profile for the web instances (Session Manager access; there is no SSH)."
+  type        = string
+}

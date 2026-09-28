@@ -9,6 +9,7 @@ module "spoke_london" {
   vpc_cidr               = local.spoke_cidrs.london
   user_data              = local.web_user_data
   web_instance_type      = var.web_instance_type
+  instance_profile_name  = aws_iam_instance_profile.web.name
   hub_region             = local.hub_region
   hub_tgw_id             = aws_ec2_transit_gateway.hub.id
   hub_tgw_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
@@ -23,6 +24,7 @@ module "spoke_new_york" {
   vpc_cidr               = local.spoke_cidrs.new_york
   user_data              = local.web_user_data
   web_instance_type      = var.web_instance_type
+  instance_profile_name  = aws_iam_instance_profile.web.name
   hub_region             = local.hub_region
   hub_tgw_id             = aws_ec2_transit_gateway.hub.id
   hub_tgw_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
@@ -37,6 +39,7 @@ module "spoke_sao_paulo" {
   vpc_cidr               = local.spoke_cidrs.sao_paulo
   user_data              = local.web_user_data
   web_instance_type      = var.web_instance_type
+  instance_profile_name  = aws_iam_instance_profile.web.name
   hub_region             = local.hub_region
   hub_tgw_id             = aws_ec2_transit_gateway.hub.id
   hub_tgw_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
@@ -51,6 +54,7 @@ module "spoke_sydney" {
   vpc_cidr               = local.spoke_cidrs.sydney
   user_data              = local.web_user_data
   web_instance_type      = var.web_instance_type
+  instance_profile_name  = aws_iam_instance_profile.web.name
   hub_region             = local.hub_region
   hub_tgw_id             = aws_ec2_transit_gateway.hub.id
   hub_tgw_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
@@ -65,6 +69,7 @@ module "spoke_california" {
   vpc_cidr               = local.spoke_cidrs.california
   user_data              = local.web_user_data
   web_instance_type      = var.web_instance_type
+  instance_profile_name  = aws_iam_instance_profile.web.name
   hub_region             = local.hub_region
   hub_tgw_id             = aws_ec2_transit_gateway.hub.id
   hub_tgw_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
@@ -79,6 +84,7 @@ module "spoke_hong_kong" {
   vpc_cidr               = local.spoke_cidrs.hong_kong
   user_data              = local.web_user_data
   web_instance_type      = var.web_instance_type
+  instance_profile_name  = aws_iam_instance_profile.web.name
   hub_region             = local.hub_region
   hub_tgw_id             = aws_ec2_transit_gateway.hub.id
   hub_tgw_route_table_id = aws_ec2_transit_gateway_route_table.hub.id

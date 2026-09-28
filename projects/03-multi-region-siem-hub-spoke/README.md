@@ -5,7 +5,7 @@
 ![Grafana Loki](https://img.shields.io/badge/Grafana%20Loki-2.8.2-F46800?logo=grafana&logoColor=white)
 ![Status](https://img.shields.io/badge/status-plan%20passes%2C%20apply%20pending-yellow)
 
-Terraform for a seven-region AWS web application with a Transit Gateway hub-and-spoke network and a central log-collection stack (Promtail, Loki, Grafana) in a dedicated security zone. Rebuilt from an instructor-led lab into a modular, security-hardened design.
+Terraform for a seven-region AWS web application with a Transit Gateway hub-and-spoke network and a central log-collection stack (Promtail, Loki, Grafana) and a Tokyo-only Aurora database in a dedicated security zone. Rebuilt from an instructor-led lab into a modular, security-hardened design.
 
 > **Scope:** This is a portfolio lab, not a production deployment. It uses plain HTTP on the load balancers, one NAT gateway per VPC and local-disk Loki storage. See [Known limitations](#known-limitations).
 
@@ -15,11 +15,12 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 | --- | --- |
 | **Problem** | Web workloads in seven regions need their logs collected in one place, without exposing the log server to the internet. |
 | **Solution** | Every region runs the same web stack. Transit Gateways carry Promtail log traffic privately to a Loki/Grafana server in a Tokyo security zone. |
-| **Infrastructure** | 7 web VPCs, 1 security VPC, 7 Transit Gateways, 7 load balancers, 14 web instances, 1 SIEM server |
+| **Infrastructure** | 7 web VPCs, 1 security VPC, 7 Transit Gateways, 7 load balancers, 14 web instances, 1 SIEM server, 1 Aurora MySQL cluster (Tokyo only) |
 | **Code** | About 1,100 lines of Terraform. The six spoke regions share one module and are each created by a short module call. |
 | **Access model** | AWS Systems Manager Session Manager only: no SSH, no bastion, no key pairs |
 | **Deploy time** | About 15 to 25 minutes (peering attachments are the slow part) |
-| **Cost while running** | Roughly $1.50 to $2.50 per hour. Destroy when done. |
+| **Data residency** | The log store and the database exist only in Tokyo. Spokes can push logs but cannot query them or reach the database. |
+| **Cost while running** | Roughly $1.60 to $2.60 per hour. Destroy when done. |
 | **Skills shown** | Terraform modules and provider aliases, Transit Gateway routing, least-privilege network design, IMDSv2, centralized logging, supply-chain checks |
 
 ## Interview talk track
@@ -28,7 +29,7 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 "I took an instructor-led multi-region lab and rebuilt it as a modular Terraform project. Six copy-pasted region files became one module, and I found and fixed several problems, including a routing gap that would have stopped logs from ever reaching the SIEM. It collects web logs from seven regions into one Grafana instance, and the log server has no public exposure."
 
 **Security engineer or CISO**
-"The design assumes nothing should be reachable that doesn't need to be. There's no SSH: operators use Session Manager, and Grafana listens on localhost only. Loki accepts traffic only from the seven web VPC CIDRs. Instances require IMDSv2 and encrypted volumes, log agents run as unprivileged users, and the software downloads are checksum-verified. Spokes can reach the hub but not each other, and every Transit Gateway route is explicit."
+"The design assumes nothing should be reachable that doesn't need to be. There's no SSH: operators use Session Manager, and Grafana listens on localhost only. Loki sits behind a push-only gateway, so a compromised web server can write logs but never read them, and only the seven web VPC CIDRs can reach it. The SIEM and the database live in Availability Zones with no public subnet, and the database is Tokyo-only, so the data never leaves its region. Instances require IMDSv2 and encrypted volumes, log agents run as unprivileged users, and the software downloads are checksum-verified. Spokes can reach the hub but not each other, and every Transit Gateway route is explicit."
 
 ## Contents
 
@@ -90,6 +91,12 @@ Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets
 | Operator access | AWS Systems Manager Session Manager. There is no bastion, no SSH rule and no key pair. | Removes an internet-facing SSH surface. Access is authenticated by IAM and logged by AWS. |
 | Grafana | Bound to `127.0.0.1` and reached through an SSM port-forward | No inbound rule for port 3000 is needed. |
 | Loki ingest | Security group allows TCP 3100 only from the seven web VPC CIDRs | The original lab allowed `0.0.0.0/0`. |
+| Push-only gateway | nginx on :3100 allows only `POST /loki/api/v1/push` and `GET /ready`. Loki itself listens on `127.0.0.1:3101`. | Loki serves queries on the same port as ingestion, so without this any web server could read every region's logs. |
+| No public subnet near data | The SIEM and Aurora are in AZs that have no public subnet. The only public subnet (NAT gateway) is in a third AZ. Terraform `precondition` checks fail the plan if this changes. | Isolation is enforced by the network layout and by a guard rail, not just by a security group. |
+| Data residency | Aurora MySQL exists only in Tokyo. Its security group allows 3306 only from the Tokyo web VPC, and its route table has no internet route. Spokes have no route to it. | Shows how regional data-residency rules are met in a multi-region design. |
+| Database credentials | Aurora manages the master password in Secrets Manager; storage is encrypted | No password in code or state output. |
+| Self-recovery | A CloudWatch alarm on `StatusCheckFailed_System` triggers EC2 auto-recovery of the SIEM server | A hardware failure moves the instance to new hardware, keeping its ID and IP. |
+| Web tier access | Web instances get the SSM managed policy through one shared instance profile | Operators can inspect any web instance without SSH. |
 | SIEM egress | HTTPS (443) only | Limits what the instance can reach. |
 | Instance metadata | IMDSv2 required, hop limit 1 | Reduces the impact of SSRF against the metadata service. |
 | Storage | Encrypted gp3 root volumes | Encryption at rest. |
@@ -143,6 +150,21 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 
    ALB health-check requests should appear from all seven regions, each with a `region` label.
 
+4. **Isolation proof:** these outputs are computed from the deployed resources.
+
+   ```bash
+   terraform output isolation_proof      # subnet/AZ layout and boolean checks (all should be false)
+   terraform output siem_inbound_rules   # only tcp/3100 from the seven web CIDRs
+   terraform output database_inbound_rules
+   ```
+
+5. **Negative test:** start a Session Manager session on any web instance, then confirm it can write logs but cannot read them.
+
+   ```bash
+   curl -s -o /dev/null -w "%{http_code}\n" http://10.77.0.10:3100/ready                       # 200
+   curl -s -o /dev/null -w "%{http_code}\n" "http://10.77.0.10:3100/loki/api/v1/labels"        # 403 (queries blocked)
+   ```
+
 ## Evidence
 
 | Check | Status | Where |
@@ -150,13 +172,15 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | `terraform fmt` | Passed | Verified during development |
 | HCL syntax and internal references | Passed | Script-based check |
 | Bootstrap scripts (`bash -n`) | Passed | Verified during development |
-| `terraform plan` (329 resources to add, 0 to change, 0 to destroy) | Passed | [`evidence/command-output/01-terraform-plan-summary.txt`](evidence/command-output/01-terraform-plan-summary.txt) |
+| `terraform plan` | Passed before the isolation upgrades (329 resources). **Re-run pending** for the current code. | [`evidence/command-output/01-terraform-plan-summary.txt`](evidence/command-output/01-terraform-plan-summary.txt) |
+| Isolation outputs (`terraform output isolation_proof`) | Pending apply | Screenshot to be added under `evidence/` |
+| Negative test: a web instance can push to Loki but cannot query it (expect 403) | Pending apply | Screenshot to be added under `evidence/` |
 | Deployed in AWS: ALB pages from each region | Pending | Screenshots to be added under `evidence/` |
 | Deployed in AWS: Grafana showing logs from all regions | Pending | Screenshots to be added under `evidence/` |
 
 ## Cost and teardown
 
-This stack creates 8 NAT gateways, 7 Application Load Balancers, 14 web instances, a SIEM instance and 14 Transit Gateway attachments (8 VPC attachments and 6 cross-region peerings). As a rough estimate, expect **$1.50 to $2.50 per hour** (about $40 to $60 per day) plus data transfer. Check current prices with the AWS Pricing Calculator. **Deploy for a short test, capture your evidence, then destroy.**
+This stack creates 8 NAT gateways, 7 Application Load Balancers, 14 web instances, a SIEM instance, one Aurora instance and 14 Transit Gateway attachments (8 VPC attachments and 6 cross-region peerings). As a rough estimate, expect **$1.60 to $2.60 per hour** (about $40 to $65 per day) plus data transfer. Check current prices with the AWS Pricing Calculator. **Deploy for a short test, capture your evidence, then destroy.**
 
 ```bash
 cd terraform
@@ -175,6 +199,9 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 | ALB returns 502 or 503 | Instances still booting, or bootstrap failed | Wait 5 minutes. Then check `/var/log/cloud-init-output.log` on an instance through SSM. |
 | Bootstrap stops at `sha256sum` | The pinned checksum does not match the downloaded version | Update the version and both checksums in `locals.tf` together |
 | Grafana shows no logs | Promtail cannot reach Loki | On a web instance, run `systemctl status promtail` and `curl http://10.77.0.10:3100/ready` |
+| `/ready` returns 502 | nginx is up but Loki is not | On the SIEM server, run `systemctl status loki` and `curl http://127.0.0.1:3101/ready` |
+| Plan fails with a precondition message | The SIEM or database landed in an AZ that has a public subnet | Check the AZ list for the Tokyo region; the design needs at least three AZs |
+| Aurora creation is slow or fails | Cluster creation takes 10+ minutes; instance class or version may not be offered | Wait, then check the RDS events in the Tokyo console |
 | Promtail cannot read Apache logs | Capability missing from the service unit | Check `AmbientCapabilities=CAP_DAC_READ_SEARCH` in `/etc/systemd/system/promtail.service` |
 | `terraform destroy` leaves resources | A dependency was still deleting | Re-run `terraform destroy`, then check each region for leftover NAT gateways and ENIs |
 
@@ -185,6 +212,8 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 - **Fixed a São Paulo bug:** its internet-facing ALB had been placed in private subnets. The shared module puts every ALB in public subnets.
 - **Fixed the Promtail placeholder.** The web-tier script contained a literal `<LOKI_SERVER_IP>`. The SIEM now has a fixed private IP that Terraform passes to every web instance.
 - **Replaced the SSH bastion with SSM**, removed the world-open Loki rule and the broad IAM policy, and moved both agents off root (see the table above).
+- **Closed a hole in my own first design:** Loki serves queries on the port that accepts logs, so any spoke could read every log. It now sits behind a push-only nginx gateway.
+- **Moved the SIEM into a private-only AZ, added a Tokyo-only Aurora database, added computed isolation outputs and SIEM auto-recovery.**
 - **Grafana data source is now provisioned in code.** The original README claimed this but the script never did it.
 - **Removed hard-coded values:** AMI IDs (now the latest Amazon Linux 2023 through SSM parameters), Availability Zone names, the SSH key name, and the S3 state bucket.
 - **Added explicit dependencies** so route-table associations wait until the hub has accepted each peering attachment.
@@ -193,7 +222,9 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 
 - HTTP only. A production version would terminate TLS on the ALB with an ACM certificate.
 - One NAT gateway per VPC, so a NAT or AZ failure would cut off outbound access for that VPC.
-- Loki uses local disk on a single instance. Logs are lost if the instance is replaced. A production design would use S3 storage.
+- The SIEM is one instance. Auto-recovery handles hardware failure, but not an AZ outage. Loki uses local disk, so logs are lost if the instance is replaced.
+- Aurora runs a single writer with no reader, and deletion protection is off so the lab can be destroyed cleanly.
+
 - The Grafana default admin password is in place until first login. It is only reachable through SSM.
 - No VPC Flow Logs, GuardDuty or CloudTrail integration yet.
 
