@@ -9,15 +9,15 @@ output "grafana_port_forward_command" {
 }
 
 output "web_endpoints" {
-  description = "Public ALB DNS name for each web tier."
+  description = "Full http:// URL of the public ALB for each web tier (HTTP only, port 80)."
   value = {
-    tokyo      = module.web_tokyo.alb_dns_name
-    london     = module.spoke_london.alb_dns_name
-    new_york   = module.spoke_new_york.alb_dns_name
-    sao_paulo  = module.spoke_sao_paulo.alb_dns_name
-    sydney     = module.spoke_sydney.alb_dns_name
-    california = module.spoke_california.alb_dns_name
-    hong_kong  = module.spoke_hong_kong.alb_dns_name
+    tokyo      = "http://${module.web_tokyo.alb_dns_name}"
+    london     = "http://${module.spoke_london.alb_dns_name}"
+    new_york   = "http://${module.spoke_new_york.alb_dns_name}"
+    sao_paulo  = "http://${module.spoke_sao_paulo.alb_dns_name}"
+    sydney     = "http://${module.spoke_sydney.alb_dns_name}"
+    california = "http://${module.spoke_california.alb_dns_name}"
+    hong_kong  = "http://${module.spoke_hong_kong.alb_dns_name}"
   }
 }
 
