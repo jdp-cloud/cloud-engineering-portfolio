@@ -31,6 +31,9 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 **Security engineer or CISO**
 "The design assumes nothing should be reachable that doesn't need to be. There's no SSH: operators use Session Manager, and Grafana listens on localhost only. Loki sits behind a push-only gateway, so a compromised web server can write logs but never read them, and only the seven web VPC CIDRs can reach it. The SIEM and the database live in Availability Zones with no public subnet, and the database is Tokyo-only, so the data never leaves its region. Instances require IMDSv2 and encrypted volumes, log agents run as unprivileged users, and the software downloads are checksum-verified. Spokes can reach the hub but not each other, and every Transit Gateway route is explicit."
 
+**Cloud or platform engineer**
+"Six copy-pasted region files became one module that's called once per region, with provider aliases handling the seven regions and a nested web-stack module for the VPC, load balancer and Auto Scaling group. Adding a region is one short module call. Versions and checksums are pinned, state is remote with locking, and `terraform plan` output is part of the evidence. The stack deploys in about 20 minutes and tears down cleanly."
+
 ## Contents
 
 1. [Architecture](#architecture)

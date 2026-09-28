@@ -6,7 +6,7 @@
 ![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?logo=jenkins&logoColor=white)
 ![Focus](https://img.shields.io/badge/focus-cloud%20security-B71C1C)
 
-Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting **Senior Cloud Security Engineer** roles.
+Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting cloud engineering, platform and DevOps, and cloud security roles.
 
 [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43) | [GitHub](https://github.com/jdp-cloud)
 
