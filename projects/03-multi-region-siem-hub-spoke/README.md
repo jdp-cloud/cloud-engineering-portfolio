@@ -18,7 +18,7 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 | **Infrastructure** | 7 web VPCs, 1 security VPC, 7 Transit Gateways, 7 load balancers, 14 web instances, 1 SIEM server, 1 Aurora MySQL cluster (Tokyo only) |
 | **Code** | About 1,100 lines of Terraform. The six spoke regions share one module and are each created by a short module call. |
 | **Access model** | AWS Systems Manager Session Manager only: no SSH, no bastion, no key pairs |
-| **Deploy time** | About 15 to 25 minutes (peering attachments are the slow part) |
+| **Deploy time** | About 15 minutes (13m30s measured; peering attachments are the slow part) |
 | **Data residency** | The log store and the database exist only in Tokyo. Spokes can push logs but cannot query them or reach the database. |
 | **Cost while running** | Roughly $1.60 to $2.60 per hour. Destroy when done. |
 | **Skills shown** | Terraform modules and provider aliases, Transit Gateway routing, least-privilege network design, IMDSv2, centralized logging, supply-chain checks |
@@ -177,8 +177,9 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | `terraform fmt` | Passed | Verified during development |
 | HCL syntax and internal references | Passed | Script-based check |
 | Bootstrap scripts (`bash -n`) | Passed | Verified during development |
-| `terraform plan` (344 resources to add, 0 to change, 0 to destroy) | Passed | [`evidence/command-output/01-terraform-plan-summary.txt`](evidence/command-output/01-terraform-plan-summary.txt) |
-| Isolation outputs (`terraform output isolation_proof`) | Pending apply | Screenshot to be added under `evidence/` |
+| `terraform plan` (344 resources to add, 0 to change, 0 to destroy) | Passed | [`01`](evidence/screenshots/01-plan-summary-344-to-add.png), [`02`](evidence/screenshots/02-plan-outputs-subnet-layout.png), [`03`](evidence/screenshots/03-plan-outputs-and-approval-prompt.png), [text summary](evidence/command-output/01-terraform-plan-summary.txt) |
+| `terraform apply` (344 added, 0 changed, 0 destroyed, 13m30s) | Passed | [`04`](evidence/screenshots/04-apply-complete-isolation-proof.png), [`05`](evidence/screenshots/05-apply-outputs-endpoints.png) |
+| Isolation outputs (`terraform output isolation_proof`): all five checks `false` | Passed | [`04-apply-complete-isolation-proof.png`](evidence/screenshots/04-apply-complete-isolation-proof.png) |
 | Negative test: a web instance can push to Loki but cannot query it (expect 403) | Pending apply | Screenshot to be added under `evidence/` |
 | Deployed in AWS: ALB pages from each region | Pending | Screenshots to be added under `evidence/` |
 | Deployed in AWS: Grafana showing logs from all regions | Pending | Screenshots to be added under `evidence/` |
