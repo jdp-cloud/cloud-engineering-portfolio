@@ -1,6 +1,6 @@
 # Multi-Region Hub-and-Spoke Web Application with Centralized SIEM
 
-![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A51.6-7B42BC?logo=terraform&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A51.10-7B42BC?logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-7%20regions-FF9900?logo=amazonaws&logoColor=white)
 ![Grafana Loki](https://img.shields.io/badge/Grafana%20Loki-2.8.2-F46800?logo=grafana&logoColor=white)
 ![Status](https://img.shields.io/badge/status-plan%20passes%2C%20apply%20pending-yellow)
@@ -111,7 +111,7 @@ Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets
 <details>
 <summary><b>Prerequisites</b></summary>
 
-- Terraform 1.6 or newer (1.10 or newer if you use the S3 backend with `use_lockfile`)
+- Terraform 1.10 or newer (needed for S3-native state locking) and the AWS provider 6.x (pinned by the lock file)
 - AWS credentials that can create VPC, EC2, ELB, IAM and Transit Gateway resources in all seven regions
 - **Hong Kong (`ap-east-1`) enabled** in your AWS account. It is an opt-in region.
 - AWS CLI and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
