@@ -181,7 +181,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | `terraform apply` (344 added, 0 changed, 0 destroyed, 13m30s) | Passed | [`04`](evidence/screenshots/04-apply-complete-isolation-proof.png), [`05`](evidence/screenshots/05-apply-outputs-endpoints.png) |
 | Isolation outputs (`terraform output isolation_proof`): all five checks `false` | Passed | [`04-apply-complete-isolation-proof.png`](evidence/screenshots/04-apply-complete-isolation-proof.png) |
 | Negative test: a web instance can push to Loki but cannot query it (expect 403) | Pending apply | Screenshot to be added under `evidence/` |
-| Deployed in AWS: ALB pages from each region | Pending | Screenshots to be added under `evidence/` |
+| Deployed in AWS: each regional ALB serves a page showing its own region | Passed | [Sydney](evidence/screenshots/07-alb-sydney-region.png), [Tokyo](evidence/screenshots/07-alb-tokyo-region.png), [California](evidence/screenshots/07-alb-california-region.png), [London](evidence/screenshots/07-alb-london-region.png), [São Paulo](evidence/screenshots/07-alb-sao-paulo-region.png), [Hong Kong](evidence/screenshots/07-alb-hong-kong-region.png), [New York](evidence/screenshots/07-alb-new-york-region.png) |
 | Deployed in AWS: Grafana showing logs from all seven regions | Passed | [`06-grafana-logs-all-seven-regions.png`](evidence/screenshots/06-grafana-logs-all-seven-regions.png) |
 
 ## Cost and teardown
