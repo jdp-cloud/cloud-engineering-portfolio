@@ -172,7 +172,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | `terraform fmt` | Passed | Verified during development |
 | HCL syntax and internal references | Passed | Script-based check |
 | Bootstrap scripts (`bash -n`) | Passed | Verified during development |
-| `terraform plan` | Passed before the isolation upgrades (329 resources). **Re-run pending** for the current code. | [`evidence/command-output/01-terraform-plan-summary.txt`](evidence/command-output/01-terraform-plan-summary.txt) |
+| `terraform plan` (344 resources to add, 0 to change, 0 to destroy) | Passed | [`evidence/command-output/01-terraform-plan-summary.txt`](evidence/command-output/01-terraform-plan-summary.txt) |
 | Isolation outputs (`terraform output isolation_proof`) | Pending apply | Screenshot to be added under `evidence/` |
 | Negative test: a web instance can push to Loki but cannot query it (expect 403) | Pending apply | Screenshot to be added under `evidence/` |
 | Deployed in AWS: ALB pages from each region | Pending | Screenshots to be added under `evidence/` |

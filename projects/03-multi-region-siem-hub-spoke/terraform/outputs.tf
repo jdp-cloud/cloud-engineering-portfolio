@@ -46,8 +46,8 @@ output "isolation_proof" {
       siem_az_has_public_subnet     = contains(local.public_subnet_azs, aws_subnet.security_private.availability_zone)
       database_az_has_public_subnet = length(setintersection(local.db_az_names, local.public_subnet_azs)) > 0
       siem_and_database_share_subnet = (
-        aws_subnet.security_private.id == aws_subnet.security_db_a.id ||
-        aws_subnet.security_private.id == aws_subnet.security_db_b.id
+        aws_subnet.security_private.cidr_block == aws_subnet.security_db_a.cidr_block ||
+        aws_subnet.security_private.cidr_block == aws_subnet.security_db_b.cidr_block
       )
       siem_allows_ssh_or_grafana_inbound = length([for r in aws_vpc_security_group_ingress_rule.siem_loki : r if r.from_port != 3100]) > 0
       any_spoke_cidr_allowed_to_database = length([for c in values(local.spoke_cidrs) : c if contains(local.db_allowed_cidrs, c)]) > 0

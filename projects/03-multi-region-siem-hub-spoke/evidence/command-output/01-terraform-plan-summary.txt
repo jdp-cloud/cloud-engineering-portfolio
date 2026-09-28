@@ -1,20 +1,23 @@
-# NOTE: captured BEFORE the isolation upgrades (Aurora, AZ redesign, push-only gateway). Re-run terraform plan and replace this file.
-# terraform plan (run from projects/03-multi-region-siem-hub-spoke/terraform)
-# Date: 2026-09-28. Output trimmed to the summary lines.
+$ terraform plan        (run from projects/03-multi-region-siem-hub-spoke/terraform)
 
-Plan: 329 to add, 0 to change, 0 to destroy.
+Plan: 344 to add, 0 to change, 0 to destroy.
 
 Changes to Outputs:
-  + grafana_port_forward_command = (known after apply)
-  + siem_instance_id             = (known after apply)
-  + web_endpoints                = {
-      + california = (known after apply)
-      + hong_kong  = (known after apply)
-      + london     = (known after apply)
-      + new_york   = (known after apply)
-      + sao_paulo  = (known after apply)
-      + sydney     = (known after apply)
-      + tokyo      = (known after apply)
+  + isolation_proof.checks = {
+      any_spoke_cidr_allowed_to_database = false
+      database_az_has_public_subnet      = false
+      siem_allows_ssh_or_grafana_inbound = false
+      siem_az_has_public_subnet          = false
     }
-
-Saved the plan to: tfplan
+  + isolation_proof.data_residency = {
+      database_engine  = "aurora-mysql"
+      database_region  = "ap-northeast-1"
+      log_store_region = "ap-northeast-1"
+    }
+  + isolation_proof.subnet_layout = {
+      siem_subnet      = 10.77.0.0/24 in ap-northeast-1a
+      database_subnets = 10.77.2.0/24 (ap-northeast-1a), 10.77.3.0/24 (ap-northeast-1c)
+      public_subnets   = 10.77.1.0/24 (ap-northeast-1d, NAT gateway only)
+    }
+  + database_inbound_rules = { "10.70.0.0/16" = "tcp/3306 from 10.70.0.0/16" }
+  + siem_inbound_rules     = tcp/3100 from each of the seven web VPC CIDRs (10.70-10.76.0.0/16)
