@@ -46,33 +46,9 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  subgraph Spokes["Six spoke regions (one module call each)"]
-    direction TB
-    S1["London 10.71.0.0/16"]
-    S2["New York 10.72.0.0/16"]
-    S3["São Paulo 10.73.0.0/16"]
-    S4["Sydney 10.74.0.0/16"]
-    S5["California 10.75.0.0/16"]
-    S6["Hong Kong 10.76.0.0/16"]
-  end
+![Architecture diagram: six spoke regions peer to a hub Transit Gateway in Tokyo, which connects the Tokyo web VPC and the security zone hosting Loki and Grafana](diagrams/siem-architecture.png)
 
-  subgraph Hub["Hub region: Tokyo (ap-northeast-1)"]
-    TGW["Hub Transit Gateway"]
-    WEB["Tokyo web VPC 10.70.0.0/16"]
-    subgraph SEC["Security zone 10.77.0.0/16"]
-      SIEM["SIEM server<br/>Loki :3100 · Grafana (localhost only)"]
-    end
-  end
-
-  Spokes -- "TGW peering<br/>(Promtail → Loki, TCP 3100)" --> TGW
-  TGW --- WEB
-  TGW --- SEC
-  OP(["Operator"]) -. "SSM port-forward" .-> SIEM
-  USERS(["Internet users"]) --> Spokes
-  USERS --> WEB
-```
+<sub>Editable source: [`diagrams/siem-architecture.excalidraw`](diagrams/siem-architecture.excalidraw). Open it at [excalidraw.com](https://excalidraw.com) to change it.</sub>
 
 Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets (Auto Scaling group of Apache instances) and its own internet gateway. Web instances run Promtail and push logs to Loki over the Transit Gateway mesh.
 
@@ -96,6 +72,10 @@ Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets
 - Default route-table association and propagation are disabled on every TGW, so every route is declared in code.
 
 ### How the logs travel
+
+![Log flow: user to ALB to Apache to Promtail, then across the Transit Gateways to Loki and Grafana](diagrams/siem-log-flow.png)
+
+<sub>Editable source: [`diagrams/siem-log-flow.excalidraw`](diagrams/siem-log-flow.excalidraw)</sub>
 
 1. A user request reaches a regional ALB and is forwarded to an Apache instance in a private subnet.
 2. Apache writes an access log line. Promtail, running on the same instance, reads it.
@@ -244,6 +224,7 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 03-multi-region-siem-hub-spoke/
 ├── README.md
 ├── .gitignore
+├── diagrams/                  # Excalidraw sources plus PNG and SVG exports
 └── terraform/
     ├── versions.tf            # Terraform and provider constraints
     ├── providers.tf           # One aliased provider per region + default tags
