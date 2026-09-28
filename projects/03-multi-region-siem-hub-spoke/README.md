@@ -186,6 +186,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | Deployed in AWS: log count per region (`sum by (region) (count_over_time(...))`) shows one series for each of the seven regions | Passed | [`09-grafana-count-by-region.png`](evidence/screenshots/09-grafana-count-by-region.png) |
 | Teardown: destroy plan removes all 344 resources | Passed | [`10-destroy-plan-344-to-destroy.png`](evidence/screenshots/10-destroy-plan-344-to-destroy.png) |
 | Teardown: `Destroy complete! Resources: 344 destroyed.` | Passed | [`11-destroy-complete-344-destroyed.png`](evidence/screenshots/11-destroy-complete-344-destroyed.png) |
+| Teardown: `scripts/verify-teardown.sh` finds no billable resources in any of the seven regions | Passed | [`12-verify-teardown-clean.png`](evidence/screenshots/12-verify-teardown-clean.png) |
 
 ## Cost and teardown
 
