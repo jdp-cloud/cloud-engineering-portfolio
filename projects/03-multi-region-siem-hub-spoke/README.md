@@ -182,7 +182,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | Isolation outputs (`terraform output isolation_proof`): all five checks `false` | Passed | [`04-apply-complete-isolation-proof.png`](evidence/screenshots/04-apply-complete-isolation-proof.png) |
 | Negative test: a web instance can push to Loki but cannot query it (expect 403) | Pending apply | Screenshot to be added under `evidence/` |
 | Deployed in AWS: ALB pages from each region | Pending | Screenshots to be added under `evidence/` |
-| Deployed in AWS: Grafana showing logs from all regions | Pending | Screenshots to be added under `evidence/` |
+| Deployed in AWS: Grafana showing logs from all seven regions | Passed | [`06-grafana-logs-all-seven-regions.png`](evidence/screenshots/06-grafana-logs-all-seven-regions.png) |
 
 ## Cost and teardown
 
