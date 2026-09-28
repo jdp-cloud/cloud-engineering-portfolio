@@ -184,6 +184,8 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | Deployed in AWS: each regional ALB serves a page showing its own region | Passed | [Sydney](evidence/screenshots/07-alb-sydney-region.png), [Tokyo](evidence/screenshots/07-alb-tokyo-region.png), [California](evidence/screenshots/07-alb-california-region.png), [London](evidence/screenshots/07-alb-london-region.png), [São Paulo](evidence/screenshots/07-alb-sao-paulo-region.png), [Hong Kong](evidence/screenshots/07-alb-hong-kong-region.png), [New York](evidence/screenshots/07-alb-new-york-region.png) |
 | Deployed in AWS: Grafana showing logs from all seven regions | Passed | [`06-grafana-logs-all-seven-regions.png`](evidence/screenshots/06-grafana-logs-all-seven-regions.png) |
 | Deployed in AWS: log count per region (`sum by (region) (count_over_time(...))`) shows one series for each of the seven regions | Passed | [`09-grafana-count-by-region.png`](evidence/screenshots/09-grafana-count-by-region.png) |
+| Teardown: destroy plan removes all 344 resources | Passed | [`10-destroy-plan-344-to-destroy.png`](evidence/screenshots/10-destroy-plan-344-to-destroy.png) |
+| Teardown: `Destroy complete! Resources: 344 destroyed.` | Passed | [`11-destroy-complete-344-destroyed.png`](evidence/screenshots/11-destroy-complete-344-destroyed.png) |
 
 ## Cost and teardown
 
