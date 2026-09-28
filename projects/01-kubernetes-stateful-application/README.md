@@ -1,10 +1,50 @@
 # Kubernetes Stateful Application Lab
 
+![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.35.1-326CE5?logo=kubernetes&logoColor=white)
+![Minikube](https://img.shields.io/badge/Minikube-vfkit%20%2B%20Rosetta-F5A623)
+![Splunk](https://img.shields.io/badge/Splunk%20Enterprise-10.4.0-000000?logo=splunk&logoColor=white)
+![Status](https://img.shields.io/badge/status-validated%20locally-brightgreen)
+
 A hands-on Kubernetes portfolio project that deploys Splunk Enterprise as a stateful workload on a local Minikube cluster.
 
-The lab focuses on Kubernetes workload configuration, persistent storage, runtime secret handling, service access, and troubleshooting an amd64 container image on Apple Silicon.
+The lab focuses on workload configuration, persistent storage, runtime secret handling, service access, and troubleshooting an amd64 container image on Apple Silicon.
 
-## What I Implemented
+> **Scope:** This is a local Minikube portfolio lab, not a production deployment. See [Scope](#scope).
+
+## At a glance
+
+| | |
+| --- | --- |
+| **Problem** | Run a stateful, security-sensitive application on Kubernetes and prove its data survives pod replacement. |
+| **Solution** | A single-replica StatefulSet with a persistent volume, a non-root security context, and an administrator password created at runtime instead of stored in Git. |
+| **Environment** | Apple Silicon Mac, Minikube (`vfkit` driver, Rosetta), Kubernetes v1.35.1, Splunk Enterprise 10.4.0 |
+| **Proof** | A marker file on the persistent volume survived deletion of the pod, and the authenticated Splunk UI stayed available afterwards. |
+| **Hardest problem** | The Splunk image had no ARM64 build, so I enabled Rosetta and validated amd64 execution. |
+| **Skills shown** | StatefulSets, PersistentVolumeClaims, Secrets, ConfigMaps, security contexts, Services, port-forwarding, systematic troubleshooting |
+
+## Interview talk track
+
+**Recruiter or hiring manager (30 seconds)**
+"I deployed Splunk Enterprise on Kubernetes as a StatefulSet with persistent storage, then proved the data survives when the pod is deleted. The image only runs on amd64, and my laptop is Apple Silicon, so I had to work out the Rosetta setup and debug several configuration problems along the way. All of it is documented with command output and screenshots."
+
+**Security engineer**
+"The admin password is created at runtime and never committed to Git. The pod runs as a non-root user with a fixed UID and fsGroup. I kept the non-sensitive settings in a ConfigMap and the sensitive one in a Secret. It's a local lab, so I don't claim TLS, ingress or high availability."
+
+## Contents
+
+1. [What I implemented](#what-i-implemented)
+2. [Environment](#environment)
+3. [Project structure](#project-structure)
+4. [Kubernetes resources](#kubernetes-resources)
+5. [Deployment](#deployment)
+6. [Apple Silicon compatibility](#apple-silicon-compatibility)
+7. [Validation](#validation)
+8. [Troubleshooting](#troubleshooting)
+9. [Evidence](#evidence)
+10. [Project origin](#project-origin)
+11. [Scope](#scope)
+
+## What I implemented
 
 - Created a dedicated `splunk` namespace
 - Managed non-sensitive application settings with a ConfigMap
@@ -18,40 +58,41 @@ The lab focuses on Kubernetes workload configuration, persistent storage, runtim
 
 ## Environment
 
-- Apple Silicon Mac
-- Minikube
-- `vfkit` driver
-- Rosetta-enabled Minikube profile for amd64 container execution
-- Kubernetes `v1.35.1`
-- Splunk Enterprise `10.4.0`
-- kubectl
+| Component | Configuration |
+| --- | --- |
+| Host | Apple Silicon Mac |
+| Cluster | Minikube with the `vfkit` driver |
+| amd64 support | Rosetta-enabled Minikube profile |
+| Kubernetes | `v1.35.1` |
+| Application | Splunk Enterprise `10.4.0` |
+| Client | kubectl |
 
-## Project Structure
+## Project structure
 
-    .
-    ├── README.md
-    ├── manifests/
-    │   ├── 01-namespace.yaml
-    │   ├── 02-configmap.yaml
-    │   ├── 03-statefulset.yaml
-    │   └── 04-service.yaml
-    ├── notes/
-    │   └── troubleshooting.md
-    ├── evidence/
-    │   ├── command-output/
-    │   └── screenshots/
-    └── reference/
-        └── instructor-current/
+```text
+.
+├── README.md
+├── manifests/
+│   ├── 01-namespace.yaml
+│   ├── 02-configmap.yaml
+│   ├── 03-statefulset.yaml
+│   └── 04-service.yaml
+├── notes/
+│   └── troubleshooting.md
+├── evidence/
+│   ├── command-output/
+│   └── screenshots/
+└── reference/
+    └── instructor-current/
+```
 
 The cleaned manifests under `manifests/` represent the deployment reproduced and validated for this portfolio.
 
-## Kubernetes Resources
+## Kubernetes resources
 
 ### Namespace
 
-The workload runs in a dedicated namespace:
-
-    splunk
+The workload runs in a dedicated namespace: `splunk`.
 
 ### ConfigMap
 
@@ -61,19 +102,19 @@ The ConfigMap supplies non-sensitive Splunk startup settings, including license 
 
 The administrator password is created at runtime and is not stored in a YAML manifest or committed to the repository.
 
-Example:
+```bash
+read -s "SPLUNK_PASSWORD?Enter Splunk password: "
+echo
 
-    read -s "SPLUNK_PASSWORD?Enter Splunk password: "
-    echo
+printf '%s' "$SPLUNK_PASSWORD" | \
+kubectl create secret generic splunk-secret \
+  -n splunk \
+  --from-file=SPLUNK_PASSWORD=/dev/stdin \
+  --dry-run=client -o yaml | \
+kubectl apply -f -
 
-    printf '%s' "$SPLUNK_PASSWORD" | \
-    kubectl create secret generic splunk-secret \
-      -n splunk \
-      --from-file=SPLUNK_PASSWORD=/dev/stdin \
-      --dry-run=client -o yaml | \
-    kubectl apply -f -
-
-    unset SPLUNK_PASSWORD
+unset SPLUNK_PASSWORD
+```
 
 ### StatefulSet
 
@@ -95,122 +136,146 @@ Two Services support the workload:
 
 ## Deployment
 
-Create the namespace:
+1. Create the namespace:
 
-    kubectl apply -f manifests/01-namespace.yaml
+   ```bash
+   kubectl apply -f manifests/01-namespace.yaml
+   ```
 
-Create the ConfigMap:
+2. Create the ConfigMap:
 
-    kubectl apply -f manifests/02-configmap.yaml
+   ```bash
+   kubectl apply -f manifests/02-configmap.yaml
+   ```
 
-Create the runtime Secret before deploying the StatefulSet.
+3. Create the runtime Secret (see the [Secret](#secret) section) before deploying the StatefulSet.
 
-Apply the Services:
+4. Apply the Services:
 
-    kubectl apply -f manifests/04-service.yaml
+   ```bash
+   kubectl apply -f manifests/04-service.yaml
+   ```
 
-Apply the StatefulSet:
+5. Apply the StatefulSet:
 
-    kubectl apply -f manifests/03-statefulset.yaml
+   ```bash
+   kubectl apply -f manifests/03-statefulset.yaml
+   ```
 
-Check workload status:
+6. Check workload status:
 
-    kubectl -n splunk get pods
-    kubectl -n splunk get pvc
-    kubectl -n splunk get svc
-    kubectl -n splunk get endpointslice
+   ```bash
+   kubectl -n splunk get pods
+   kubectl -n splunk get pvc
+   kubectl -n splunk get svc
+   kubectl -n splunk get endpointslice
+   ```
 
-## Apple Silicon Compatibility
+## Apple Silicon compatibility
 
 The Splunk image used in this lab required amd64 execution, while the Minikube node was running on Apple Silicon.
 
 A Rosetta-enabled Minikube profile was created with:
 
-    minikube start \
-      -p splunk \
-      --driver=vfkit \
-      --rosetta \
-      --cpus=2 \
-      --memory=6144 \
-      --kubernetes-version=v1.35.1
+```bash
+minikube start \
+  -p splunk \
+  --driver=vfkit \
+  --rosetta \
+  --cpus=2 \
+  --memory=6144 \
+  --kubernetes-version=v1.35.1
+```
 
 amd64 execution was validated with:
 
-    minikube -p splunk ssh -- \
-      'docker run --rm --platform linux/amd64 alpine:3.20 uname -m'
+```bash
+minikube -p splunk ssh -- \
+  'docker run --rm --platform linux/amd64 alpine:3.20 uname -m'
+```
 
 Expected result:
 
-    x86_64
+```text
+x86_64
+```
 
 The Splunk image was then explicitly pulled as amd64 inside the Minikube environment:
 
-    minikube -p splunk ssh -- \
-      'docker pull --platform linux/amd64 splunk/splunk:10.4.0'
+```bash
+minikube -p splunk ssh -- \
+  'docker pull --platform linux/amd64 splunk/splunk:10.4.0'
+```
 
-Additional troubleshooting details are documented in `notes/troubleshooting.md`.
+Additional troubleshooting details are documented in [`notes/troubleshooting.md`](notes/troubleshooting.md).
 
 ## Validation
 
-### Workload Health
+### Workload health
 
 The final StatefulSet reached:
 
-    NAME       READY   STATUS    RESTARTS
-    splunk-0   1/1     Running   0
+```text
+NAME       READY   STATUS    RESTARTS
+splunk-0   1/1     Running   0
+```
 
 The persistent volume claim remained `Bound`, and the Splunk Service had a working endpoint.
 
-### Persistent Storage
+### Persistent storage
 
 A marker file was written to the persistent mount:
 
-    kubectl -n splunk exec splunk-0 -- \
-      sh -c 'date -u > /opt/splunk/var/persistence-test.txt'
+```bash
+kubectl -n splunk exec splunk-0 -- \
+  sh -c 'date -u > /opt/splunk/var/persistence-test.txt'
+```
 
 The pod was intentionally deleted:
 
-    kubectl -n splunk delete pod splunk-0
+```bash
+kubectl -n splunk delete pod splunk-0
+```
 
 After the StatefulSet recreated the pod, the marker remained available:
 
-    kubectl -n splunk exec splunk-0 -- \
-      cat /opt/splunk/var/persistence-test.txt
+```bash
+kubectl -n splunk exec splunk-0 -- \
+  cat /opt/splunk/var/persistence-test.txt
+```
 
 This confirmed that data stored on the persistent volume survived pod replacement.
 
-### Application Access
+### Application access
 
 The Splunk web interface was validated using port forwarding:
 
-    kubectl -n splunk port-forward svc/splunk 18000:8000
+```bash
+kubectl -n splunk port-forward svc/splunk 18000:8000
+```
 
-The application was then accessed locally at:
-
-    http://localhost:18000
+The application was then accessed locally at `http://localhost:18000`.
 
 The authenticated Splunk Enterprise interface remained available after the pod recreation and persistence test.
 
 ## Troubleshooting
 
-The deployment required several debugging steps, including:
+The deployment required several debugging steps:
 
-- correcting an invalid Kubernetes Secret reference
-- diagnosing the lack of an ARM64 Splunk image
-- validating amd64 execution through Rosetta
-- configuring the Splunk container security context
-- correcting `SPLUNK_HOME_OWNERSHIP_ENFORCEMENT`
-- recreating a malformed runtime Secret
-- validating the StatefulSet after pod recreation
+| Problem | Resolution |
+| --- | --- |
+| Invalid Kubernetes Secret reference | Corrected the reference |
+| No ARM64 Splunk image | Enabled Rosetta and validated amd64 execution |
+| Container security context | Configured the Splunk security context (UID and GID `41812`) |
+| `SPLUNK_HOME_OWNERSHIP_ENFORCEMENT` setting | Corrected the value |
+| Malformed runtime Secret | Recreated the Secret |
+| Behavior after pod replacement | Validated the StatefulSet after recreation |
 
-See `notes/troubleshooting.md` for the detailed failure-and-resolution sequence.
+See [`notes/troubleshooting.md`](notes/troubleshooting.md) for the detailed failure-and-resolution sequence.
 
 ## Evidence
 
-Selected evidence is stored under:
-
-    evidence/command-output/
-    evidence/screenshots/
+Selected evidence is stored under `evidence/command-output/` and `evidence/screenshots/`.
 
 Key validation artifacts include:
 
@@ -219,7 +284,7 @@ Key validation artifacts include:
 - authenticated Splunk web interface
 - persistent data validation after pod recreation
 
-## Project Origin
+## Project origin
 
 This lab was completed as part of instructor-led Kubernetes training and was independently reproduced, troubleshot, cleaned, and documented for this portfolio.
 
