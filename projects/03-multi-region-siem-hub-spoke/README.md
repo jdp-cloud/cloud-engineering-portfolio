@@ -1,19 +1,48 @@
 # Multi-Region Hub-and-Spoke Web Application with Centralized SIEM
 
-Terraform for a seven-region AWS web application with a hub-and-spoke Transit Gateway network and a central log-collection stack (Promtail, Loki, Grafana) in a dedicated security zone.
+![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A51.6-7B42BC?logo=terraform&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-7%20regions-FF9900?logo=amazonaws&logoColor=white)
+![Grafana Loki](https://img.shields.io/badge/Grafana%20Loki-2.8.2-F46800?logo=grafana&logoColor=white)
+![Status](https://img.shields.io/badge/status-code%20complete%2C%20apply%20pending-yellow)
 
-The project began as an instructor-led lab. I rebuilt it as a reusable Terraform design: the six near-identical regional files became one module, and I reworked the security posture and the log-forwarding path (details under [What I changed](#what-i-changed-from-the-original-lab)).
+Terraform for a seven-region AWS web application with a Transit Gateway hub-and-spoke network and a central log-collection stack (Promtail, Loki, Grafana) in a dedicated security zone. Rebuilt from an instructor-led lab into a modular, security-hardened design.
 
-> **Scope:** This is a portfolio lab, not a production deployment. It uses plain HTTP on the load balancers, a single NAT gateway per VPC, and local-disk Loki storage.
+> **Scope:** This is a portfolio lab, not a production deployment. It uses plain HTTP on the load balancers, one NAT gateway per VPC and local-disk Loki storage. See [Known limitations](#known-limitations).
 
-## What this project demonstrates
+## At a glance
 
-- Multi-region AWS infrastructure from one Terraform root using provider aliases
-- A reusable module (`web-stack`) that builds a VPC, ALB and Auto Scaling group; the same module is used in all seven regions
-- Hub-and-spoke networking with Transit Gateways, cross-region peering, explicit route tables and no default association or propagation
-- Centralized logging: Promtail on every web instance, Loki and Grafana on one SIEM server
-- Least-privilege network design: no SSH, no inbound Grafana, Loki reachable only from the web VPC CIDRs
-- Instance hardening: IMDSv2 required, encrypted EBS volumes, unprivileged log agents, checksum-verified downloads
+| | |
+| --- | --- |
+| **Problem** | Web workloads in seven regions need their logs collected in one place, without exposing the log server to the internet. |
+| **Solution** | Every region runs the same web stack. Transit Gateways carry Promtail log traffic privately to a Loki/Grafana server in a Tokyo security zone. |
+| **Infrastructure** | 7 web VPCs, 1 security VPC, 7 Transit Gateways, 7 load balancers, 14 web instances, 1 SIEM server |
+| **Code** | About 1,100 lines of Terraform. The six spoke regions share one module and are each created by a short module call. |
+| **Access model** | AWS Systems Manager Session Manager only: no SSH, no bastion, no key pairs |
+| **Deploy time** | About 15 to 25 minutes (peering attachments are the slow part) |
+| **Cost while running** | Roughly $1.50 to $2.50 per hour. Destroy when done. |
+| **Skills shown** | Terraform modules and provider aliases, Transit Gateway routing, least-privilege network design, IMDSv2, centralized logging, supply-chain checks |
+
+## Interview talk track
+
+**Recruiter or hiring manager (30 seconds)**
+"I took an instructor-led multi-region lab and rebuilt it as a modular Terraform project. Six copy-pasted region files became one module, and I found and fixed several problems, including a routing gap that would have stopped logs from ever reaching the SIEM. It collects web logs from seven regions into one Grafana instance, and the log server has no public exposure."
+
+**Security engineer or CISO**
+"The design assumes nothing should be reachable that doesn't need to be. There's no SSH: operators use Session Manager, and Grafana listens on localhost only. Loki accepts traffic only from the seven web VPC CIDRs. Instances require IMDSv2 and encrypted volumes, log agents run as unprivileged users, and the software downloads are checksum-verified. Spokes can reach the hub but not each other, and every Transit Gateway route is explicit."
+
+## Contents
+
+1. [Architecture](#architecture)
+2. [Security decisions](#security-decisions)
+3. [Quick start](#quick-start)
+4. [Validate it works](#validate-it-works)
+5. [Evidence](#evidence)
+6. [Cost and teardown](#cost-and-teardown)
+7. [Troubleshooting](#troubleshooting)
+8. [What I changed from the original lab](#what-i-changed-from-the-original-lab)
+9. [Known limitations](#known-limitations)
+10. [Future enhancements](#future-enhancements)
+11. [References](#references)
 
 ## Architecture
 
@@ -66,28 +95,13 @@ Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets
 - The hub TGW has one route table. Its routes point to each spoke's peering attachment, the Tokyo web VPC and the security zone.
 - Default route-table association and propagation are disabled on every TGW, so every route is declared in code.
 
-## Repository layout
+### How the logs travel
 
-```text
-03-multi-region-siem-hub-spoke/
-├── README.md
-├── .gitignore
-└── terraform/
-    ├── versions.tf            # Terraform and provider constraints
-    ├── providers.tf           # One aliased provider per region + default tags
-    ├── locals.tf              # Address plan, pinned Loki version and checksums
-    ├── variables.tf
-    ├── hub.tf                 # Hub TGW, Tokyo web VPC, security zone, SIEM server
-    ├── spokes.tf              # Six module calls, one per spoke region
-    ├── outputs.tf
-    ├── backend.tf.example     # Optional S3 remote state
-    ├── scripts/
-    │   ├── promtail-web.sh.tftpl        # Web tier: Apache + Promtail
-    │   └── siem-loki-grafana.sh.tftpl   # SIEM: Loki + Grafana
-    └── modules/
-        ├── web-stack/         # VPC, subnets, NAT, ALB, ASG (used in all 7 regions)
-        └── spoke/             # web-stack + spoke TGW + peering to the hub
-```
+1. A user request reaches a regional ALB and is forwarded to an Apache instance in a private subnet.
+2. Apache writes an access log line. Promtail, running on the same instance, reads it.
+3. Promtail pushes the line to Loki at `10.77.0.10:3100`. The packet leaves the spoke VPC through its Transit Gateway, crosses the peering to the hub Transit Gateway, and enters the security zone.
+4. Loki stores the line. Grafana, which is pre-configured with Loki as its data source, lets you query it.
+5. You reach Grafana only through an SSM port-forward from your laptop.
 
 ## Security decisions
 
@@ -105,62 +119,84 @@ Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets
 | Default security groups | Explicitly emptied in every VPC | Nothing can rely on the permissive default. |
 | ALB | Only accepts HTTP from the internet and only forwards to the web security group; drops invalid headers | Narrow blast radius. |
 
-## Prerequisites
+## Quick start
 
-- Terraform 1.6 or newer (1.10 or newer if you enable the S3 backend with `use_lockfile`)
-- AWS credentials with permission to create VPC, EC2, ELB, IAM and Transit Gateway resources in all seven regions
+<details>
+<summary><b>Prerequisites</b></summary>
+
+- Terraform 1.6 or newer (1.10 or newer if you use the S3 backend with `use_lockfile`)
+- AWS credentials that can create VPC, EC2, ELB, IAM and Transit Gateway resources in all seven regions
 - **Hong Kong (`ap-east-1`) enabled** in your AWS account. It is an opt-in region.
-- AWS CLI and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) to reach Grafana
+- AWS CLI and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
 
-## Deploy
+</details>
 
 ```bash
 cd terraform
-
-# Optional: remote state. Copy backend.tf.example to backend.tf and edit the bucket name.
 terraform init
 terraform validate
 terraform plan -out tfplan
 terraform apply tfplan
 ```
 
-Transit Gateway peering attachments take several minutes to become available, so a full apply can take 15 to 25 minutes.
+Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) and edit the bucket name before `terraform init`.
 
-## Validate
+## Validate it works
 
-1. Load each ALB in a browser. The page reports the region and availability zone that served it.
+1. **Web tiers:** open each ALB address. The page shows the region and availability zone that served it.
 
    ```bash
    terraform output web_endpoints
    ```
 
-2. Open Grafana through Session Manager:
+2. **Grafana:** open a tunnel through Session Manager, then browse to `http://localhost:3000` (default login `admin` / `admin`, and you are forced to change it).
 
    ```bash
-   terraform output -raw grafana_port_forward_command   # run the printed command
-   # then browse to http://localhost:3000  (default login admin / admin; you are forced to change it)
+   terraform output -raw grafana_port_forward_command   # run the command it prints
    ```
 
-3. In Grafana, open **Explore**, choose the **Loki** data source (pre-provisioned) and run:
+3. **Logs from every region:** in Grafana, go to **Explore**, choose the **Loki** data source and run:
 
    ```logql
    {job="httpd"}
    ```
 
-   Requests from the ALB health checks in every region should appear, with a `region` label per source.
+   ALB health-check requests should appear from all seven regions, each with a `region` label.
 
-## Cost warning
+## Evidence
 
-This stack creates 8 NAT gateways, 7 Application Load Balancers, 14 web instances, a SIEM instance and 14 Transit Gateway attachments (8 VPC attachments and 6 cross-region peerings). As a rough estimate, expect **roughly $1.50 to $2.50 per hour** (on the order of $40 to $60 per day) plus data transfer. Check current prices with the AWS Pricing Calculator. **Deploy for a short test, capture your evidence, then destroy.**
+| Check | Status | Where |
+| --- | --- | --- |
+| `terraform fmt` | Passed | Verified during development |
+| HCL syntax and internal references | Passed | Script-based check |
+| Bootstrap scripts (`bash -n`) | Passed | Verified during development |
+| `terraform validate` and `plan` | Pending | To be added under `evidence/` |
+| Deployed in AWS: ALB pages from each region | Pending | Screenshots to be added under `evidence/` |
+| Deployed in AWS: Grafana showing logs from all regions | Pending | Screenshots to be added under `evidence/` |
 
-## Teardown
+## Cost and teardown
+
+This stack creates 8 NAT gateways, 7 Application Load Balancers, 14 web instances, a SIEM instance and 14 Transit Gateway attachments (8 VPC attachments and 6 cross-region peerings). As a rough estimate, expect **$1.50 to $2.50 per hour** (about $40 to $60 per day) plus data transfer. Check current prices with the AWS Pricing Calculator. **Deploy for a short test, capture your evidence, then destroy.**
 
 ```bash
 cd terraform
 terraform destroy
 ```
 
-Confirm in the console that no NAT gateways, Elastic IPs, load balancers or Transit Gateway attachments remain in any of the seven regions.
+Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balancers or Transit Gateway attachments remain in any of the seven regions.
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+| --- | --- | --- |
+| `terraform apply` fails only for Hong Kong | `ap-east-1` is an opt-in region | Enable it in the AWS account settings, wait a few minutes, re-run |
+| Apply errors on a peering association or route | The hub had not finished accepting the peering | Re-run `terraform apply`. Peering can take several minutes. |
+| SSM session will not start | Missing Session Manager plugin, or the instance cannot reach SSM | Install the plugin, then check the instance role and its outbound 443 path through the NAT gateway |
+| ALB returns 502 or 503 | Instances still booting, or bootstrap failed | Wait 5 minutes. Then check `/var/log/cloud-init-output.log` on an instance through SSM. |
+| Bootstrap stops at `sha256sum` | The pinned checksum does not match the downloaded version | Update the version and both checksums in `locals.tf` together |
+| Grafana shows no logs | Promtail cannot reach Loki | On a web instance, run `systemctl status promtail` and `curl http://10.77.0.10:3100/ready` |
+| Promtail cannot read Apache logs | Capability missing from the service unit | Check `AmbientCapabilities=CAP_DAC_READ_SEARCH` in `/etc/systemd/system/promtail.service` |
+| `terraform destroy` leaves resources | A dependency was still deleting | Re-run `terraform destroy`, then check each region for leftover NAT gateways and ENIs |
 
 ## What I changed from the original lab
 
@@ -189,12 +225,40 @@ Confirm in the console that no NAT gateways, Elastic IPs, load balancers or Tran
 - TLS on the ALBs and WAF in front of them
 - A CI job (`terraform fmt`, `validate`, `tflint`, `checkov`) on every pull request
 
-## Verification status
+## References
 
-| Check | Status |
-| --- | --- |
-| `terraform fmt` | Clean |
-| HCL syntax and internal references (script-based check) | Clean |
-| Bootstrap scripts (`bash -n`) | Clean |
-| `terraform validate` / `terraform plan` | **Pending: run locally before merging** |
-| `terraform apply` in AWS, with screenshots and command output added under `evidence/` | **Pending** |
+- [Amazon VPC Transit Gateway: inter-Region peering](https://docs.aws.amazon.com/vpc/latest/tgw/tgw-peering.html)
+- [AWS Systems Manager Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html)
+- [Instance Metadata Service Version 2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html)
+- [Terraform: multiple provider configurations](https://developer.hashicorp.com/terraform/language/providers/configuration)
+- [Terraform: module composition and provider passing](https://developer.hashicorp.com/terraform/language/modules/develop/providers)
+- [Grafana Loki documentation](https://grafana.com/docs/loki/latest/)
+- [Promtail documentation](https://grafana.com/docs/loki/latest/send-data/promtail/)
+
+## Repository layout
+
+<details>
+<summary>Show the file tree</summary>
+
+```text
+03-multi-region-siem-hub-spoke/
+├── README.md
+├── .gitignore
+└── terraform/
+    ├── versions.tf            # Terraform and provider constraints
+    ├── providers.tf           # One aliased provider per region + default tags
+    ├── locals.tf              # Address plan, pinned Loki version and checksums
+    ├── variables.tf
+    ├── hub.tf                 # Hub TGW, Tokyo web VPC, security zone, SIEM server
+    ├── spokes.tf              # Six module calls, one per spoke region
+    ├── outputs.tf
+    ├── backend.tf.example     # Optional S3 remote state
+    ├── scripts/
+    │   ├── promtail-web.sh.tftpl        # Web tier: Apache + Promtail
+    │   └── siem-loki-grafana.sh.tftpl   # SIEM: Loki + Grafana
+    └── modules/
+        ├── web-stack/         # VPC, subnets, NAT, ALB, ASG (used in all 7 regions)
+        └── spoke/             # web-stack + spoke TGW + peering to the hub
+```
+
+</details>
