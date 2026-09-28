@@ -49,9 +49,9 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 
 ## Architecture
 
-![Architecture diagram: six spoke regions peer to a hub Transit Gateway in Tokyo, which connects the Tokyo web VPC and the security zone hosting Loki and Grafana](diagrams/siem-architecture.png)
+![Architecture diagram: six spoke regions peer to a hub Transit Gateway in Tokyo, which connects the Tokyo web VPC and the security zone hosting Loki, Grafana and a Tokyo-only Aurora database](diagrams/siem-architecture-aws.png)
 
-<sub>Editable source: [`diagrams/siem-architecture.excalidraw`](diagrams/siem-architecture.excalidraw). Open it at [excalidraw.com](https://excalidraw.com) to change it.</sub>
+<sub>Editable source: [`diagrams/siem-architecture-aws.drawio`](diagrams/siem-architecture-aws.drawio). Open it in [draw.io](https://app.diagrams.net). Built with the official AWS architecture icons.</sub>
 
 Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets (Auto Scaling group of Apache instances) and its own internet gateway. Web instances run Promtail and push logs to Loki over the Transit Gateway mesh.
 
@@ -284,7 +284,7 @@ Afterwards, confirm in the console that no NAT gateways, Elastic IPs, load balan
 03-multi-region-siem-hub-spoke/
 ├── README.md
 ├── .gitignore
-├── diagrams/                  # Excalidraw sources plus PNG and SVG exports
+├── diagrams/                  # draw.io architecture diagram; Excalidraw log-flow diagram (PNG/SVG exports)
 └── terraform/
     ├── versions.tf            # Terraform and provider constraints
     ├── providers.tf           # One aliased provider per region + default tags
