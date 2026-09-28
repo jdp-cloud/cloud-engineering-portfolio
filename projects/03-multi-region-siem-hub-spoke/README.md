@@ -3,7 +3,7 @@
 ![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A51.6-7B42BC?logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-7%20regions-FF9900?logo=amazonaws&logoColor=white)
 ![Grafana Loki](https://img.shields.io/badge/Grafana%20Loki-2.8.2-F46800?logo=grafana&logoColor=white)
-![Status](https://img.shields.io/badge/status-code%20complete%2C%20apply%20pending-yellow)
+![Status](https://img.shields.io/badge/status-plan%20passes%2C%20apply%20pending-yellow)
 
 Terraform for a seven-region AWS web application with a Transit Gateway hub-and-spoke network and a central log-collection stack (Promtail, Loki, Grafana) in a dedicated security zone. Rebuilt from an instructor-led lab into a modular, security-hardened design.
 
@@ -150,7 +150,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | `terraform fmt` | Passed | Verified during development |
 | HCL syntax and internal references | Passed | Script-based check |
 | Bootstrap scripts (`bash -n`) | Passed | Verified during development |
-| `terraform validate` and `plan` | Pending | To be added under `evidence/` |
+| `terraform plan` (329 resources to add, 0 to change, 0 to destroy) | Passed | [`evidence/command-output/01-terraform-plan-summary.txt`](evidence/command-output/01-terraform-plan-summary.txt) |
 | Deployed in AWS: ALB pages from each region | Pending | Screenshots to be added under `evidence/` |
 | Deployed in AWS: Grafana showing logs from all regions | Pending | Screenshots to be added under `evidence/` |
 

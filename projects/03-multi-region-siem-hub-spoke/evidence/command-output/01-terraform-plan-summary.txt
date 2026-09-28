@@ -1,0 +1,19 @@
+# terraform plan (run from projects/03-multi-region-siem-hub-spoke/terraform)
+# Date: 2026-09-28. Output trimmed to the summary lines.
+
+Plan: 329 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + grafana_port_forward_command = (known after apply)
+  + siem_instance_id             = (known after apply)
+  + web_endpoints                = {
+      + california = (known after apply)
+      + hong_kong  = (known after apply)
+      + london     = (known after apply)
+      + new_york   = (known after apply)
+      + sao_paulo  = (known after apply)
+      + sydney     = (known after apply)
+      + tokyo      = (known after apply)
+    }
+
+Saved the plan to: tfplan
