@@ -20,7 +20,7 @@ Terraform for a seven-region AWS web application with a Transit Gateway hub-and-
 | **Access model** | AWS Systems Manager Session Manager only: no SSH, no bastion, no key pairs |
 | **Deploy time** | About 15 minutes (13m30s measured; peering attachments are the slow part) |
 | **Data residency** | The log store and the database exist only in Tokyo. Spokes can push logs but cannot query them or reach the database. |
-| **Cost while running** | Roughly $1.60 to $2.60 per hour. Destroy when done. |
+| **Cost while running** | Roughly $1.60 to $2.60 per hour. The one-day test run (deploy, capture evidence, destroy) cost about $4.22. |
 | **Skills shown** | Terraform modules and provider aliases, Transit Gateway routing, least-privilege network design, IMDSv2, centralized logging, supply-chain checks |
 
 ## Interview talk track
@@ -271,7 +271,10 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 **What matters to a customer**
 - Logs from every region land in one place, that place has no public exposure, and regulated data stays in one region with proof (`terraform output isolation_proof`).
 
-> JP: add the cost lesson here after teardown (what the run actually cost and whether anything was left behind).
+**What it cost**
+- The one-day test run (apply, evidence capture, destroy) cost about **$4.22** in AWS Cost Explorer. Teardown was verified clean in all seven regions with `scripts/verify-teardown.sh` (evidence `12`), so nothing kept billing afterwards.
+
+> JP: add one or two sentences here on what the cost taught you (for example, which services cost the most in Cost Explorer and what you would do to lower it).
 
 ## References
 
