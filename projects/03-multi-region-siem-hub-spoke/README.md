@@ -187,6 +187,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | Teardown: destroy plan removes all 344 resources | Passed | [`10-destroy-plan-344-to-destroy.png`](evidence/screenshots/10-destroy-plan-344-to-destroy.png) |
 | Teardown: `Destroy complete! Resources: 344 destroyed.` | Passed | [`11-destroy-complete-344-destroyed.png`](evidence/screenshots/11-destroy-complete-344-destroyed.png) |
 | Teardown: `scripts/verify-teardown.sh` finds no billable resources in any of the seven regions | Passed | [`12-verify-teardown-clean.png`](evidence/screenshots/12-verify-teardown-clean.png) |
+| Cost: AWS Cost Explorer, daily view for the run day (2026-09-28), total $4.22 | Passed | [`13-cost-explorer-sep-28-total.png`](evidence/screenshots/13-cost-explorer-sep-28-total.png) |
 
 ## Cost and teardown
 
@@ -272,7 +273,8 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 - Logs from every region land in one place, that place has no public exposure, and regulated data stays in one region with proof (`terraform output isolation_proof`).
 
 **What it cost**
-- The one-day test run (apply, evidence capture, destroy) cost about **$4.22** in AWS Cost Explorer. Teardown was verified clean in all seven regions with `scripts/verify-teardown.sh` (evidence `12`), so nothing kept billing afterwards.
+- The one-day test run (apply, evidence capture, destroy) cost **$4.22** in AWS Cost Explorer (daily view, 2026-09-28; evidence `13`). Teardown was verified clean in all seven regions with `scripts/verify-teardown.sh` (evidence `12`), so nothing kept billing afterwards.
+- By service: VPC $2.27, EC2-Other $1.15, Elastic Load Balancing $0.37, EC2 instances $0.29, Aurora (RDS) $0.14, everything else about $0.00. VPC and EC2-Other together were $3.42 of the $4.22.
 
 > JP: add one or two sentences here on what the cost taught you (for example, which services cost the most in Cost Explorer and what you would do to lower it).
 
