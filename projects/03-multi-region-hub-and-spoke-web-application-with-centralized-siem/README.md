@@ -241,12 +241,15 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 - One NAT gateway per VPC, so a NAT or AZ failure would cut off outbound access for that VPC.
 - The SIEM is one instance. Auto-recovery handles hardware failure, but not an AZ outage. Loki uses local disk, so logs are lost if the instance is replaced.
 - Aurora runs a single writer with no reader, and deletion protection is off so the lab can be destroyed cleanly.
-
+- Promtail reached end-of-life in March 2026, so it no longer gets security patches, and Loki is pinned to 2.8.2. Both come from the original lab and were kept as deployed so the evidence matches the code. Grafana's replacement for Promtail is Grafana Alloy.
+- The Loki gateway limits which paths a caller can use (push allowed, query blocked) but does not authenticate callers. It relies on the private subnets and security groups.
 - The Grafana default admin password is in place until first login. It is only reachable through SSM.
 - No VPC Flow Logs, GuardDuty or CloudTrail integration yet.
 
 ## Future enhancements
 
+- Replace Promtail with [Grafana Alloy](https://grafana.com/docs/alloy/latest/set-up/migrate/from-promtail/) and move to a current Loki release
+- mTLS or token authentication on the Loki gateway, plus TLS in transit
 - S3-backed Loki storage and a retention policy
 - Terraform-managed Grafana dashboards and alert rules
 - VPC Flow Logs into the same Loki pipeline
