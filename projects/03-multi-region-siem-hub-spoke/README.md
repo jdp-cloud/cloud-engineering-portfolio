@@ -255,24 +255,29 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 
 ## Lessons learned
 
-**What I learned technically**
+### What I learned technically
+
 - A Transit Gateway spoke needs routes in three places: the spoke VPC route tables, the spoke TGW route table and the hub TGW route table. Missing any one of them fails silently. The original lab had this gap, and it would have stopped logs from ever arriving.
 - A security group is not the only isolation tool. Putting the SIEM and database in Availability Zones with no public subnet, and adding Terraform `precondition` checks, makes the isolation hard to undo by accident.
 - Loki serves queries on the same port that accepts logs. Network rules alone could not separate "can write" from "can read", so an application-layer gateway was needed.
 - Moving from AWS provider 5.x to 6.x needed no code changes, but the lock file matters: it pins the version and keeps `init` identical on every machine.
 
-**What was hard**
+### What was hard
+
 - Refactoring six near-identical region files into one module while keeping the provider aliases straight.
 - Getting the cross-region peering order right. Associations and routes must wait until the hub has accepted each peering.
 
-**What I would do differently**
+### What I would do differently
+
 - Design the isolation model first and add features second. I found the Loki query exposure while adding features, not while designing.
 - Move Loki storage to S3 so the log store survives instance replacement.
 
-**What matters to a customer**
+### What matters to a customer
+
 - Logs from every region land in one place, that place has no public exposure, and regulated data stays in one region with proof (`terraform output isolation_proof`).
 
-**What it cost**
+### What it cost
+
 - The one-day test run (apply, evidence capture, destroy) cost **$4.22** in AWS Cost Explorer (daily view, 2026-09-28; evidence `13`). Teardown was verified clean in all seven regions with `scripts/verify-teardown.sh` (evidence `12`), so nothing kept billing afterwards.
 - By service: VPC $2.27, EC2-Other $1.15, Elastic Load Balancing $0.37, EC2 instances $0.29, Aurora (RDS) $0.14, everything else about $0.00. VPC and EC2-Other together were $3.42 of the $4.22.
 

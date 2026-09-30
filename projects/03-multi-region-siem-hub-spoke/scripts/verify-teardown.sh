@@ -45,6 +45,8 @@ for r in "${REGIONS[@]}"; do
     --query 'length(Addresses)'
   count "Load balancers"  aws elbv2 describe-load-balancers --region "$r" \
     --query 'length(LoadBalancers)'
+  # The backticks below are JMESPath literal syntax and must stay literal (SC2016).
+  # shellcheck disable=SC2016
   count "Transit gateways" aws ec2 describe-transit-gateways --region "$r" \
     --query 'length(TransitGateways[?State!=`deleted`])'
   count "EC2 instances"   aws ec2 describe-instances --region "$r" \
