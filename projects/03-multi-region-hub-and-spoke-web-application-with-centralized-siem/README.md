@@ -239,7 +239,7 @@ This project rebuilds a team lab, **Armageddon 1.0**, completed by the group "Re
 
 ![Armageddon 1.0 regional diagram: the New York spoke and the Tokyo hub, each with a public ALB and a private Auto Scaling group](diagrams/original-armageddon-1.0/regional-diagram-corrected.png)
 
-<sub>The regional diagram is the version I published with the lab, with two label fixes: the Tokyo Availability Zones now read `ap-northeast-1a` and `ap-northeast-1c` (they said `us-east-1a` and `us-east-1b`), and the cut-off note now ends "central hub in ap-northeast-1 (Tokyo)". The unedited image is kept as [`regional-diagram-as-published.jpg`](diagrams/original-armageddon-1.0/regional-diagram-as-published.jpg). Both are images only. Editing them properly needs the original Visio files.</sub>
+<sub>The regional diagram is the version I published with the lab, with two label fixes: the Tokyo Availability Zones now read `ap-northeast-1a` and `ap-northeast-1c` (they said `us-east-1a` and `us-east-1b`), and the cut-off note now ends "central hub in ap-northeast-1 (Tokyo)". The unedited image is kept as [`regional-diagram-as-published.jpg`](diagrams/original-armageddon-1.0/regional-diagram-as-published.jpg). Editable Visio sources are in [`source/`](diagrams/original-armageddon-1.0/source/): `routing-diagram.vsdx` as drawn, and `regional-diagram.vsdx` with the same label fixes made in the text.</sub>
 
 What I changed:
 
@@ -334,7 +334,7 @@ What I changed:
 ├── README.md
 ├── .gitignore
 ├── diagrams/                  # draw.io architecture diagram; Excalidraw log-flow diagram (PNG/SVG exports)
-│   └── original-armageddon-1.0/   # The team lab's two original diagrams (JPG/PNG)
+│   └── original-armageddon-1.0/   # The team lab's two original diagrams (JPG/PNG) and Visio sources in source/
 ├── scripts/
 │   └── verify-teardown.sh     # Checks all seven regions for leftover billable resources
 └── terraform/
