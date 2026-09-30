@@ -233,7 +233,7 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 
 ## What I changed from the original lab
 
-This project rebuilds a team lab, **Armageddon 1.0**, completed by the group "Results Speak Louder". The original Terraform code and README live in [Jason Nealy's repository](https://github.com/DaJace22/DaJace22-Armageddon-ResultsSpeakLouder), used and credited here with his permission. I drew the two original diagrams below for that lab. They show the 1.0 design (private subnets, an SSH bastion host, log collection in the Tokyo security zone), not the design in this project.
+This project rebuilds a team lab, **Armageddon 1.0**, completed in class by the group "Results Speak Louder". The original Terraform code and README live in [Jason Nealy's repository](https://github.com/DaJace22/DaJace22-Armageddon-ResultsSpeakLouder), used and credited here with his permission. I drew the two original diagrams below for that lab. They show the 1.0 design (private subnets, an SSH bastion host, log collection in the Tokyo security zone), not the design in this project.
 
 ![Armageddon 1.0 routing diagram: six spoke regions and the Tokyo hub connected through Transit Gateways](diagrams/original-armageddon-1.0/routing-diagram.jpg)
 
@@ -320,7 +320,7 @@ What I changed:
 ## Author
 
 - **Author:** Jacques (JP) Payne — [GitHub](https://github.com/jdp-cloud) · [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43)
-- **Original team lab (Armageddon 1.0):** group "Results Speak Louder". Original repository by [Jason Nealy](https://github.com/DaJace22/DaJace22-Armageddon-ResultsSpeakLouder). Diagrams by Jacques (JP) Payne.
+- **Original team lab (Armageddon 1.0, done in class):** group "Results Speak Louder". Original repository by [Jason Nealy](https://github.com/DaJace22/DaJace22-Armageddon-ResultsSpeakLouder). Diagrams by Jacques (JP) Payne.
 - **Other team members:** _add names and what each person contributed, plus the group leader_
 - **Version:** 1.0 · September 2026
 
