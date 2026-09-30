@@ -351,7 +351,18 @@ These are ideas I have not tested.
 
 - **Author:** Jacques (JP) Payne — [GitHub](https://github.com/jdp-cloud) · [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43)
 - **Original team lab (Armageddon 1.0, done in class):** original repository by [Jason Nealy](https://github.com/DaJace22/DaJace22-Armageddon-ResultsSpeakLouder). Diagrams by Jacques (JP) Payne.
-- **Team (Armageddon 1.0, "Results Speak Louder"):** Sam Fitzpatrick, Walter Porter, Jason Nealy, Maurice Driver, Xavier Miles, Imoh Enyiema and Jacques (JP) Payne (group leader).
+- **Team (Armageddon 1.0, "Results Speak Louder"):** seven people. Each member owned one region in the class plan:
+
+  | Team member | Region |
+  | --- | --- |
+  | Sam Fitzpatrick | Tokyo (the hub) |
+  | Maurice Driver | London |
+  | Jacques (JP) Payne, group leader | New York and Hong Kong |
+  | Jason Nealy | São Paulo |
+  | Walter Porter | Sydney |
+  | Xavier Miles | California |
+  | Imoh Enyiema | Started the project with the group |
+
 - **Version:** 1.0 · September 2026
 
 ## Repository layout
