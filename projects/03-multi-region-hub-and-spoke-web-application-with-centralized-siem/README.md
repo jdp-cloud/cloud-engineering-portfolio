@@ -305,7 +305,7 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 <summary>Show the file tree</summary>
 
 ```text
-03-multi-region-siem-hub-spoke/
+03-multi-region-hub-and-spoke-web-application-with-centralized-siem/
 ├── README.md
 ├── .gitignore
 ├── diagrams/                  # draw.io architecture diagram; Excalidraw log-flow diagram (PNG/SVG exports)

@@ -1,4 +1,4 @@
-$ terraform plan        (run from projects/03-multi-region-siem-hub-spoke/terraform)
+$ terraform plan        (run from projects/03-multi-region-hub-and-spoke-web-application-with-centralized-siem/terraform)
 
 Plan: 344 to add, 0 to change, 0 to destroy.
 
