@@ -1,5 +1,16 @@
-# macOS
+# macOS (Finder and system files)
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+Icon?
+.apdisk
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
 
 # Terraform local state and cache
 .terraform/
