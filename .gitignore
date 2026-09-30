@@ -1,0 +1,44 @@
+# ---- Repo-wide ignore rules ----
+# Applies to every project folder. Each project can add its own .gitignore for extras.
+
+# macOS (Finder and system files)
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Icon?
+.apdisk
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Terraform local state, cache and saved plans
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+tfplan
+*.tfplan
+
+# Variable files and backend config can hold account-specific or sensitive values.
+# Commit a *.example version instead (for example backend.tf.example).
+*.tfvars
+*.tfvars.json
+backend.tf
+
+# Keys and secrets
+*.pem
+*.key
+.env
+.env.*
+kubeconfig
+*.kubeconfig
+
+# Editors
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,37 @@
+# macOS (Finder and system files)
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Icon?
+.apdisk
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Terraform local state and cache
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+tfplan
+*.tfplan
+
+# Variable files and backend config can hold account-specific or sensitive values
+*.tfvars
+*.tfvars.json
+terraform/backend.tf
+
+# Keys and secrets
+*.pem
+*.key
+.env
+.env.*
+
+# Editors
+.vscode/
+.idea/

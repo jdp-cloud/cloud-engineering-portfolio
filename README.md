@@ -7,7 +7,7 @@
 ![Focus](https://img.shields.io/badge/focus-cloud%20security-B71C1C)
 [![Secret scan](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml)
 
-Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting **Senior Cloud Security Engineer** roles.
+Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting cloud engineering, platform and DevOps, and cloud security roles.
 
 [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43) | [GitHub](https://github.com/jdp-cloud)
 
@@ -19,7 +19,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | --- | --- | --- | --- | --- |
 | 01 | [Kubernetes Stateful Application](projects/01-kubernetes-stateful-application/) | A stateful workload with persistent storage, runtime secrets and a non-root security context, with data proven to survive pod replacement | Kubernetes, Minikube, StatefulSet, Splunk | Complete (validated locally) |
 | 02 | [Argo CD GitOps and RBAC](projects/02-argocd-gitops/) | Git-driven deployment, drift self-healing, environment boundaries and least-privilege access, with real allow and deny tests | Argo CD, AppProject, Kubernetes RBAC | Complete (validated locally) |
-| 03 | [Multi-Region Hub-and-Spoke SIEM](projects/03-multi-region-siem-hub-spoke/) | A seven-region AWS network with centralized log collection, no SSH access and least-privilege security groups | Terraform, AWS Transit Gateway, ALB, Loki, Grafana | Code complete. AWS deployment evidence pending. |
+| 03 | [Multi-Region Hub-and-Spoke Web Application with Centralized SIEM](projects/03-multi-region-hub-and-spoke-web-application-with-centralized-siem/) | A seven-region AWS network with centralized log collection, no SSH access and least-privilege security groups | Terraform, AWS Transit Gateway, ALB, Loki, Grafana | Deployed, verified and torn down. Evidence and cost in the project README. |
 
 ### In progress
 
