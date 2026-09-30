@@ -291,7 +291,7 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 ### What it cost
 
 - The one-day test run (apply, evidence capture, destroy) cost **$4.22** in AWS Cost Explorer (daily view, 2026-09-28; evidence `13`). Teardown was verified clean in all seven regions with `scripts/verify-teardown.sh` (evidence `12`), so nothing kept billing afterwards.
-- By service: VPC $2.27, EC2-Other $1.15, Elastic Load Balancing $0.37, EC2 instances $0.29, Aurora (RDS) $0.14, everything else about $0.00. VPC and EC2-Other together were $3.42 of the $4.22.
+- By service: VPC $2.27, EC2-Other $1.15, Elastic Load Balancing $0.37, EC2 instances $0.29, Aurora (RDS) $0.14, everything else about $0.00. VPC and EC2-Other together were $3.42 of the $4.22 (81%). AWS Cost Anomaly Detection attributed the VPC charge to Transit Gateway hours and the EC2-Other charge to NAT gateway hours, so the networking layer cost far more than the servers ($0.29 for EC2 instances).
 
 > JP: add one or two sentences here on what the cost taught you (for example, which services cost the most in Cost Explorer and what you would do to lower it).
 
