@@ -233,6 +233,16 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 
 ## What I changed from the original lab
 
+This project rebuilds a team lab, **Armageddon 1.0**, completed by the group "Results Speak Louder". The original Terraform code and README live in [Jason Nealy's repository](https://github.com/DaJace22/DaJace22-Armageddon-ResultsSpeakLouder), used and credited here with his permission. I drew the two original diagrams below for that lab. They show the 1.0 design (private subnets, an SSH bastion host, log collection in the Tokyo security zone), not the design in this project.
+
+![Armageddon 1.0 routing diagram: six spoke regions and the Tokyo hub connected through Transit Gateways](diagrams/original-armageddon-1.0/routing-diagram.jpg)
+
+![Armageddon 1.0 regional diagram: the New York spoke and the Tokyo hub, each with a public ALB and a private Auto Scaling group](diagrams/original-armageddon-1.0/regional-diagram-corrected.png)
+
+<sub>The regional diagram is the version I published with the lab, with two label fixes: the Tokyo Availability Zones now read `ap-northeast-1a` and `ap-northeast-1c` (they said `us-east-1a` and `us-east-1b`), and the cut-off note now ends "central hub in ap-northeast-1 (Tokyo)". The unedited image is kept as [`regional-diagram-as-published.jpg`](diagrams/original-armageddon-1.0/regional-diagram-as-published.jpg). Both are images only. Editing them properly needs the original Visio files.</sub>
+
+What I changed:
+
 - **Six near-identical 7 KB region files became one module.** Each spoke is now one module call. Adding a region no longer means copy-pasting 280 lines.
 - **Fixed the log path.** The lab's spoke route tables only pointed at the Tokyo web VPC, but Loki lives in the separate security-zone VPC. Spoke routes, hub TGW routes and the security-zone return routes now cover both networks.
 - **Fixed a São Paulo bug:** its internet-facing ALB had been placed in private subnets. The shared module puts every ALB in public subnets.
@@ -310,7 +320,8 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 ## Author
 
 - **Author:** Jacques (JP) Payne — [GitHub](https://github.com/jdp-cloud) · [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43)
-- **Contributors:** _add names and what each person contributed, plus your group name and group leader_
+- **Original team lab (Armageddon 1.0):** group "Results Speak Louder". Original repository by [Jason Nealy](https://github.com/DaJace22/DaJace22-Armageddon-ResultsSpeakLouder). Diagrams by Jacques (JP) Payne.
+- **Other team members:** _add names and what each person contributed, plus the group leader_
 - **Version:** 1.0 · September 2026
 
 ## Repository layout
@@ -323,6 +334,7 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 ├── README.md
 ├── .gitignore
 ├── diagrams/                  # draw.io architecture diagram; Excalidraw log-flow diagram (PNG/SVG exports)
+│   └── original-armageddon-1.0/   # The team lab's two original diagrams (JPG/PNG)
 ├── scripts/
 │   └── verify-teardown.sh     # Checks all seven regions for leftover billable resources
 └── terraform/
