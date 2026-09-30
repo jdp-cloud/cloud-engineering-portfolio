@@ -1,0 +1,16 @@
+version: 2
+
+updates:
+  # Keeps the GitHub Actions used by the workflows patched. The actions are
+  # pinned to commit SHAs, and Dependabot proposes new SHAs with the version
+  # noted in the comment.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Keeps the AWS provider and its lock file current for project 03.
+  - package-ecosystem: "terraform"
+    directory: "/projects/03-multi-region-hub-and-spoke-web-application-with-centralized-siem/terraform"
+    schedule:
+      interval: "weekly"

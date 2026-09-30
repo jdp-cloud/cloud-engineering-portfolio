@@ -1,0 +1,42 @@
+name: IaC security scan
+
+# Scans Terraform and Kubernetes manifests with Checkov for misconfigurations
+# (open security groups, missing encryption or logging, containers running
+# with excess privileges). Runs on each push and pull request, and weekly so
+# newly added rules are applied to existing code.
+#
+# soft_fail is on for now: findings are reported in the job log but do not fail
+# the build. Checkov's free rule set has no severity levels, so it cannot gate
+# on "high only", and the existing findings are triaged in
+# docs/iac-scan-findings.md. The plan is to fix the quick wins, record reasoned
+# skips for the intentional lab trade-offs, then turn soft_fail off so new
+# findings block a merge.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 13 * * 1" # Mondays, 13:00 UTC
+  workflow_dispatch:
+
+# Least privilege: the job only needs to read the repository.
+permissions:
+  contents: read
+
+jobs:
+  checkov:
+    name: checkov
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        # Pinned to a commit so a moved tag cannot change what runs here.
+        # Dependabot keeps these pins current.
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@2f9fbe2d1e51440f8f5c42abc829aad8e9e4faab # v12
+        with:
+          directory: projects
+          framework: terraform,kubernetes
+          download_external_modules: false
+          soft_fail: true
+          output_format: cli
