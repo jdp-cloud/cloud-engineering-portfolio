@@ -111,6 +111,15 @@ Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets
 | Default security groups | Explicitly emptied in every VPC | Nothing can rely on the permissive default. |
 | ALB | Only accepts HTTP from the internet and only forwards to the web security group; drops invalid headers | Narrow blast radius. |
 
+### Why the data stays in Tokyo
+
+This lab is designed around a scenario where the workload could hold health-related personal information about people in Japan. It holds no real patient data.
+
+- **Japan's privacy law.** The Act on the Protection of Personal Information (APPI) treats medical history as "special care-required personal information". Collecting it generally needs the person's prior opt-in consent, and the law adds requirements when personal data is transferred to a third party abroad.
+- **Medical-sector guidance.** Medical institutions that place medical information with a cloud provider are expected to review their risk management against the "2G3M" guidelines (Two Guidelines from Three Ministries): the Ministry of Health, Labour and Welfare's guideline for the security management of medical information systems, and the Ministry of Economy, Trade and Industry's safety management guideline for service providers that handle medical information.
+- **What the design does about it.** The log store and the Aurora database exist only in Tokyo, and no other region has a route to them or a way to query them. That gives a clear, checkable data-location boundary (see `terraform output isolation_proof` and evidence `04`).
+- **What it does not do.** This is a design choice, not a compliance certification. Meeting these requirements also depends on consent handling, contracts, key management and organizational controls that Terraform cannot provide. I did not find a blanket in-country storage rule in the sources listed under [References](#references), so treat Tokyo-only storage as a conservative design choice.
+
 ## Quick start
 
 <details>
@@ -295,6 +304,8 @@ Every count should be `0`, and the script ends with `CLEAN: no billable resource
 - [Terraform: module composition and provider passing](https://developer.hashicorp.com/terraform/language/modules/develop/providers)
 - [Grafana Loki documentation](https://grafana.com/docs/loki/latest/)
 - [Promtail documentation](https://grafana.com/docs/loki/latest/send-data/promtail/)
+- [Google Cloud: 2G3M (Two Guidelines from Three Ministries), Japan](https://cloud.google.com/security/compliance/2g3m-japan)
+- [Benesch Law: amended Japanese privacy law, special care-required information and cross-border transfers](https://www.beneschlaw.com/insight/amended-japanese-privacy-law-creates-new-categories-of-regulated-personal-information-and-cross-border-transfer-requirements/)
 
 ## Author
 
