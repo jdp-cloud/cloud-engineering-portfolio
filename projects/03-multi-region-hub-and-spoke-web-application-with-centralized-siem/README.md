@@ -71,6 +71,13 @@ Each web VPC contains two public subnets (ALB, NAT gateway), two private subnets
 | Hong Kong | ap-east-1 | 10.76.0.0/16 |
 | Security zone | ap-northeast-1 | 10.77.0.0/16 |
 
+Each VPC gets its own `/16` (65,536 addresses) from the private pool `10.64.0.0/12`. Why:
+
+- The Transit Gateway routes by destination address, so no two VPCs can overlap. One block per VPC guarantees that.
+- The second number identifies the VPC (10.72 is New York), which makes source IPs in logs and route tables easy to read.
+- `/16` is the largest VPC size AWS allows, and unused addresses cost nothing.
+- It is generous for a lab. A production network would size each VPC to what it needs and track allocations with a tool such as AWS IPAM, because the private `10.0.0.0/8` range holds only 256 blocks of this size.
+
 ### Routing model
 
 - Each spoke has its own TGW, peered to the hub TGW. Spokes can reach the Tokyo web VPC and the security zone. They **cannot** reach each other, because no spoke route table has a route to another spoke.

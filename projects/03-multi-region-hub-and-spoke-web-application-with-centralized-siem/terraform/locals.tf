@@ -1,4 +1,5 @@
-# Central address plan. Every VPC gets a /16 out of 10.70.0.0/12 so nothing overlaps.
+# Central address plan. Every VPC gets its own /16 from the private pool 10.64.0.0/12
+# (10.64 to 10.79). The Transit Gateway routes by destination address, so no two VPCs may overlap.
 #
 #   10.70.0.0/16  Tokyo web VPC (hub region)
 #   10.71.0.0/16  London          10.74.0.0/16  Sydney
