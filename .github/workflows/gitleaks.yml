@@ -1,0 +1,30 @@
+name: Secret scan
+
+# Scans every commit for leaked credentials (API keys, tokens, private keys).
+# Runs on each push and pull request, and weekly so newly added detection
+# rules are applied to existing history.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 13 * * 1" # Mondays, 13:00 UTC
+  workflow_dispatch:
+
+# Least privilege: the job only needs to read the repository.
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # scan every commit, not just the latest
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
