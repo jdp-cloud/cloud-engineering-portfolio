@@ -197,6 +197,7 @@ Optional remote state: copy `backend.tf.example` to `backend.tf` (git-ignored) a
 | Teardown: `Destroy complete! Resources: 344 destroyed.` | Passed | [`11-destroy-complete-344-destroyed.png`](evidence/screenshots/11-destroy-complete-344-destroyed.png) |
 | Teardown: `scripts/verify-teardown.sh` finds no billable resources in any of the seven regions | Passed | [`12-verify-teardown-clean.png`](evidence/screenshots/12-verify-teardown-clean.png) |
 | Cost: AWS Cost Explorer, daily view for the run day (2026-09-28), total $4.22 | Passed | [`13-cost-explorer-sep-28-total.png`](evidence/screenshots/13-cost-explorer-sep-28-total.png) |
+| Cost by usage type: Cost Explorer export for 2026-09-28 (Transit Gateway, NAT gateway and load balancer hours were the top three) | Passed | [`02-cost-explorer-usage-types-2026-09-28.csv`](evidence/command-output/02-cost-explorer-usage-types-2026-09-28.csv) |
 
 ## Cost and teardown
 
@@ -301,9 +302,31 @@ What I changed:
 ### What it cost
 
 - The one-day test run (apply, evidence capture, destroy) cost **$4.22** in AWS Cost Explorer (daily view, 2026-09-28; evidence `13`). Teardown was verified clean in all seven regions with `scripts/verify-teardown.sh` (evidence `12`), so nothing kept billing afterwards.
-- By service: VPC $2.27, EC2-Other $1.15, Elastic Load Balancing $0.37, EC2 instances $0.29, Aurora (RDS) $0.14, everything else about $0.00. VPC and EC2-Other together were $3.42 of the $4.22 (81%). AWS Cost Anomaly Detection attributed the VPC charge to Transit Gateway hours and the EC2-Other charge to NAT gateway hours, so the networking layer cost far more than the servers ($0.29 for EC2 instances).
+- By service: VPC $2.27, EC2-Other $1.15, Elastic Load Balancing $0.37, EC2 instances $0.29, Aurora (RDS) $0.14, everything else about $0.00. The networking layer cost far more than the servers.
+- By usage type (Cost Explorer export, [`02-cost-explorer-usage-types-2026-09-28.csv`](evidence/command-output/02-cost-explorer-usage-types-2026-09-28.csv)):
 
-> JP: add one or two sentences here on what the cost taught you (for example, which services cost the most in Cost Explorer and what you would do to lower it).
+| Cost driver | Cost | Share of $4.22 |
+| --- | --- | --- |
+| Transit Gateway hours | $2.13 | 51% |
+| NAT gateway hours | $0.97 | 23% |
+| Load balancer usage | $0.37 | 9% |
+| EC2 instances | $0.29 | 7% |
+| Public IPv4 addresses | $0.14 | 3% |
+| NAT gateway data processed | $0.14 | 3% |
+| Aurora | $0.14 | 3% |
+| Everything else (EBS, data transfer, KMS, Secrets Manager, Config) | $0.04 | 1% |
+
+**What I learned:** the three biggest cost drivers were Transit Gateway hours, NAT gateway hours and load balancer usage. Together they were 82% of the bill. Data transfer and data processing were almost nothing, so the cost came from how many hours these resources existed, not from traffic. I could not see a way to lower them without an alternate architecture.
+
+#### Ideas for lowering the cost
+
+These are ideas I have not tested.
+
+- **Run it for fewer hours.** Every big charge is hourly, so destroying the stack the same day is the biggest saving.
+- **Deploy fewer regions while building.** Cost grows with the number of regions. A variable for the spoke region list would allow a small test (Tokyo plus two spokes), with the full seven regions only for the final evidence run.
+- **Regional NAT gateway (new in November 2025).** AWS added a [regional availability mode](https://aws.amazon.com/about-aws/whats-new/2025/11/aws-nat-gateway-regional-availability) that runs one NAT gateway across the Availability Zones a VPC uses and no longer needs a public subnet to host it. It simplifies the design and routing, but the [documentation](https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateways-regional.html) gives no price, so I cannot say it lowers the hourly charge. Check the [VPC pricing page](https://aws.amazon.com/vpc/pricing/) before assuming a saving.
+- **Transit Gateway.** The newer [flexible cost allocation](https://aws.amazon.com/blogs/networking-and-content-delivery/introducing-flexible-cost-allocation-for-aws-transit-gateway/) feature (November 2025) only changes which account is charged. It does not lower the cost. Inter-region VPC peering has no hourly charge and would work for a design where every spoke only talks to Tokyo, but it would drop the hub-and-spoke pattern this project demonstrates.
+- **Guardrails.** An AWS Budgets alert at a low threshold would flag a forgotten stack within hours.
 
 ## References
 
