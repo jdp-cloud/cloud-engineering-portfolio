@@ -5,6 +5,7 @@
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-GitOps-326CE5?logo=kubernetes&logoColor=white)
 ![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?logo=jenkins&logoColor=white)
 ![Focus](https://img.shields.io/badge/focus-cloud%20security-B71C1C)
+[![Secret scan](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml)
 
 Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting cloud engineering, platform and DevOps, and cloud security roles.
 
@@ -51,6 +52,12 @@ projects/NN-project-name/
 ```
 
 Each README states its scope and limitations plainly. These are learning and portfolio projects, and I describe what was actually validated.
+
+## Repository security practices
+
+- **Automated secret scanning.** A [gitleaks](https://github.com/gitleaks/gitleaks) scan runs over the full commit history on every push and pull request, and weekly (see the badge at the top).
+- **Nothing sensitive is committed.** Each project's `.gitignore` excludes Terraform state, `*.tfvars`, real backend configuration, keys and secret manifests. Files such as `backend.tf.example` show the shape without real values.
+- **Runtime secrets.** The Splunk administrator password is created at deploy time and never stored in Git.
 
 ## Certifications
 
