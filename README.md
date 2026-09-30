@@ -58,6 +58,8 @@ Each README states its scope and limitations plainly. These are learning and por
 - **Automated secret scanning.** A [gitleaks](https://github.com/gitleaks/gitleaks) scan runs over the full commit history on every push and pull request, and weekly (see the badge at the top).
 - **Nothing sensitive is committed.** Each project's `.gitignore` excludes Terraform state, `*.tfvars`, real backend configuration, keys and secret manifests. Files such as `backend.tf.example` show the shape without real values.
 - **Runtime secrets.** The Splunk administrator password is created at deploy time and never stored in Git.
+- **Infrastructure-as-code scanning.** [Checkov](https://www.checkov.io/) scans the Terraform and Kubernetes manifests on every push and pull request. It currently reports findings without blocking the build, and the first results are triaged in [docs/iac-scan-findings.md](docs/iac-scan-findings.md).
+- **Dependency updates.** Dependabot proposes weekly updates for GitHub Actions and the Terraform provider, and the workflows pin each action to a commit.
 
 ## Certifications
 
