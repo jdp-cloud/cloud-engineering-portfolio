@@ -1,0 +1,247 @@
+{
+  "schema_version": "1.0",
+  "report_id": "compliance-20260824T192649Z",
+  "report_type": "COMPLIANCE_EVIDENCE",
+  "organization": "SEIR Cloud Security",
+  "title": "Compliance Evidence Report",
+  "generated_at": "2026-08-24T19:26:49.574454+00:00",
+  "requested_frameworks": [
+    "NIST CSF 2.0",
+    "CIS Controls v8"
+  ],
+  "summary": {
+    "total_controls": 4,
+    "passed_controls": 4,
+    "failed_controls": 0,
+    "review_controls": 0,
+    "score_percent": 100.0,
+    "overall_status": "PASS"
+  },
+  "framework_scorecards": [
+    {
+      "total_controls": 3,
+      "passed_controls": 3,
+      "failed_controls": 0,
+      "review_controls": 0,
+      "score_percent": 100.0,
+      "overall_status": "PASS",
+      "framework": "CIS Controls v8"
+    },
+    {
+      "total_controls": 1,
+      "passed_controls": 1,
+      "failed_controls": 0,
+      "review_controls": 0,
+      "score_percent": 100.0,
+      "overall_status": "PASS",
+      "framework": "ISO 27001"
+    },
+    {
+      "total_controls": 4,
+      "passed_controls": 4,
+      "failed_controls": 0,
+      "review_controls": 0,
+      "score_percent": 100.0,
+      "overall_status": "PASS",
+      "framework": "NIST CSF 2.0"
+    },
+    {
+      "total_controls": 1,
+      "passed_controls": 1,
+      "failed_controls": 0,
+      "review_controls": 0,
+      "score_percent": 100.0,
+      "overall_status": "PASS",
+      "framework": "PCI DSS 4.0"
+    }
+  ],
+  "control_results": [
+    {
+      "control_id": "CTRL-001",
+      "title": "AWS WAF Protection",
+      "description": "API Gateway must be protected by AWS WAF.",
+      "category": "Network Security",
+      "severity": "HIGH",
+      "service": "AWS WAF",
+      "resource_type": "WebACL",
+      "frameworks": [
+        {
+          "framework": "NIST CSF 2.0",
+          "control": "PR.PS-1"
+        },
+        {
+          "framework": "CIS Controls v8",
+          "control": "13.1"
+        },
+        {
+          "framework": "PCI DSS 4.0",
+          "control": "6.4"
+        },
+        {
+          "framework": "ISO 27001",
+          "control": "A.8.20"
+        }
+      ],
+      "evidence_sources": [
+        "waf-events"
+      ],
+      "validation": {
+        "type": "table_exists",
+        "table": "WAF_EVENTS_TABLE"
+      },
+      "status": "PASS",
+      "observation": "DynamoDB table 'armageddon2-lab12-dev-waf-events' exists with status 'ACTIVE'.",
+      "evidence": {
+        "table": "armageddon2-lab12-dev-waf-events",
+        "table_status": "ACTIVE",
+        "table_arn": "arn:aws:dynamodb:us-east-1:123456789012:table/armageddon2-lab12-dev-waf-events"
+      },
+      "error": null,
+      "evaluated_at": "2026-08-24T19:26:49.574454+00:00",
+      "bedrock_prompt": "Explain whether evidence demonstrates that AWS WAF is actively protecting the application."
+    },
+    {
+      "control_id": "CTRL-002",
+      "title": "Threat Correlation",
+      "description": "Security events should be correlated to identify attack campaigns.",
+      "category": "Detection",
+      "severity": "MEDIUM",
+      "service": "Threat Correlation Agent",
+      "resource_type": "Lambda",
+      "frameworks": [
+        {
+          "framework": "NIST CSF 2.0",
+          "control": "DE.AE-03"
+        },
+        {
+          "framework": "CIS Controls v8",
+          "control": "13.7"
+        }
+      ],
+      "evidence_sources": [
+        "waf-correlation-findings"
+      ],
+      "validation": {
+        "type": "table_exists",
+        "table": "CORRELATION_FINDINGS_TABLE"
+      },
+      "status": "PASS",
+      "observation": "DynamoDB table 'armageddon2-lab12-dev-waf-correlation-findings' exists with status 'ACTIVE'.",
+      "evidence": {
+        "table": "armageddon2-lab12-dev-waf-correlation-findings",
+        "table_status": "ACTIVE",
+        "table_arn": "arn:aws:dynamodb:us-east-1:123456789012:table/armageddon2-lab12-dev-waf-correlation-findings"
+      },
+      "error": null,
+      "evaluated_at": "2026-08-24T19:26:49.574454+00:00",
+      "bedrock_prompt": "Summarize whether correlated findings demonstrate effective detection capability."
+    },
+    {
+      "control_id": "CTRL-003",
+      "title": "Incident Response",
+      "description": "Security incidents should be tracked and managed.",
+      "category": "Incident Response",
+      "severity": "HIGH",
+      "service": "SOAR Response Agent",
+      "resource_type": "Lambda",
+      "frameworks": [
+        {
+          "framework": "NIST CSF 2.0",
+          "control": "RS.MA-01"
+        },
+        {
+          "framework": "CIS Controls v8",
+          "control": "17.3"
+        }
+      ],
+      "evidence_sources": [
+        "security-incidents"
+      ],
+      "validation": {
+        "type": "table_exists",
+        "table": "SECURITY_INCIDENTS_TABLE"
+      },
+      "status": "PASS",
+      "observation": "DynamoDB table 'armageddon2-lab12-dev-security-incidents' exists with status 'ACTIVE'.",
+      "evidence": {
+        "table": "armageddon2-lab12-dev-security-incidents",
+        "table_status": "ACTIVE",
+        "table_arn": "arn:aws:dynamodb:us-east-1:123456789012:table/armageddon2-lab12-dev-security-incidents"
+      },
+      "error": null,
+      "evaluated_at": "2026-08-24T19:26:49.574454+00:00",
+      "bedrock_prompt": "Determine whether incident response evidence supports the operation of the response process."
+    },
+    {
+      "control_id": "CTRL-004",
+      "title": "Executive Reporting",
+      "description": "Security reporting should be available for leadership.",
+      "category": "Governance",
+      "severity": "MEDIUM",
+      "service": "Executive Dashboard Agent",
+      "resource_type": "Lambda",
+      "frameworks": [
+        {
+          "framework": "NIST CSF 2.0",
+          "control": "GV.OV-01"
+        }
+      ],
+      "evidence_sources": [
+        "executive-security-reports"
+      ],
+      "validation": {
+        "type": "s3_prefix",
+        "bucket": "REPORT_BUCKET",
+        "prefix": "EXECUTIVE_REPORT_PREFIX"
+      },
+      "status": "PASS",
+      "observation": "S3 prefix 's3://armageddon2-lab12-dev-us-east-1-123456789012-reports/executive-reports' contains report evidence.",
+      "evidence": {
+        "bucket": "armageddon2-lab12-dev-us-east-1-123456789012-reports",
+        "prefix": "executive-reports",
+        "object_found": true,
+        "sample_object_key": "executive-reports/2026/08/24/json/executive-security-20260824T185528Z.json"
+      },
+      "error": null,
+      "evaluated_at": "2026-08-24T19:26:49.574454+00:00",
+      "bedrock_prompt": "Explain whether executive reporting demonstrates governance and security visibility."
+    }
+  ],
+  "narrative": {
+    "executive_summary": "This compliance evidence report evaluates 4 security controls across multiple frameworks (NIST CSF 2.0, CIS Controls v8, ISO 27001, and PCI DSS 4.0). All 4 controls achieved a PASS status, resulting in a 100% compliance score. Evidence demonstrates the existence and active status of key security infrastructure components including AWS WAF protection, threat correlation capabilities, incident response infrastructure, and executive reporting mechanisms.",
+    "overall_assessment": "All evaluated controls passed their assessments. The organization has established foundational security infrastructure across network protection, detection, incident response, and governance domains. This report provides control evidence based on point-in-time resource verification and does not constitute a certification of compliance with any regulatory framework.",
+    "material_failures": [],
+    "items_requiring_review": [],
+    "strengths": [
+      "AWS WAF protection infrastructure is active and operational for network security (CTRL-001)",
+      "Threat correlation capability is in place to support detection and analysis functions (CTRL-002)",
+      "Incident response infrastructure exists to support security incident management (CTRL-003)",
+      "Executive reporting infrastructure is established to provide security visibility to leadership (CTRL-004)",
+      "Controls span multiple security domains: prevention, detection, response, and governance"
+    ],
+    "recommended_actions": [
+      "Verify that AWS WAF rules are appropriately configured and regularly updated to address current threat landscape",
+      "Confirm that threat correlation findings are actively reviewed and that detection processes are generating actionable intelligence",
+      "Validate that incident response procedures are documented, tested, and that the infrastructure is being utilized for actual incident management",
+      "Assess the frequency and content of executive reports to ensure they provide adequate security visibility and support informed decision-making",
+      "Establish monitoring to ensure these infrastructure components remain active and functional over time"
+    ],
+    "evidence_limitations": [
+      "Evidence is based on resource existence and active status only; operational effectiveness and continuous operation are not verified",
+      "No evidence of actual WAF event processing, correlation analysis, or incident handling is provided",
+      "Report content and distribution of executive reports is not evaluated",
+      "Configuration, access controls, and data retention policies for these resources are not assessed",
+      "No evidence of testing, maintenance, or update procedures for these controls is included",
+      "Point-in-time verification does not demonstrate sustained compliance or historical performance"
+    ],
+    "auditor_note": "This report provides evidence of control infrastructure existence as of the evaluation date (2026-08-24). All controls passed based on verification that required resources exist and are in an active state. However, resource existence alone does not demonstrate operational effectiveness, proper configuration, or continuous operation. Auditors should conduct additional testing to verify that these controls are functioning as intended, that procedures are documented and followed, and that the infrastructure is generating the expected security outcomes. Recommend follow-up assessment of control design and operating effectiveness."
+  },
+  "generation_metadata": {
+    "validator": "compliance_agent.py",
+    "controls_file": "/var/task/controls.json",
+    "bedrock_used": true,
+    "bedrock_model_id": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "certification_claimed": false,
+    "human_review_required": false
+  }
+}
