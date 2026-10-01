@@ -1,0 +1,20 @@
+# Copy this file to terraform.tfvars and replace all placeholders.
+# The real terraform.tfvars file is intentionally ignored by Git.
+
+notification_email = "your-email@example.com"
+
+bedrock_model_id = "REPLACE_WITH_BEDROCK_MODEL_OR_INFERENCE_PROFILE_ID"
+
+bedrock_resource_arns = [
+  "arn:aws:bedrock:us-east-1:111122223333:inference-profile/REPLACE_ME",
+  "arn:aws:bedrock:us-east-1::foundation-model/REPLACE_ME",
+]
+
+# Optional Lab 12B reporting settings:
+# enable_executive_bedrock  = true
+# report_period_hours       = 24
+# max_items_per_table       = 5000
+# organization_name         = "SEIR Cloud Security"
+# report_title              = "Executive Security Report"
+# report_prefix             = "executive-reports"
+# report_bucket_force_destroy = true

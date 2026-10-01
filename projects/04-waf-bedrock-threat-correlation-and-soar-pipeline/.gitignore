@@ -1,0 +1,19 @@
+# Never publish secrets, state, plans or build output
+terraform.tfvars
+*.auto.tfvars
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+.terraform/
+.terraform.lock.hcl.bak
+crash.log
+# Built Lambda packages and layers
+*.zip
+layers/*/python/
+# Python and macOS noise
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.DS_Store

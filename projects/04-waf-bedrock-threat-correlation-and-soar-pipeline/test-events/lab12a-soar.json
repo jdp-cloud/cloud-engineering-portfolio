@@ -1,0 +1,15 @@
+{
+  "version": "0",
+  "id": "example-event-id",
+  "detail-type": "WAF Threat Finding Created",
+  "source": "seir.waf.correlation",
+  "account": "111122223333",
+  "time": "2026-01-01T00:00:00Z",
+  "region": "us-east-1",
+  "resources": [],
+  "detail": {
+    "finding_id": "replace-with-test-finding-id",
+    "severity": "HIGH",
+    "risk_score": 75
+  }
+}

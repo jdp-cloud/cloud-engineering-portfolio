@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0",
+  "report_id": "executive-security-20260804T182845Z",
+  "report_type": "EXECUTIVE_SECURITY",
+  "organization": "SEIR Cloud Security",
+  "title": "Executive Security Report",
+  "generated_at": "2026-08-04T18:28:45.333184+00:00",
+  "overall_security_posture": "ELEVATED",
+  "current_period": {
+    "period": {
+      "start": "2026-08-03T18:28:45.333184+00:00",
+      "end": "2026-08-04T18:28:45.333184+00:00"
+    },
+    "waf": {
+      "total_events": 4,
+      "blocked_requests": 4,
+      "allowed_requests": 0,
+      "other_actions": 0,
+      "block_percentage": 100.0,
+      "unique_source_ips": 1,
+      "repeat_source_ips": 1,
+      "unique_targeted_uris": 4,
+      "top_source_ips": [
+        {
+          "name": "198.51.100.88",
+          "count": 4
+        }
+      ],
+      "top_targeted_uris": [
+        {
+          "name": "/account/reset",
+          "count": 1
+        },
+        {
+          "name": "/admin/login",
+          "count": 1
+        },
+        {
+          "name": "/api/users",
+          "count": 1
+        },
+        {
+          "name": "/auth/token",
+          "count": 1
+        }
+      ],
+      "top_waf_rules": [
+        {
+          "name": "AWSManagedRulesKnownBadInputsRuleSet",
+          "count": 2
+        },
+        {
+          "name": "AWSManagedRulesCommonRuleSet",
+          "count": 2
+        }
+      ],
+      "top_countries": [
+        {
+          "name": "US",
+          "count": 4
+        }
+      ]
+    },
+    "findings": {
+      "total_findings": 1,
+      "low": 0,
+      "medium": 0,
+      "high": 1,
+      "critical": 0,
+      "unknown": 0,
+      "open": 0,
+      "response_completed": 1,
+      "average_risk_score": 60.0,
+      "highest_risk_score": 60.0,
+      "highest_risk_source": "198.51.100.88",
+      "highest_risk_target": "/admin/login"
+    },
+    "incidents": {
+      "total_incidents": 1,
+      "open_incidents": 1,
+      "awaiting_human_review": 1,
+      "resolved_incidents": 0,
+      "critical_incidents": 0,
+      "high_incidents": 1,
+      "medium_incidents": 0,
+      "low_incidents": 0,
+      "oldest_open_incident_hours": 0.0,
+      "oldest_open_incident_id": "INC-5455208f-1d5b-442b-9d67-f3f04f97f526",
+      "playbooks_invoked": [
+        {
+          "name": "CREATE_AND_ESCALATE_INCIDENT",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "previous_period": {
+    "period": {
+      "start": "2026-08-02T18:28:45.333184+00:00",
+      "end": "2026-08-03T18:28:45.333184+00:00"
+    },
+    "waf": {
+      "total_events": 2,
+      "blocked_requests": 2,
+      "allowed_requests": 0,
+      "other_actions": 0,
+      "block_percentage": 100.0,
+      "unique_source_ips": 1,
+      "repeat_source_ips": 1,
+      "unique_targeted_uris": 2,
+      "top_source_ips": [
+        {
+          "name": "203.0.113.45",
+          "count": 2
+        }
+      ],
+      "top_targeted_uris": [
+        {
+          "name": "/products",
+          "count": 1
+        },
+        {
+          "name": "/search",
+          "count": 1
+        }
+      ],
+      "top_waf_rules": [
+        {
+          "name": "AWSManagedRulesCommonRuleSet",
+          "count": 2
+        }
+      ],
+      "top_countries": [
+        {
+          "name": "US",
+          "count": 2
+        }
+      ]
+    },
+    "findings": {
+      "total_findings": 0,
+      "low": 0,
+      "medium": 0,
+      "high": 0,
+      "critical": 0,
+      "unknown": 0,
+      "open": 0,
+      "response_completed": 0,
+      "average_risk_score": 0.0,
+      "highest_risk_score": 0.0,
+      "highest_risk_source": null,
+      "highest_risk_target": null
+    },
+    "incidents": {
+      "total_incidents": 0,
+      "open_incidents": 0,
+      "awaiting_human_review": 0,
+      "resolved_incidents": 0,
+      "critical_incidents": 0,
+      "high_incidents": 0,
+      "medium_incidents": 0,
+      "low_incidents": 0,
+      "oldest_open_incident_hours": 0.0,
+      "oldest_open_incident_id": null,
+      "playbooks_invoked": []
+    }
+  },
+  "period_changes": {
+    "waf_events_percent": 100.0,
+    "blocked_requests_percent": 100.0,
+    "unique_source_ips_percent": 0.0,
+    "high_findings_change": 1,
+    "critical_findings_change": 0,
+    "open_incidents_change": 1
+  },
+  "narrative": {
+    "overall_security_posture": "ELEVATED",
+    "executive_summary": "Security posture has shifted to ELEVATED status during the current 24-hour period (2026-08-03 to 2026-08-04). The Web Application Firewall (WAF) blocked 4 malicious requests from a single source IP, resulting in 1 high-severity finding and 1 open incident requiring human review. This represents a significant change from the previous period, which contained no findings or incidents.",
+    "material_changes": [
+      "WAF events increased 100% (2 to 4 blocked requests)",
+      "New high-severity finding emerged (0 to 1)",
+      "New open incident created (0 to 1 incident awaiting human review)",
+      "Attack pattern shifted: previous period targeted general endpoints (/products, /search); current period targets sensitive endpoints (/admin/login, /auth/token, /account/reset, /api/users)",
+      "Source IP changed between periods (203.0.113.45 to 198.51.100.88), both originating from US"
+    ],
+    "business_impact": "Four requests targeting authentication and administrative endpoints were blocked before reaching application logic. No successful exploitation is confirmed. The shift in targeting pattern from general content to sensitive security endpoints indicates reconnaissance or escalation of attack intent. Business impact cannot be quantified without additional context on application criticality and customer exposure.",
+    "leadership_attention_required": [
+      "One high-severity incident (INC-5455208f-1d5b-442b-9d67-f3f04f97f526) is open and awaiting human review\u2014immediate triage required to determine response actions",
+      "Attack pattern escalation: targeting of /admin/login and /auth/token suggests potential credential compromise or privilege escalation attempts",
+      "Sustained attack activity across consecutive 24-hour periods from different source IPs warrants investigation into coordinated or distributed attack campaign"
+    ],
+    "soc_management_summary": "WAF successfully blocked all 4 malicious requests in the current period using AWSManagedRulesKnownBadInputsRuleSet (2 matches) and AWSManagedRulesCommonRuleSet (2 matches). One incident has been created and escalated via the CREATE_AND_ESCALATE_INCIDENT playbook. The incident remains open with 0 hours elapsed since creation, indicating it is newly generated. Human review is required to assess incident severity, determine root cause, and decide on response actions. No findings are currently open (1 high-severity finding has response_completed status).",
+    "recommended_priorities": [
+      "Immediately review and triage open incident INC-5455208f-1d5b-442b-9d67-f3f04f97f526 to determine if additional containment or investigation is warranted",
+      "Analyze attack patterns across both periods: investigate whether 198.51.100.88 and 203.0.113.45 are related or part of a coordinated campaign",
+      "Validate WAF rule effectiveness: confirm that AWSManagedRulesKnownBadInputsRuleSet and AWSManagedRulesCommonRuleSet are appropriately tuned to prevent false positives while maintaining coverage",
+      "Review access logs for /admin/login, /auth/token, /account/reset, and /api/users endpoints to confirm no requests bypassed WAF protection",
+      "Establish baseline for attack frequency: determine if 2-4 blocked requests per 24-hour period represents normal variation or emerging threat trend"
+    ],
+    "limitations_and_unknowns": [
+      "No historical baseline exists prior to the previous period\u2014cannot determine if current activity represents new threat or recurring pattern",
+      "Geolocation data (US) is provided but IP reputation, ownership, and threat intelligence context are not available",
+      "WAF rule match details (specific payloads, attack vectors) are not included\u2014cannot assess attack sophistication or intent with certainty",
+      "The high-severity finding has risk_score of 60.0, but scoring methodology and threshold definitions are not provided",
+      "No information on whether blocked requests triggered any downstream alerts, logging, or monitoring systems",
+      "Business context for targeted endpoints (/admin/login, /auth/token) is not provided\u2014cannot assess relative risk without understanding application architecture and access controls"
+    ]
+  },
+  "generation_metadata": {
+    "bedrock_used": true,
+    "bedrock_model_id": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "containment_performed": false,
+    "human_review_required": true
+  }
+}
