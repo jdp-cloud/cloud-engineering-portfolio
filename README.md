@@ -7,7 +7,7 @@
 ![Focus](https://img.shields.io/badge/focus-cloud%20security-B71C1C)
 [![Secret scan](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml)
 
-Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting cloud engineering, platform and DevOps, and cloud security roles.
+Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting cloud security engineering and AI platform engineering roles.
 
 [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43) | [GitHub](https://github.com/jdp-cloud)
 
@@ -20,6 +20,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | 01 | [Kubernetes Stateful Application](projects/01-kubernetes-stateful-application/) | A stateful workload with persistent storage, runtime secrets and a non-root security context, with data proven to survive pod replacement | Kubernetes, Minikube, StatefulSet, Splunk | Complete (validated locally) |
 | 02 | [Argo CD GitOps and RBAC](projects/02-argocd-gitops/) | Git-driven deployment, drift self-healing, environment boundaries and least-privilege access, with real allow and deny tests | Argo CD, AppProject, Kubernetes RBAC | Complete (validated locally) |
 | 03 | [Multi-Region Hub-and-Spoke Web Application with Centralized SIEM](projects/03-multi-region-hub-and-spoke-web-application-with-centralized-siem/) | A seven-region AWS network with centralized log collection, no SSH access and least-privilege security groups | Terraform, AWS Transit Gateway, ALB, Loki, Grafana | Deployed, verified and torn down. Evidence and cost in the project README. |
+| 04 | [WAF to Bedrock Threat Correlation to SOAR Pipeline](projects/04-waf-bedrock-threat-correlation-and-soar-pipeline/) | An AWS pipeline that turns WAF logs into scored findings, incidents and reports. Amazon Bedrock only explains. Deterministic code makes every decision, and containment is never automated. Cognito MFA and group-based access protect the API. | Terraform, AWS WAF, Lambda, Bedrock, EventBridge, DynamoDB, Cognito, Python | Deployed, verified and torn down. Based on a class group lab. Evidence is partial and the limitations are listed in the project README. |
 
 ### In progress
 
@@ -35,7 +36,10 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | Network security (Transit Gateway routing, security groups, no SSH) | Project 03 |
 | Kubernetes workloads and storage | Project 01 |
 | GitOps and policy boundaries | Project 02 |
-| Access control and least privilege | Projects 02 and 03 |
+| Access control and least privilege | Projects 02, 03 and 04 |
+| Event-driven AWS (Lambda, EventBridge, DynamoDB, SNS) | Project 04 |
+| Generative AI with guardrails (Bedrock explains, code decides) | Project 04 |
+| API authentication and role-based access (Cognito, MFA, API Gateway authorizer) | Project 04 |
 | Secrets handling (kept out of Git) | Projects 01 and 02 |
 | Troubleshooting and evidence-based documentation | All projects |
 
@@ -60,6 +64,11 @@ Each README states its scope and limitations plainly. These are learning and por
 - **Runtime secrets.** The Splunk administrator password is created at deploy time and never stored in Git.
 - **Infrastructure-as-code scanning.** [Checkov](https://www.checkov.io/) scans the Terraform and Kubernetes manifests on every push and pull request. It currently reports findings without blocking the build, and the first results are triaged in [docs/iac-scan-findings.md](docs/iac-scan-findings.md).
 - **Dependency updates.** Dependabot proposes weekly updates for GitHub Actions and the Terraform provider, and the workflows pin each action to a commit.
+
+## How I use AI
+
+- **In what I build.** Project 04 uses Amazon Bedrock under one rule: deterministic code decides severity, playbooks and compliance results, and the model only writes the explanation. Anything the code cannot evaluate becomes `REVIEW`, and nothing is ever contained automatically.
+- **In how I work.** I use an AI assistant to review my work, draft documentation and run checks such as secret and infrastructure scans. I then verify the result with the tools themselves: scanner output, `terraform validate`, and deployments that were applied and destroyed. A claim in a README is either tested or labeled as untested.
 
 ## Certifications
 
