@@ -14,3 +14,9 @@ updates:
     directory: "/projects/03-multi-region-hub-and-spoke-web-application-with-centralized-siem/terraform"
     schedule:
       interval: "weekly"
+
+  # Keeps the AWS and archive providers and their lock file current for project 04.
+  - package-ecosystem: "terraform"
+    directory: "/projects/04-waf-bedrock-threat-correlation-and-soar-pipeline/terraform"
+    schedule:
+      interval: "weekly"

@@ -208,7 +208,7 @@ This project comes from **Armageddon #2**, a team lab in the SEIR Foundations cl
 - **Lab triggers.** The deterministic WAF block rule fires on a lab header, so tests are repeatable. It is not a real attack signature.
 - **No automated containment, by design.** Responding to a finding is a human step.
 - **Evidence is partial.** I chose 10 of 37 unique screenshots that tell the story. Several others were left out because they show identifiers (account ID, a personal email) and would need redaction first. The Lab 12C evidence is a redacted JSON report with no screenshots, and its PDF is omitted because it embeds the account ID in a bucket name.
-- **Not exercised here.** I did not run `terraform validate` or `plan` for this repository copy. The deployments in the evidence ran from the lab repository.
+- **Validated, not deployed from this copy.** The code passes `terraform validate` with Terraform v1.16.4 after building the ReportLab layer as described in the [Quick start](#quick-start). I have not run `plan` or `apply` from this repository copy. The deployments in the evidence ran from the lab repository.
 - **Lab 12E** (MCP orchestration) is unfinished and excluded.
 
 ## Credits
