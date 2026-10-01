@@ -212,33 +212,9 @@ Those tools are required by the broader **Gen2X Security Engineering Platform**,
 
 ### Getting the Lab Files
 
-The easiest way to reproduce this Lab 12D implementation is to clone the Armageddon #2 group repository.
+This README is kept as written for the original lab. The original lab repository is private, so its clone instructions have been removed.
 
-Enter the following command in a terminal:
-
-```bash
-git clone https://github.com/jdpayne68/class-7-tko-group-armageddon-2.git
-```
-
-Move into the Lab 12D directory:
-
-```bash
-cd class-7-tko-group-armageddon-2/members/jacques-payne/phase-2/lab12d
-```
-
-Confirm the current location:
-
-```bash
-pwd
-```
-
-The path should end with:
-
-```text
-members/jacques-payne/phase-2/lab12d
-```
-
-If Git is not being used, GitHub also provides **Code → Download ZIP**. Extract the archive and navigate to the same Lab 12D directory.
+In this portfolio, the Lab 12D code is in the project's [`domain-models/`](../../../domain-models/) folder. Run the tests from there, as described in the project README.
 
 ### Git Prerequisite
 

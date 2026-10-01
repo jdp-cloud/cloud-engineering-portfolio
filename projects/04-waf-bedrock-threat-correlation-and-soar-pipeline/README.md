@@ -214,7 +214,7 @@ This project comes from **Armageddon #2**, a team lab in the SEIR Foundations cl
 ## Credits
 
 - **Class lab:** Armageddon #2, SEIR Foundations (instructor-led).
-- **Group:** Jacques Payne (author and group leader), Joe Tolliver, Jr., Cautchy Bailly and Kirk Alton. Members kept individual work areas and branches. The group's submission was Kirk Alton's version.
+- **Group:** Jacques Payne (author and group leader), Joe Tolliver, Jr., Cautchy Bailly and Kirk Alton. Members kept individual work areas and branches. The group voted to submit Kirk Alton's version.
 - **This project** contains only my own work. It does not include any other member's files.
 
 ## Repository layout
