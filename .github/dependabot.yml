@@ -20,3 +20,9 @@ updates:
     directory: "/projects/04-waf-bedrock-threat-correlation-and-soar-pipeline/terraform"
     schedule:
       interval: "weekly"
+
+  # Keeps the AWS, Google and random providers and their lock file current for project 05.
+  - package-ecosystem: "terraform"
+    directory: "/projects/05-gcp-to-aws-ha-vpn-secure-connectivity/envs/01-ha-vpn"
+    schedule:
+      interval: "weekly"
