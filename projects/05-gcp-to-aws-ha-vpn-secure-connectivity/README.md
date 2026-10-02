@@ -3,11 +3,13 @@
 ![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A51.10-7B42BC?logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-Transit%20Gateway%20%7C%20Site--to--Site%20VPN-FF9900?logo=amazonaws&logoColor=white)
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-HA%20VPN%20%7C%20Cloud%20Router-4285F4?logo=googlecloud&logoColor=white)
-![Status](https://img.shields.io/badge/status-validated%2C%20not%20deployed%20from%20this%20copy-yellow)
+![Status](https://img.shields.io/badge/status-validated%2C%20no%20deployment%20evidence%20is%20published%20yet-yellow)
 
 Terraform that connects a Google Cloud VPC to an AWS Transit Gateway with four IPsec tunnels and BGP, generates the pre-shared keys instead of storing them, and adds a private test VM on each side for checking the link.
 
-> **Scope:** This is a portfolio lab, not a production deployment. The code passes `terraform validate` and a Checkov scan, but **it has not been deployed from this copy and there is no deployment evidence yet.** The section [What is proven and what is not](#what-is-proven-and-what-is-not) says exactly what that means.
+> **Based on a class group lab.** See [Credits](#credits).
+
+> **Scope:** This is a portfolio lab, not a production deployment. The code passes `terraform validate` and a Checkov scan, but **no deployment evidence is published yet.** The section [What is proven and what is not](#what-is-proven-and-what-is-not) says exactly what that means.
 
 ## At a glance
 
@@ -149,7 +151,9 @@ There are no screenshots or command output in this project, and I do not claim a
 
 ## What I changed or added
 
-This project builds on the Class 7 Armageddon 1 lab and follows the design of Google's [gcp-to-aws-ha-vpn-terraform-module](https://github.com/GoogleCloudPlatform/gcp-to-aws-ha-vpn-terraform-module) (see [Credits](#credits)). I compared the two codebases file by file. These differences are ones I checked in both:
+This project is my rework of a class group lab and follows the design of Google's [gcp-to-aws-ha-vpn-terraform-module](https://github.com/GoogleCloudPlatform/gcp-to-aws-ha-vpn-terraform-module) (see [Credits](#credits)). I compared this project against both: Google's module and the group lab draft. Each difference below is one I checked in both codebases.
+
+### Compared with Google's module
 
 | Area | Upstream module | This project |
 | --- | --- | --- |
@@ -170,7 +174,26 @@ This project builds on the Class 7 Armageddon 1 lab and follows the design of Go
 
 What the two share: the topology (HA VPN gateway, four tunnels, an external gateway with four interfaces, one BGP interface and peer per tunnel), and four identical Transit Gateway settings.
 
-One more change, from an earlier private draft of this project that is not published: the draft had literal pre-shared keys in its Terraform files. This version generates them instead.
+### Compared with the group lab draft
+
+The group lab draft is the group's original Terraform for this lab, kept privately and not published. I read it without changing it. It has five numbered files (authentication, an empty backend file, variables, AWS VPN and GCP VPN).
+
+| Area | Group lab draft | This project |
+| --- | --- | --- |
+| **Pre-shared keys** | Typed into the Terraform files as literal values, on four AWS tunnel arguments and four Google tunnels. | Generated with `random_password` (four keys) and passed to both sides. No key value is in any file. |
+| **AWS-side gateway** | A virtual private gateway attached to a VPC. The files define no subnets and no route tables. | A Transit Gateway with a VPC attachment, a subnet and a route table. |
+| **IPsec parameters** | AES-256 with SHA2-256, and a different Diffie-Hellman group on each tunnel (15, 16, 18 and 19). | AES-256-GCM, SHA2-256 and DH group 20 on every tunnel, set through a `crypto` variable. |
+| **Tunnels and BGP peers** | Four tunnel blocks, four router interfaces and four peers written out by hand, with the AWS ASN typed into each peer. | Built with `count` from the AWS tunnel outputs, so the peer ASN and addresses come from AWS. |
+| **Google authentication** | The provider points at a JSON key file path. | Application Default Credentials, never a downloaded key. |
+| **Firewall** | Two firewall rules. One allows UDP 500 and 4500, ESP and ICMP from `0.0.0.0/0`. | No rule in the modules or the environment is open to `0.0.0.0/0`. On the Google side, ingress is limited to the AWS CIDR and Google's IAP range. |
+| **Providers** | Declares an `awscc` provider but has no `awscc` resources. No version constraints and no lock file. | Only the `aws`, `google` and `random` providers, with version constraints and a committed lock file for three platforms. |
+| **Structure and state** | Five flat files, one environment, and an empty backend file. | One environment root composing four modules, with a documented S3 backend in `backend.tf.example`. |
+| **Regions and names** | The AWS region and resource names are fixed in the code. The Google region defaults to `southamerica-west1`. | Regions are variables (defaults `us-east-1` and `us-east4`), and every name starts from a `name_prefix`. |
+| **Added here** | None of these exist in the draft. | Private test VM and instance, flow logs on both sides with a customer-managed KMS key, SSM endpoints, IAP access, Cloud NAT and a `verify_commands` output. |
+
+What the draft and this project share: an HA VPN gateway, an external gateway with four interfaces, two customer gateways, two VPN connections, four IKEv2 tunnels, BGP with the same ASNs (AWS 65501 and Google 65515), and one router interface and peer per tunnel.
+
+Pre-shared keys are the change I care most about: the group lab draft had literal pre-shared keys in its Terraform files. This version generates them instead.
 
 ## IaC scan results
 
@@ -186,7 +209,7 @@ The three skips are inline suppressions, each with its reason in the code:
 
 ## Known limitations
 
-- **Not deployed from this copy.** See [What is proven and what is not](#what-is-proven-and-what-is-not).
+- **No deployment evidence is published yet.** See [What is proven and what is not](#what-is-proven-and-what-is-not).
 - **Pre-shared keys are in Terraform state.** That is a deliberate trade-off. It is only safe with a private, encrypted state bucket and restricted access. Rotating a key means replacing the `random_password` resource.
 - **One environment, one region pair.** There is no staging or production split, and no CI pipeline for plans.
 - **One VPC, one subnet per side.** It is a connectivity lab, not a landing zone.
@@ -196,7 +219,7 @@ The three skips are inline suppressions, each with its reason in the code:
 
 ## Credits
 
-- **Class lab:** Class 7, Armageddon 1 (instructor-led). This project grew out of that lab.
+- **Class lab:** Class 7, Armageddon 1, a group lab (instructor-led). Participants: Jacques Payne (group leader), Joe Tolliver, Jr., Kirk Alton, Cautchy Bailly, Larry Shelton and Xavier Edwards. The group wrote the original lab Terraform. This project is my rework of it.
 - **Upstream module:** [GoogleCloudPlatform/gcp-to-aws-ha-vpn-terraform-module](https://github.com/GoogleCloudPlatform/gcp-to-aws-ha-vpn-terraform-module), Copyright 2023 Google LLC, licensed under the Apache License 2.0. This project follows its overall design. I compared against commit `b71ba81` (2023-12-28). The upstream project says it is "not an official Google project", and this project is not affiliated with or endorsed by Google.
 - **Google Cloud documentation:** the tutorial for [creating HA VPN connections between Google Cloud and AWS](https://cloud.google.com/network-connectivity/docs/vpn/tutorials/create-ha-vpn-connections-google-cloud-aws).
 - **License notice:** the Apache-2.0 attribution and a copy of the license are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and [`licenses/`](licenses/). No upstream file was copied. A line-by-line comparison found only four matching lines, all generic Transit Gateway arguments.
