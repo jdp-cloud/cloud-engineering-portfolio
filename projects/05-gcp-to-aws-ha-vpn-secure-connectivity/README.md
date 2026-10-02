@@ -146,7 +146,7 @@ These are the expected results. What the 2026-10-02 run actually showed is in [E
 
 One deployment on 2026-10-02 (UTC), in `us-east-1` and `us-east4`, with Terraform v1.16.4. Apply took 12 minutes 30 seconds (64 resources added), the evidence was captured next, and destroy took 7 minutes 12 seconds (64 resources destroyed). From the start of apply to the end of destroy was 28 minutes.
 
-The evidence is **command output saved as text, not screenshots.** Account IDs, the Google Cloud project ID, the state bucket, email addresses, session IDs, resource IDs and public IP addresses are masked. Private and link-local addresses are kept. Failed and partial attempts are kept too.
+The evidence is **command output saved as text, plus two screenshots of the Google Cloud console.** Account IDs, the Google Cloud project ID, the state bucket, email addresses, session IDs, resource IDs and public IP addresses are masked. Private and link-local addresses are kept. Failed and partial attempts are kept too.
 
 | File | What it shows |
 | --- | --- |
@@ -159,6 +159,8 @@ The evidence is **command output saved as text, not screenshots.** Account IDs, 
 | [`05-iperf3-aws-to-gcp.txt`](evidence/05-iperf3-aws-to-gcp.txt) | `iperf3`, AWS instance to GCP VM, 10 seconds, one stream: **1.29 Gbit/s**, 1.50 GB transferred |
 | [`06-failed-attempts-and-notes.txt`](evidence/06-failed-attempts-and-notes.txt) | A Session Manager attempt that failed without a terminal, the tunnel-settling delay, and a malformed command |
 | [`07-teardown-verification.txt`](evidence/07-teardown-verification.txt) | After destroy: 0 VPN connections, Transit Gateways, attachments, tunnels, gateways, routers, VPC endpoints and test machines in either cloud, and 0 resources in state |
+| [`08-gcp-console-vpn-tunnels.png`](evidence/08-gcp-console-vpn-tunnels.png) | Screenshot of the Google Cloud console, Cloud VPN tunnels page: all 4 tunnels `Established` with their BGP sessions `established`, and BGP addresses in `169.254.0.x`. Redacted by the author: the project name and the gateway addresses are hidden. |
+| [`09-gcp-console-effective-routes.png`](evidence/09-gcp-console-effective-routes.png) | Screenshot of the Google Cloud console, effective routes for the VPC in `us-east4`: four dynamic routes to `10.230.0.0/16` (the AWS VPC), one per tunnel at priority 100, next to the subnet route `10.240.0.0/24` and the default internet route. Redacted by the author: the project name is hidden. |
 
 Notes on what the output shows:
 
@@ -268,7 +270,7 @@ The three skips are inline suppressions, each with its reason in the code:
 
 ## Known limitations
 
-- **One run.** The evidence comes from a single deployment on 2026-10-02. It is saved as masked text output, not screenshots, and the throughput test ran in one direction with one stream.
+- **One run.** The evidence comes from a single deployment on 2026-10-02. It is saved as masked text output plus two console screenshots, and the throughput test ran in one direction with one stream.
 - **Pre-shared keys are in Terraform state.** That is a deliberate trade-off. It is only safe with a private, encrypted state bucket and restricted access. Rotating a key means replacing the `random_password` resource.
 - **One environment, one region pair.** There is no staging or production split, and no CI pipeline for plans.
 - **One VPC, one subnet per side.** It is a connectivity lab, not a landing zone.
