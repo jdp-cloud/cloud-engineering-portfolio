@@ -1,0 +1,12 @@
+# Copy to backend.tf (git-ignored) and replace the placeholders. Remote state in S3
+# with native locking (Terraform >= 1.10). The state holds the generated
+# pre-shared keys, so the bucket must stay private and encrypted.
+terraform {
+  backend "s3" {
+    bucket       = "your-terraform-state-bucket"
+    key          = "gcp-to-aws-ha-vpn/01-ha-vpn/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+}

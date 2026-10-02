@@ -64,6 +64,18 @@ Left off deliberately to keep cost low and teardown clean. None of these is a cl
 | EventBridge Scheduler: no customer-managed key | `CKV_AWS_297` | 3 | Same cost and teardown reasoning as DynamoDB. |
 | API Gateway: no caching, no client certificate, no X-Ray, no create-before-destroy | `CKV_AWS_120`, `CKV2_AWS_51`, `CKV_AWS_73`, `CKV_AWS_237` | 4 | Low traffic, and the API authenticates callers with Cognito instead of client certificates. |
 
+## Project 05: Terraform (0 failed checks, 3 skipped)
+
+Scanned locally with Checkov 3.3.22 (Terraform framework) before the pull request: **134 passed, 0 failed, 3 skipped.** Every skip is an inline `checkov:skip` comment with its reason next to the resource, so none of them is hidden in the workflow configuration.
+
+| Skipped check | Resource | Reason recorded in the code |
+| --- | --- | --- |
+| `CKV_GCP_38` | Test VM | A disposable lab VM that holds no data. Google-managed encryption at rest is enough. Customer-supplied or customer-managed keys are a production step. |
+| `CKV_AWS_394` | Availability Zone data source | Only the first zone name is used, so a newly added zone cannot change the result. |
+| `CKV2_AWS_5` | Endpoint security group | It is attached to the SSM interface endpoints through `for_each`, which the check cannot follow. |
+
+This is a smaller stack than projects 03 and 04 (47 resource blocks, no web tier or Lambda functions), and it was written with the scanner in mind: flow logs are on, the log group uses a customer-managed key, the test instance requires IMDSv2, and nothing is open to `0.0.0.0/0`. The result says the Terraform follows the checks Checkov knows. It does not say the VPN works, because no deployment evidence is published yet.
+
 ## Projects 01 and 02: Kubernetes (18 failed checks)
 
 Both are local Minikube labs, not production deployments. 17 findings are in the Splunk StatefulSet and pod (project 01). One is the demo ConfigMap in project 02, which uses the `default` namespace.

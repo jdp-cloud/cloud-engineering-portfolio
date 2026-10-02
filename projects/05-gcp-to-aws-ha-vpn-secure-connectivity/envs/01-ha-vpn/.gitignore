@@ -1,0 +1,27 @@
+# Local Terraform working files
+.terraform/
+crash.log
+
+# State and plans can contain secrets (this project's state holds the pre-shared keys)
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+
+# Real variable values and the local backend config (commit the .example files instead)
+*.tfvars
+*.tfvars.json
+backend.tf
+
+# Never commit key material
+*.pem
+*.key
+*credentials*.json
+*-key.json
+
+# Editor / OS
+.DS_Store
+.idea/
+
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored. Commit it so provider
+# versions and checksums are pinned for everyone who runs this.

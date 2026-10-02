@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars (git-ignored) and fill in.
+gcp_project_id = "your-gcp-project-id"
+
+# Optional overrides (defaults shown in variables.tf):
+# aws_profile           = "your-sso-profile"
+# gcp_region            = "us-east4"
+# gcp_zone              = "us-east4-a"
+# enable_test_workloads = true
