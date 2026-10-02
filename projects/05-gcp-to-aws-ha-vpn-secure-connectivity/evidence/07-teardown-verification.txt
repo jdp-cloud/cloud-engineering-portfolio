@@ -1,0 +1,33 @@
+# Evidence 07: teardown verification (read-only checks after terraform destroy)
+# Captured (UTC): 2026-10-02T18:55:20Z
+
+terraform destroy: Apply complete! Resources: 0 added, 0 changed, 64 destroyed.
+destroy started 2026-10-02T18:46:02Z, finished 2026-10-02T18:53:14Z
+
+## AWS us-east-1 (counts of resources not deleted/terminated)
+VPN connections: 0
+Transit gateways: 0
+Transit gateway VPC attachments: 0
+Customer gateways: 0
+VPCs tagged for this project: 0
+VPC endpoints: 0
+EC2 instances tagged for this project: 0
+NAT gateways: 0
+Flow logs tagged for this project: 0
+KMS key: scheduled for deletion (7-day window set in the code); alias removed
+
+## Google Cloud (counts)
+vpn-tunnels: 0
+vpn-gateways: 0
+external-vpn-gateways: 0
+routers: 0
+networks: 0
+subnets: 0
+instances: 0
+firewall-rules: 0
+service accounts for this project: 0
+
+## Terraform state
+resources in remote state: 0
+
+Note: the compute and IAP APIs enabled by Terraform stay enabled (disable_on_destroy = false). They cost nothing.

@@ -1,0 +1,24 @@
+# Evidence 05: iperf3, AWS instance (client) to GCP VM (server), 10 s, 1 stream
+# Captured (UTC): 2026-10-02T18:45:22Z
+
+$ aws ssm start-session --target <aws-test-instance> --document-name AWS-StartNonInteractiveCommand --parameters command="iperf3 -c 10.240.0.2 -t 10"
+Starting session with SessionId: <session-id>
+Connecting to host 10.240.0.2, port 5201
+[  5] local 10.230.0.78 port 59290 connected to 10.240.0.2 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-1.00   sec   144 MBytes  1.21 Gbits/sec   34    858 KBytes       
+[  5]   1.00-2.00   sec   164 MBytes  1.38 Gbits/sec    0    985 KBytes       
+[  5]   2.00-3.00   sec   175 MBytes  1.47 Gbits/sec    0   1.08 MBytes       
+[  5]   3.00-4.00   sec   132 MBytes  1.11 Gbits/sec  130    636 KBytes       
+[  5]   4.00-5.00   sec   127 MBytes  1.07 Gbits/sec    0    762 KBytes       
+[  5]   5.00-6.00   sec   130 MBytes  1.09 Gbits/sec  209    643 KBytes       
+[  5]   6.00-7.00   sec   143 MBytes  1.20 Gbits/sec    0    783 KBytes       
+[  5]   7.00-8.00   sec   179 MBytes  1.50 Gbits/sec    0    936 KBytes       
+[  5]   8.00-9.00   sec   169 MBytes  1.42 Gbits/sec   22    788 KBytes       
+[  5]   9.00-10.00  sec   174 MBytes  1.46 Gbits/sec    0    934 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-10.00  sec  1.50 GBytes  1.29 Gbits/sec  395            sender
+[  5]   0.00-10.01  sec  1.50 GBytes  1.29 Gbits/sec                  receiver
+iperf Done.
+Exiting session with sessionId: <session-id>.

@@ -1,0 +1,148 @@
+# Evidence 02: Cloud Router BGP status
+# Captured (UTC): 2026-10-02T18:39:27Z
+
+$ gcloud compute routers get-status gcp-aws-vpn-vpn-router --region us-east4 --project <gcp-project> --format="yaml(result.bgpPeerStatus)"
+result:
+  bgpPeerStatus:
+  - advertisedRoutes:
+    - destRange: 10.240.0.0/24
+      kind: compute#route
+      network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+      nextHopIp: 169.254.0.10
+      nextHopOrigin: INCOMPLETE
+      nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-0
+      priority: 100
+      routeType: BGP
+    enableIpv4: true
+    enableIpv6: false
+    ipAddress: 169.254.0.10
+    linkedVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-0
+    md5AuthEnabled: false
+    name: gcp-aws-vpn-peer-0
+    numLearnedRoutes: 1
+    peerIpAddress: 169.254.0.9
+    state: Established
+    status: UP
+    uptime: 2 minutes, 8 seconds
+    uptimeSeconds: '128'
+  - advertisedRoutes:
+    - destRange: 10.240.0.0/24
+      kind: compute#route
+      network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+      nextHopIp: 169.254.0.14
+      nextHopOrigin: INCOMPLETE
+      nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-1
+      priority: 100
+      routeType: BGP
+    enableIpv4: true
+    enableIpv6: false
+    ipAddress: 169.254.0.14
+    linkedVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-1
+    md5AuthEnabled: false
+    name: gcp-aws-vpn-peer-1
+    numLearnedRoutes: 1
+    peerIpAddress: 169.254.0.13
+    state: Established
+    status: UP
+    uptime: 2 minutes, 21 seconds
+    uptimeSeconds: '141'
+  - advertisedRoutes:
+    - destRange: 10.240.0.0/24
+      kind: compute#route
+      network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+      nextHopIp: 169.254.0.22
+      nextHopOrigin: INCOMPLETE
+      nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-3
+      priority: 100
+      routeType: BGP
+    enableIpv4: true
+    enableIpv6: false
+    ipAddress: 169.254.0.22
+    linkedVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-3
+    md5AuthEnabled: false
+    name: gcp-aws-vpn-peer-3
+    numLearnedRoutes: 1
+    peerIpAddress: 169.254.0.21
+    state: Established
+    status: UP
+    uptime: 2 minutes, 29 seconds
+    uptimeSeconds: '149'
+  - advertisedRoutes:
+    - destRange: 10.240.0.0/24
+      kind: compute#route
+      network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+      nextHopIp: 169.254.0.18
+      nextHopOrigin: INCOMPLETE
+      nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-2
+      priority: 100
+      routeType: BGP
+    enableIpv4: true
+    enableIpv6: false
+    ipAddress: 169.254.0.18
+    linkedVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-2
+    md5AuthEnabled: false
+    name: gcp-aws-vpn-peer-2
+    numLearnedRoutes: 1
+    peerIpAddress: 169.254.0.17
+    state: Established
+    status: UP
+    uptime: 1 minutes, 56 seconds
+    uptimeSeconds: '116'
+
+$ gcloud compute routers get-status gcp-aws-vpn-vpn-router --region us-east4 --project <gcp-project> --format="yaml(result.bestRoutes)"   # learned routes
+result:
+  bestRoutes:
+  - asPaths:
+    - asLists:
+      - 65501
+      pathSegmentType: AS_SEQUENCE
+    creationTimestamp: '2026-10-02T11:37:21.731-07:00'
+    destRange: 10.230.0.0/16
+    kind: compute#route
+    network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+    nextHopIp: 169.254.0.13
+    nextHopOrigin: INCOMPLETE
+    nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-1
+    priority: 100
+    routeType: BGP
+  - asPaths:
+    - asLists:
+      - 65501
+      pathSegmentType: AS_SEQUENCE
+    creationTimestamp: '2026-10-02T11:37:21.731-07:00'
+    destRange: 10.230.0.0/16
+    kind: compute#route
+    network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+    nextHopIp: 169.254.0.9
+    nextHopOrigin: INCOMPLETE
+    nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-0
+    priority: 100
+    routeType: BGP
+  - asPaths:
+    - asLists:
+      - 65501
+      pathSegmentType: AS_SEQUENCE
+    creationTimestamp: '2026-10-02T11:37:34.498-07:00'
+    destRange: 10.230.0.0/16
+    kind: compute#route
+    network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+    nextHopIp: 169.254.0.21
+    nextHopMed: 100
+    nextHopOrigin: INCOMPLETE
+    nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-3
+    priority: 100
+    routeType: BGP
+  - asPaths:
+    - asLists:
+      - 65501
+      pathSegmentType: AS_SEQUENCE
+    creationTimestamp: '2026-10-02T11:37:34.498-07:00'
+    destRange: 10.230.0.0/16
+    kind: compute#route
+    network: https://www.googleapis.com/compute/v1/projects/<gcp-project>/global/networks/gcp-aws-vpn-vpc
+    nextHopIp: 169.254.0.17
+    nextHopMed: 100
+    nextHopOrigin: INCOMPLETE
+    nextHopVpnTunnel: https://www.googleapis.com/compute/v1/projects/<gcp-project>/regions/us-east4/vpnTunnels/gcp-aws-vpn-tunnel-2
+    priority: 100
+    routeType: BGP
