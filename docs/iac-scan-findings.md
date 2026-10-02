@@ -74,7 +74,7 @@ Scanned locally with Checkov 3.3.22 (Terraform framework) before the pull reques
 | `CKV_AWS_394` | Availability Zone data source | Only the first zone name is used, so a newly added zone cannot change the result. |
 | `CKV2_AWS_5` | Endpoint security group | It is attached to the SSM interface endpoints through `for_each`, which the check cannot follow. |
 
-This is a smaller stack than projects 03 and 04 (47 resource blocks, no web tier or Lambda functions), and it was written with the scanner in mind: flow logs are on, the log group uses a customer-managed key, the test instance requires IMDSv2, and nothing is open to `0.0.0.0/0`. The result says the Terraform follows the checks Checkov knows. It does not say the VPN works, because no deployment evidence is published yet.
+This is a smaller stack than projects 03 and 04 (47 resource blocks, no web tier or Lambda functions), and it was written with the scanner in mind: flow logs are on, the log group uses a customer-managed key, the test instance requires IMDSv2, and nothing is open to `0.0.0.0/0`. The result says the Terraform follows the checks Checkov knows. The scan alone does not say the VPN works. The project was deployed, verified and destroyed on 2026-10-02 (see the project README and its evidence folder), and Checkov is unchanged at 0 failed and 3 skipped.
 
 ## Projects 01 and 02: Kubernetes (18 failed checks)
 
