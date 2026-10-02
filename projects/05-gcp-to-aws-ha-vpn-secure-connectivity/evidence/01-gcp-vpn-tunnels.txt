@@ -1,0 +1,46 @@
+# Evidence 01: Google Cloud HA VPN tunnels
+# Captured (UTC): 2026-10-02T18:38:58Z
+
+$ gcloud compute vpn-tunnels list --project <gcp-project> --format="table(name,region.basename(),status,detailedStatus)"
+NAME                  REGION    STATUS       DETAILED_STATUS
+gcp-aws-vpn-tunnel-0  us-east4  ESTABLISHED  Tunnel is up and running.
+gcp-aws-vpn-tunnel-1  us-east4  ESTABLISHED  Tunnel is up and running.
+gcp-aws-vpn-tunnel-2  us-east4  ESTABLISHED  Tunnel is up and running.
+gcp-aws-vpn-tunnel-3  us-east4  ESTABLISHED  Tunnel is up and running.
+
+$ gcloud compute vpn-tunnels describe gcp-aws-vpn-tunnel-0 --region us-east4 --format="yaml(name,status,detailedStatus,ikeVersion,peerIp,vpnGatewayInterface,peerExternalGatewayInterface)"
+detailedStatus: Tunnel is up and running.
+ikeVersion: 2
+name: gcp-aws-vpn-tunnel-0
+peerExternalGatewayInterface: 0
+peerIp: x.x.x.x
+status: ESTABLISHED
+vpnGatewayInterface: 0
+
+$ gcloud compute vpn-tunnels describe gcp-aws-vpn-tunnel-1 --region us-east4 --format="yaml(name,status,detailedStatus,ikeVersion,peerIp,vpnGatewayInterface,peerExternalGatewayInterface)"
+detailedStatus: Tunnel is up and running.
+ikeVersion: 2
+name: gcp-aws-vpn-tunnel-1
+peerExternalGatewayInterface: 1
+peerIp: x.x.x.x
+status: ESTABLISHED
+vpnGatewayInterface: 0
+
+$ gcloud compute vpn-tunnels describe gcp-aws-vpn-tunnel-2 --region us-east4 --format="yaml(name,status,detailedStatus,ikeVersion,peerIp,vpnGatewayInterface,peerExternalGatewayInterface)"
+detailedStatus: Tunnel is up and running.
+ikeVersion: 2
+name: gcp-aws-vpn-tunnel-2
+peerExternalGatewayInterface: 2
+peerIp: x.x.x.x
+status: ESTABLISHED
+vpnGatewayInterface: 1
+
+$ gcloud compute vpn-tunnels describe gcp-aws-vpn-tunnel-3 --region us-east4 --format="yaml(name,status,detailedStatus,ikeVersion,peerIp,vpnGatewayInterface,peerExternalGatewayInterface)"
+detailedStatus: Tunnel is up and running.
+ikeVersion: 2
+name: gcp-aws-vpn-tunnel-3
+peerExternalGatewayInterface: 3
+peerIp: x.x.x.x
+status: ESTABLISHED
+vpnGatewayInterface: 1
+

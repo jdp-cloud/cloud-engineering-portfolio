@@ -3,13 +3,13 @@
 ![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A51.10-7B42BC?logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-Transit%20Gateway%20%7C%20Site--to--Site%20VPN-FF9900?logo=amazonaws&logoColor=white)
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-HA%20VPN%20%7C%20Cloud%20Router-4285F4?logo=googlecloud&logoColor=white)
-![Status](https://img.shields.io/badge/status-validated%2C%20no%20deployment%20evidence%20is%20published%20yet-yellow)
+![Status](https://img.shields.io/badge/status-deployed%2C%20verified%20and%20torn%20down-brightgreen)
 
 Terraform that connects a Google Cloud VPC to an AWS Transit Gateway with four IPsec tunnels and BGP, generates the pre-shared keys instead of storing them, and adds a private test VM on each side for checking the link.
 
 > **Based on a class group lab.** See [Credits](#credits).
 
-> **Scope:** This is a portfolio lab, not a production deployment. The code passes `terraform validate` and a Checkov scan, but **no deployment evidence is published yet.** The section [What is proven and what is not](#what-is-proven-and-what-is-not) says exactly what that means.
+> **Scope:** This is a portfolio lab, not a production deployment. It was deployed once on 2026-10-02, verified and destroyed (see [Evidence](#evidence) and [Cost](#cost)). The code also passes `terraform validate` and a Checkov scan. The section [What is proven and what is not](#what-is-proven-and-what-is-not) says exactly what the evidence covers.
 
 ## At a glance
 
@@ -21,6 +21,8 @@ Terraform that connects a Google Cloud VPC to an AWS Transit Gateway with four I
 | **Code** | About 1,300 lines of Terraform. One environment (`envs/01-ha-vpn`) composes four reusable modules. |
 | **Crypto** | IKEv2, AES-256-GCM, SHA2-256, Diffie-Hellman group 20 |
 | **Access model** | No public IP or SSH key on either test machine. GCP uses IAP TCP forwarding, AWS uses Session Manager. |
+| **Evidence** | One deployment on 2026-10-02: 4 of 4 tunnels established, 4 BGP peers up, cross-cloud ping in both directions, `iperf3` at 1.29 Gbit/s, then a full destroy. Command output is in [`evidence/`](evidence/). |
+| **Cost of the run** | About $0.50 to $0.65 for a 28-minute run (an estimate, see [Cost](#cost)) |
 | **Skills shown** | Terraform modules and cross-provider data flow, BGP and HA VPN design, secrets handling in Terraform, private-by-default compute, IaC scanning |
 
 ## Contents
@@ -29,6 +31,8 @@ Terraform that connects a Google Cloud VPC to an AWS Transit Gateway with four I
 - [Security decisions](#security-decisions)
 - [Quick start](#quick-start)
 - [Validate it works](#validate-it-works)
+- [Evidence](#evidence)
+- [Cost](#cost)
 - [What is proven and what is not](#what-is-proven-and-what-is-not)
 - [What I changed or added](#what-i-changed-or-added)
 - [IaC scan results](#iac-scan-results)
@@ -136,18 +140,73 @@ After an apply, `terraform output verify_commands` prints these checks with your
 | Session Manager on the AWS instance, `ping` and `iperf3` to the GCP VM | Replies and throughput |
 | IAP SSH to the GCP VM, `ping` and `iperf3` to the AWS instance | Replies and throughput |
 
+These are the expected results. What the 2026-10-02 run actually showed is in [Evidence](#evidence).
+
+## Evidence
+
+One deployment on 2026-10-02 (UTC), in `us-east-1` and `us-east4`, with Terraform v1.16.4. Apply took 12 minutes 30 seconds (64 resources added), the evidence was captured next, and destroy took 7 minutes 12 seconds (64 resources destroyed). From the start of apply to the end of destroy was 28 minutes.
+
+The evidence is **command output saved as text, not screenshots.** Account IDs, the Google Cloud project ID, the state bucket, email addresses, session IDs, resource IDs and public IP addresses are masked. Private and link-local addresses are kept. Failed and partial attempts are kept too.
+
+| File | What it shows |
+| --- | --- |
+| [`00-run-summary.md`](evidence/00-run-summary.md) | Times, versions and masking rules |
+| [`01-gcp-vpn-tunnels.txt`](evidence/01-gcp-vpn-tunnels.txt) | All 4 Google tunnels `ESTABLISHED`: "Tunnel is up and running." |
+| [`02-gcp-bgp-status.txt`](evidence/02-gcp-bgp-status.txt) | 4 BGP peers `Established`. The router learned `10.230.0.0/16` (the AWS VPC, AS 65501) over all four tunnels, and advertised `10.240.0.0/24` back. |
+| [`03a-aws-vpn-telemetry-initial.txt`](evidence/03a-aws-vpn-telemetry-initial.txt) | First AWS reading: **2 of 4 tunnels `UP`**, the other two `DOWN` with "IPSEC IS UP" while BGP was still settling |
+| [`03b-aws-vpn-telemetry-final.txt`](evidence/03b-aws-vpn-telemetry-final.txt) | A few minutes later: **4 of 4 `UP`**, each accepting 1 BGP route |
+| [`04-cross-cloud-ping.txt`](evidence/04-cross-cloud-ping.txt) | Ping in both directions over private addresses: 4 of 4 packets each way, 0% loss, average 4.4 ms (AWS to GCP) and 4.5 ms (GCP to AWS) |
+| [`05-iperf3-aws-to-gcp.txt`](evidence/05-iperf3-aws-to-gcp.txt) | `iperf3`, AWS instance to GCP VM, 10 seconds, one stream: **1.29 Gbit/s**, 1.50 GB transferred |
+| [`06-failed-attempts-and-notes.txt`](evidence/06-failed-attempts-and-notes.txt) | A Session Manager attempt that failed without a terminal, the tunnel-settling delay, and a malformed command |
+| [`07-teardown-verification.txt`](evidence/07-teardown-verification.txt) | After destroy: 0 VPN connections, Transit Gateways, attachments, tunnels, gateways, routers, VPC endpoints and test machines in either cloud, and 0 resources in state |
+
+Notes on what the output shows:
+
+- **The AWS side took a few extra minutes.** Google reported all four tunnels and BGP peers up before AWS did. That is why there are two telemetry captures.
+- **Session Manager needed a terminal.** The first attempt from a non-interactive shell failed with "Cannot perform start session: EOF". Under a pseudo-terminal it worked.
+- **`iperf3` ran in one direction only.** The Google VM runs a server and the AWS instance was the client. I did not measure the reverse direction.
+
+## Cost
+
+The numbers below are an **estimate**. Real billing lags by a day or more, so I will compare them with Cost Explorer and the Google Cloud billing report once they settle.
+
+**While it runs**, the stack costs about $0.50 to $0.60 per hour.
+
+| Item | Rate | Per hour |
+| --- | --- | --- |
+| 2 AWS VPN connections | $0.05 each (from the AWS pricing page) | $0.10 |
+| 3 Transit Gateway attachments (1 VPC, 2 VPN) | $0.05 each (the VPN rate is from the AWS pricing page) | $0.15 |
+| 3 interface VPC endpoints | about $0.01 each (not verified) | $0.03 |
+| AWS `t3.micro`, KMS key, flow logs | about $0.012 (not verified) | $0.01 |
+| 4 Google HA VPN tunnels | about $0.05 to $0.075 each (not verified, Google's pricing pages did not load) | $0.20 to $0.30 |
+| Cloud NAT and the `e2-micro` VM | about $0.012 (not verified) | $0.01 |
+
+**For this run** (28 minutes from the start of apply to the end of destroy):
+
+| Part | Estimate |
+| --- | --- |
+| AWS hourly-billed items (VPN, Transit Gateway attachments, endpoints), each billed as one hour because a partial hour rounds up | about $0.28 |
+| AWS per-second items (instance, KMS key) | under $0.01 |
+| Google tunnels (they existed for roughly 10 to 15 minutes, and no more than 28) | $0.04 to $0.14 |
+| Google VM and Cloud NAT | under $0.01 |
+| Data transfer: 1.5 GB from AWS to Google at about $0.09 per GB, plus Transit Gateway processing at about $0.02 per GB (not verified) | about $0.17 |
+| **Total** | **about $0.50 to $0.65** |
+
+Two things remain after the destroy and do not add to the cost. The KMS key is scheduled for deletion, with the 7-day window set in the code, and I understand keys in that state are not billed. The compute and IAP APIs that Terraform enabled stay enabled, because the code sets `disable_on_destroy = false`.
+
 ## What is proven and what is not
 
 | Claim | Status |
 | --- | --- |
 | The configuration is valid Terraform (Terraform v1.16.4, providers aws 6.66.0, google 7.46.1, random 3.9.1) | **Checked.** `init -backend=false` and `validate` pass, and `fmt` is clean. |
 | The code follows common IaC security checks | **Checked.** See [IaC scan results](#iac-scan-results). |
-| The tunnels establish and BGP exchanges routes | **Not demonstrated here.** The expected results above come from the design, not from a recorded run. |
-| Cross-cloud ping and throughput work | **Not demonstrated here.** |
-| Cost of a run | **Not measured.** |
-| Clean teardown | **Not demonstrated here.** |
-
-There are no screenshots or command output in this project, and I do not claim any. The next step for this project is one deploy, a captured verification and a recorded destroy.
+| The configuration applies cleanly | **Demonstrated** once. 64 resources were added with no errors. |
+| The tunnels establish and BGP exchanges routes | **Demonstrated** once. 4 of 4 Google tunnels `ESTABLISHED`, 4 BGP peers `Established`, the AWS VPC range learned over all four tunnels, and 4 of 4 AWS tunnels `UP` (after the first reading showed 2 of 4). See evidence 01 to 03b. |
+| Cross-cloud ping works | **Demonstrated** in both directions, with no packet loss. See evidence 04. |
+| Cross-cloud throughput works | **Demonstrated in one direction only**: 1.29 Gbit/s from AWS to Google with one stream for 10 seconds. The reverse direction was not measured. See evidence 05. |
+| Clean teardown | **Demonstrated.** Destroy removed 64 resources, and read-only checks found nothing left in either cloud or in state. The KMS key is scheduled for deletion. See evidence 07. |
+| Cost of a run | **Estimated, not yet billed.** See [Cost](#cost). |
+| Failover when a tunnel is lost | **Not tested.** |
 
 ## What I changed or added
 
@@ -209,7 +268,7 @@ The three skips are inline suppressions, each with its reason in the code:
 
 ## Known limitations
 
-- **No deployment evidence is published yet.** See [What is proven and what is not](#what-is-proven-and-what-is-not).
+- **One run.** The evidence comes from a single deployment on 2026-10-02. It is saved as masked text output, not screenshots, and the throughput test ran in one direction with one stream.
 - **Pre-shared keys are in Terraform state.** That is a deliberate trade-off. It is only safe with a private, encrypted state bucket and restricted access. Rotating a key means replacing the `random_password` resource.
 - **One environment, one region pair.** There is no staging or production split, and no CI pipeline for plans.
 - **One VPC, one subnet per side.** It is a connectivity lab, not a landing zone.

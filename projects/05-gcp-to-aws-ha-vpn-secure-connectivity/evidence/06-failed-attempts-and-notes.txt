@@ -1,0 +1,12 @@
+# Evidence 06: failed attempts and notes (kept on purpose)
+
+1. First Session Manager attempt from a non-interactive shell failed:
+   $ aws ssm start-session --target <aws-test-instance> --document-name AWS-StartNonInteractiveCommand ...
+   Cannot perform start session: EOF
+   Cause: the session-manager-plugin needs a terminal on stdin. Retried under a pseudo-terminal (macOS script) and it worked (evidence 04).
+
+2. The first AWS tunnel-telemetry reading showed 2 of 4 tunnels DOWN with 'IPSEC IS UP' while Google already showed 4 ESTABLISHED. BGP on the AWS side was still settling. A later reading showed 4 of 4 UP (evidence 03a and 03b).
+
+3. A first attempt to install iperf3 on the AWS instance used shell pipes that the non-interactive SSM document does not interpret, so dnf printed its usage text. No package was installed. iperf3 3.19.1 was already present on the instance.
+
+4. gcloud noted that installing NumPy would speed up IAP tunnels. Not needed for these tests.

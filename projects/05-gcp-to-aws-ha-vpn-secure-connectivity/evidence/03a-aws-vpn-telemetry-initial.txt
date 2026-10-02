@@ -1,0 +1,20 @@
+# Evidence 03a: AWS VPN tunnel telemetry, FIRST reading (BGP still settling on the AWS side)
+# Captured (UTC): 2026-10-02T18:39:31Z
+
+$ aws ec2 describe-vpn-connections --region us-east-1 --vpn-connection-ids <2 ids> --query "VpnConnections[].VgwTelemetry[].[OutsideIpAddress,Status,StatusMessage,AcceptedRouteCount]" --output table
+-------------------------------------------------
+|            DescribeVpnConnections             |
++-----------------+-------+----------------+----+
+|  x.x.x.x  |  DOWN |  IPSEC IS UP   |  0 |
+|  x.x.x.x   |  UP   |  1 BGP ROUTES  |  1 |
+|  x.x.x.x |  DOWN |  IPSEC IS UP   |  0 |
+|  x.x.x.x  |  UP   |  1 BGP ROUTES  |  1 |
++-----------------+-------+----------------+----+
+
+$ aws ec2 describe-vpn-connections ... --query "VpnConnections[].[State,Type,Options.StaticRoutesOnly]"
+-----------------------------------
+|     DescribeVpnConnections      |
++-----------+-----------+---------+
+|  available|  ipsec.1  |  False  |
+|  available|  ipsec.1  |  False  |
++-----------+-----------+---------+

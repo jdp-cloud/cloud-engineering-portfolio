@@ -1,0 +1,12 @@
+# Evidence 03b: AWS Site-to-Site VPN tunnel telemetry (us-east-1), after BGP settled
+# Captured (UTC): 2026-10-02T18:42:37Z
+
+$ aws ec2 describe-vpn-connections --region us-east-1 --filters Name=tag:Project,Values=gcp-to-aws-ha-vpn --query "VpnConnections[].VgwTelemetry[].[OutsideIpAddress,Status,StatusMessage,AcceptedRouteCount]" --output table
+-----------------------------------------------
+|           DescribeVpnConnections            |
++-----------------+-----+----------------+----+
+|  x.x.x.x  |  UP |  1 BGP ROUTES  |  1 |
+|  x.x.x.x   |  UP |  1 BGP ROUTES  |  1 |
+|  x.x.x.x |  UP |  1 BGP ROUTES  |  1 |
+|  x.x.x.x  |  UP |  1 BGP ROUTES  |  1 |
++-----------------+-----+----------------+----+
