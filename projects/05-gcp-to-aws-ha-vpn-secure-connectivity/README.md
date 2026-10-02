@@ -28,6 +28,7 @@ Terraform that connects a Google Cloud VPC to an AWS Transit Gateway with four I
 - [Quick start](#quick-start)
 - [Validate it works](#validate-it-works)
 - [What is proven and what is not](#what-is-proven-and-what-is-not)
+- [What I changed or added](#what-i-changed-or-added)
 - [IaC scan results](#iac-scan-results)
 - [Known limitations](#known-limitations)
 - [Credits](#credits)
@@ -146,6 +147,31 @@ After an apply, `terraform output verify_commands` prints these checks with your
 
 There are no screenshots or command output in this project, and I do not claim any. The next step for this project is one deploy, a captured verification and a recorded destroy.
 
+## What I changed or added
+
+This project builds on the Class 7 Armageddon 1 lab and follows the design of Google's [gcp-to-aws-ha-vpn-terraform-module](https://github.com/GoogleCloudPlatform/gcp-to-aws-ha-vpn-terraform-module) (see [Credits](#credits)). I compared the two codebases file by file. These differences are ones I checked in both:
+
+| Area | Upstream module | This project |
+| --- | --- | --- |
+| **Pre-shared keys** | Takes one `shared_secret` input and uses it for every tunnel on both clouds. | Generates four different keys with `random_password`, one per tunnel, and passes them to both sides. |
+| **IPsec parameters** | Sets none on the AWS connection, so AWS defaults apply. | Sets IKEv2, AES-256-GCM, SHA2-256 and DH group 20 through a `crypto` variable. |
+| **BGP inside addresses** | Leaves them for AWS to assign. | Pins four `/30` ranges in `169.254.0.0/16`, chosen outside AWS's reserved ranges. |
+| **Peer ASN on the Cloud Router** | A required input (`aws_router_asn`). | Read from each AWS tunnel's output. |
+| **Route advertisement** | Custom, advertising all subnets. | Default, which advertises the VPC's subnet ranges. |
+| **Transit Gateway attachment** | Uses `awscc_ec2_transit_gateway_attachment`, so it depends on the `awscc` provider. | Uses `aws_ec2_transit_gateway_vpc_attachment`, so only the `aws`, `google` and `random` providers are needed. |
+| **Transit Gateway shared attachments** | `auto_accept_shared_attachments = "enable"` | `"disable"` |
+| **Number of tunnels** | A `num_tunnels` input, in multiples of 2 with a minimum of 4. | Fixed at four, with validations that enforce the counts. |
+| **Networks** | The module takes an existing VPC, subnets and GCP network as inputs. Its example builds networks with the `terraform-aws-modules/vpc` module. | Creates its own networks in the `aws-network` and `gcp-network` modules from plain resources. |
+| **Structure** | A flat root module, one network submodule and an example. | One environment root (`envs/01-ha-vpn`) composing four modules. |
+| **Authentication** | The example impersonates a Google service account through an access token. | Application Default Credentials for Google (never a downloaded key) and the standard credential chain for AWS, with default tags on AWS resources. |
+| **Added here** | None of these exist upstream. | A private test VM and instance, flow logs on both sides (AWS logs use a customer-managed KMS key), SSM endpoints, an IAP firewall rule, Cloud NAT, shielded-VM and OS Login settings, IMDSv2 enforcement and a `verify_commands` output. |
+| **Versions and pinning** | Terraform `~> 1.6`, `aws ~> 5.31`, `google ~> 5.10`. No lock file in the repository. | Terraform `>= 1.10`, `aws ~> 6.0`, `google >= 6.0, < 8.0`, `random ~> 3.6`, and a committed lock file with hashes for three platforms. |
+| **State** | No backend configuration in any Terraform file. | A documented S3 backend with native locking, shipped as `backend.tf.example`. |
+
+What the two share: the topology (HA VPN gateway, four tunnels, an external gateway with four interfaces, one BGP interface and peer per tunnel), and four identical Transit Gateway settings.
+
+One more change, from an earlier private draft of this project that is not published: the draft had literal pre-shared keys in its Terraform files. This version generates them instead.
+
 ## IaC scan results
 
 [Checkov](https://www.checkov.io/) 3.3.22 over this project (Terraform framework): **134 passed, 0 failed, 3 skipped.**
@@ -170,7 +196,10 @@ The three skips are inline suppressions, each with its reason in the code:
 
 ## Credits
 
-_To be confirmed by the author before publication._ This section should say whether the project builds on a class lab or is entirely the author's own work, and credit accordingly.
+- **Class lab:** Class 7, Armageddon 1 (instructor-led). This project grew out of that lab.
+- **Upstream module:** [GoogleCloudPlatform/gcp-to-aws-ha-vpn-terraform-module](https://github.com/GoogleCloudPlatform/gcp-to-aws-ha-vpn-terraform-module), Copyright 2023 Google LLC, licensed under the Apache License 2.0. This project follows its overall design. I compared against commit `b71ba81` (2023-12-28). The upstream project says it is "not an official Google project", and this project is not affiliated with or endorsed by Google.
+- **Google Cloud documentation:** the tutorial for [creating HA VPN connections between Google Cloud and AWS](https://cloud.google.com/network-connectivity/docs/vpn/tutorials/create-ha-vpn-connections-google-cloud-aws).
+- **License notice:** the Apache-2.0 attribution and a copy of the license are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and [`licenses/`](licenses/). No upstream file was copied. A line-by-line comparison found only four matching lines, all generic Transit Gateway arguments.
 
 ## Repository layout
 
