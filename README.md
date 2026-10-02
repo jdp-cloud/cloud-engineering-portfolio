@@ -21,6 +21,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | 02 | [Argo CD GitOps and RBAC](projects/02-argocd-gitops/) | Git-driven deployment, drift self-healing, environment boundaries and least-privilege access, with real allow and deny tests | Argo CD, AppProject, Kubernetes RBAC | Complete (validated locally) |
 | 03 | [Multi-Region Hub-and-Spoke Web Application with Centralized SIEM](projects/03-multi-region-hub-and-spoke-web-application-with-centralized-siem/) | A seven-region AWS network with centralized log collection, no SSH access and least-privilege security groups | Terraform, AWS Transit Gateway, ALB, Loki, Grafana | Deployed, verified and torn down. Evidence and cost in the project README. |
 | 04 | [WAF to Bedrock Threat Correlation to SOAR Pipeline](projects/04-waf-bedrock-threat-correlation-and-soar-pipeline/) | An AWS pipeline that turns WAF logs into scored findings, incidents and reports. Amazon Bedrock only explains. Deterministic code makes every decision, and containment is never automated. Cognito MFA and group-based access protect the API. | Terraform, AWS WAF, Lambda, Bedrock, EventBridge, DynamoDB, Cognito, Python | Deployed, verified and torn down. Based on a class group lab. Evidence is partial and the limitations are listed in the project README. |
+| 05 | [GCP to AWS HA VPN with BGP](projects/05-gcp-to-aws-ha-vpn-secure-connectivity/) | Four IPsec tunnels with BGP between a Google Cloud VPC and an AWS Transit Gateway, generated pre-shared keys and private test machines | Terraform, GCP HA VPN, Cloud Router, AWS Transit Gateway, Site-to-Site VPN | Validated, no deployment evidence published yet. Based on a class group lab. |
 
 ### In progress
 
@@ -34,6 +35,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | --- | --- |
 | Infrastructure as Code (modules, provider aliases, remote state) | Project 03 |
 | Network security (Transit Gateway routing, security groups, no SSH) | Project 03 |
+| Hybrid connectivity (HA VPN, BGP) | Project 05 |
 | Kubernetes workloads and storage | Project 01 |
 | GitOps and policy boundaries | Project 02 |
 | Access control and least privilege | Projects 02, 03 and 04 |
@@ -41,6 +43,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | Generative AI with guardrails (Bedrock explains, code decides) | Project 04 |
 | API authentication and role-based access (Cognito, MFA, API Gateway authorizer) | Project 04 |
 | Secrets handling (kept out of Git) | Projects 01 and 02 |
+| Secrets handling in Terraform (generated pre-shared keys) | Project 05 |
 | Troubleshooting and evidence-based documentation | All projects |
 
 ## How the projects are documented
@@ -79,6 +82,6 @@ Each README states its scope and limitations plainly. These are learning and por
 
 ## Background
 
-I bring more than 15 years of experience in regulated life-sciences operations, including risk management, audit readiness, vendor oversight, documented controls, and cross-functional delivery.
+I bring more than 10 years of experience in regulated life-sciences operations, including risk management, audit readiness, vendor oversight, documented controls, and cross-functional delivery.
 
 My current focus is building and documenting hands-on cloud infrastructure skills that can be demonstrated directly through the projects in this repository.
