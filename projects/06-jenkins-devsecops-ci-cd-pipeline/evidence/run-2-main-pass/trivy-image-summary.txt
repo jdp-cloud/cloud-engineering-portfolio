@@ -1,0 +1,4 @@
+Trivy image scan summary (HIGH and CRITICAL, fixable only)
+  /out/image.tar (debian 12.15) [os-pkgs/debian]: 0 finding(s)
+  Python [lang-pkgs/python-pkg]: 0 finding(s)
+Scanned artifact: /out/image.tar (container_image)

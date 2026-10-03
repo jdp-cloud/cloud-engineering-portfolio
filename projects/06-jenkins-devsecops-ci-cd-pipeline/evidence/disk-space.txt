@@ -1,0 +1,54 @@
+# Disk space, before, during and after (read from df and docker system df)
+# Machine: MacBook Pro M3 Pro. Docker Desktop's disk image lives on the external SSD; the internal drive is the Mac's own.
+# Times are the Mac's local time (UTC-5).
+
+BEFORE (2026-10-02 19:50:29)
+internal: 45Gi free of 460Gi  | internal bytes free: 47639120K
+SSD:      611Gi free of 931Gi  | SSD bytes free: 640198660K
+Docker.raw physical: 5.98 GB
+docker system df:
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          3         2         3.474GB   839.8MB (24%)
+Containers      2         0         122.9kB   122.9kB (100%)
+Local Volumes   0         0         0B        0B
+Build Cache     4         0         24.58kB   24.58kB
+
+DURING (stack up, after the evidence runs) (2026-10-02 20:45:12)
+internal: 41Gi free of 460Gi  | bytes free: 43242384K
+SSD:      600Gi free of 931Gi  | bytes free: 628664524K
+Docker.raw physical: 16.98 GB
+docker system df:
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          9         7         7.414GB   67.51kB (0%)
+Containers      7         4         5.48MB    135.2kB (2%)
+Local Volumes   10        10        7.045GB   0B (0%)
+Build Cache     44        0         1.154GB   798.8MB
+
+container memory use:
+jenkins-devsecops-jenkins-1: 664.1MiB / 1.465GiB
+jenkins-devsecops-dind-1: 314MiB / 3GiB
+jenkins-devsecops-sonarqube-1: 2.143GiB / 2.441GiB
+jenkins-devsecops-postgres-1: 120.3MiB / 512MiB
+Jenkins/Sonar volumes sizes:
+  jenkins-devsecops_sonarqube-logs  173.9kB
+  jenkins-devsecops_postgres-data  139.7MB
+  57d9318c7e847d9da075748b88e770021aa3f394f6695e2941448222fb358e39  327.1MB
+  jenkins-devsecops_jenkins-home  671.4MB
+  jenkins-devsecops_seed-repo  58.1kB
+  jenkins-devsecops_dind-data  5.551GB
+  48ee9d77a82dfdabd129e6d42816a808b772f7c6a6b412e8b76cde182d75b3cd  0B
+  jenkins-devsecops_sonarqube-data  355.6MB
+  jenkins-devsecops_sonarqube-extensions  1.017kB
+  jenkins-devsecops_dind-certs  22.52kB
+
+AFTER teardown + cache prune (2026-10-02 20:46:29)
+internal: 42Gi free of 460Gi  | bytes free: 44284360K
+SSD:      611Gi free of 931Gi  | bytes free: 641023124K
+Docker.raw physical: 5.19 GB 
+
+## Summary
+internal drive free:  45 GiB before -> 41 GiB while running -> 42 GiB after
+external SSD free:    611 GiB before -> 600 GiB while running -> 611 GiB after
+Docker.raw (on SSD):  5.98 GB before -> 16.98 GB while running -> 5.19 GB after
+Docker objects after teardown: back to the 2 images and 2 stopped containers that were there before the project, 0 volumes, 0 build cache.
+(The 'before' reading shows 3 images because the Jenkins base image had been pulled earlier to resolve plugin versions.)

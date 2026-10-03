@@ -1,0 +1,37 @@
+# Pipeline output (regenerated on every run; the curated copies live in evidence/)
+reports/
+
+# Terraform: state and plans can hold secrets. The lock file is NOT ignored on purpose.
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+plan.txt
+.terraform/
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Secrets and local environment files
+.env
+.env.*
+*.pem
+*.key
+credentials.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+/coverage.xml
+/app/coverage.xml
+htmlcov/
+
+# macOS
+.DS_Store

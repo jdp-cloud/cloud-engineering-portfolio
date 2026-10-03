@@ -1,0 +1,57 @@
+# Jenkins Configuration as Code. No secret is stored here: every ${...} is an
+# environment variable that scripts/up.sh generates when the stack starts.
+jenkins:
+  systemMessage: "Local DevSecOps lab. Not for production use."
+  numExecutors: 2
+  slaveAgentPort: -1
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard: {}
+
+unclassified:
+  location:
+    url: "http://127.0.0.1:8080/"
+  sonarGlobalConfiguration:
+    buildWrapperEnabled: true
+    installations:
+      - name: "sonarqube"
+        serverUrl: "http://sonarqube:9000"
+        credentialsId: "sonar-token"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: "sonar-token"
+              description: "SonarQube analysis token, generated at start"
+              secret: "${SONAR_TOKEN}"
+
+jobs:
+  - script: >
+      pipelineJob('sample-app-devsecops') {
+        description('Builds, tests, scans, deploys and DAST-scans the sample app. Run with a BRANCH of main (passes) or vulnerable-demo (a gate blocks it).')
+        parameters {
+          stringParam('BRANCH', 'main', 'Branch of the seeded repository to build')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('file:///seed/repo') }
+                branches('*/^${BRANCH}')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }

@@ -1,0 +1,9 @@
+# DEMO ONLY: known-vulnerable pins used by the `vulnerable-demo` branch to show the Trivy gate failing.
+# The seed script swaps this file in as app/requirements.txt on that branch. It is never used on main.
+Flask==2.2.2
+Werkzeug==2.2.2
+Jinja2==3.1.2
+itsdangerous==2.1.2
+click==8.1.3
+MarkupSafe==2.1.5
+gunicorn==20.1.0
