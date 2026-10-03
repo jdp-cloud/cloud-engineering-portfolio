@@ -26,3 +26,25 @@ updates:
     directory: "/projects/05-gcp-to-aws-ha-vpn-secure-connectivity/envs/01-ha-vpn"
     schedule:
       interval: "weekly"
+
+  # Keeps the pinned Jenkins and Docker CLI base images in project 06 current.
+  # Only the Dockerfile is read here. The Jenkins plugin pins in plugins.yaml and
+  # the images in docker-compose.yml are not covered and are bumped by hand.
+  - package-ecosystem: "docker"
+    directory: "/projects/06-jenkins-devsecops-ci-cd-pipeline/jenkins"
+    schedule:
+      interval: "weekly"
+
+  # Keeps the Python base images of the sample app current for project 06.
+  - package-ecosystem: "docker"
+    directory: "/projects/06-jenkins-devsecops-ci-cd-pipeline/app"
+    schedule:
+      interval: "weekly"
+
+  # Keeps the sample app's pinned Python dependencies current for project 06.
+  # demo/requirements.vulnerable.txt is deliberately outdated, so it is not scanned:
+  # Dependabot only reads the directory listed here, and demo/ is not that directory.
+  - package-ecosystem: "pip"
+    directory: "/projects/06-jenkins-devsecops-ci-cd-pipeline/app"
+    schedule:
+      interval: "weekly"

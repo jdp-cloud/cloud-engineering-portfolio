@@ -9,6 +9,15 @@
 | Terraform (project 03) | 464 | 97 |
 | Kubernetes (projects 01 and 02) | 77 | 18 |
 
+**Latest scan on `main`:** 2026-10-03, after project 06 was merged (commit `c98f1c2`), Checkov 3.3.21, the `IaC security scan` workflow run in GitHub Actions over `projects/`. The counts below are copied from that run's log, and they replace the first-scan counts above, which are kept as a record.
+
+| Framework | Passed | Failed | Skipped |
+| --- | --- | --- | --- |
+| Terraform (projects 03, 04, 05 and 06) | 842 | 189 | 3 |
+| Kubernetes (projects 01 and 02) | 77 | 18 | 0 |
+
+The Terraform failures split as 97 in project 03, 87 in project 04, 0 in project 05 and 5 in project 06, which adds up to 189. The CI log reports the total only, so the split is the earlier per-project counts plus the 5 failing checks I could identify under project 06's path in the log. The 3 skipped checks are project 05's inline skips.
+
 The scan currently reports findings but does not fail the build. Checkov's free rule set has no severity levels, so it cannot gate on "high only". The plan is to fix the quick wins, record each intentional trade-off as a documented skip, then turn off `soft_fail` so any new finding blocks a merge.
 
 ## Project 03: Terraform (97 failed checks)
@@ -75,6 +84,20 @@ Scanned locally with Checkov 3.3.22 (Terraform framework) before the pull reques
 | `CKV2_AWS_5` | Endpoint security group | It is attached to the SSM interface endpoints through `for_each`, which the check cannot follow. |
 
 This is a smaller stack than projects 03 and 04 (47 resource blocks, no web tier or Lambda functions), and it was written with the scanner in mind: flow logs are on, the log group uses a customer-managed key, the test instance requires IMDSv2, and nothing is open to `0.0.0.0/0`. The result says the Terraform follows the checks Checkov knows. The scan alone does not say the VPN works. The project was deployed, verified and destroyed on 2026-10-02 (see the project README and its evidence folder), and Checkov is unchanged at 0 failed and 3 skipped.
+
+## Project 06: Terraform (5 failed checks, scan target only)
+
+Project 06's Terraform (`terraform/main.tf`, one S3 bucket with a KMS key) is a scan target for the pipeline's Trivy IaC stage. It is scanned and never applied, and no AWS account is involved. Checkov reports 5 failed checks on it in the latest run on `main`:
+
+| Finding | Check | Count |
+| --- | --- | --- |
+| Bucket has no event notifications | `CKV2_AWS_62` | 1 |
+| Bucket has no cross-region replication | `CKV_AWS_144` | 1 |
+| KMS key has no explicit key policy | `CKV2_AWS_64` | 1 |
+| Bucket has no access logging | `CKV_AWS_18` | 1 |
+| Bucket has no lifecycle configuration | `CKV2_AWS_61` | 1 |
+
+These are production features that a scan target does not need. They are listed here and left unfixed.
 
 ## Projects 01 and 02: Kubernetes (18 failed checks)
 
