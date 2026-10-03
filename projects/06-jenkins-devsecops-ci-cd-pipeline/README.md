@@ -5,7 +5,7 @@
 ![Docker](https://img.shields.io/badge/Docker%20Compose-local%20only-2496ED?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/status-run%2C%20verified%20and%20torn%20down-brightgreen)
 
-A Jenkins pipeline, configured as code, that builds a small Flask app, tests it, scans it five ways (code quality, secrets, dependencies, the image and the Terraform), deploys it to a local container and attacks that container with OWASP ZAP. It all runs in Docker on one laptop and costs nothing. One run fails on purpose to show that a gate blocks a vulnerable dependency, and the next run, on the fixed code, passes.
+A Jenkins pipeline, configured as code, that builds a small Flask app, tests it, scans it six ways (code quality, secrets, dependencies, the image, the Terraform and, once it is deployed to a local container, the running app with OWASP ZAP). It all runs in Docker on one laptop and costs nothing. One run fails on purpose to show that a gate blocks a vulnerable dependency, and the next run, on the fixed code, passes.
 
 > **Scope:** This is a local lab, not a production setup. It runs on one machine, builds one small sample app, uses plain HTTP on `127.0.0.1` and has no cloud account behind it. See [Scope and limitations](#scope-and-limitations).
 

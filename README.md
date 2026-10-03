@@ -22,6 +22,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | 03 | [Multi-Region Hub-and-Spoke Web Application with Centralized SIEM](projects/03-multi-region-hub-and-spoke-web-application-with-centralized-siem/) | A seven-region AWS network with centralized log collection, no SSH access and least-privilege security groups | Terraform, AWS Transit Gateway, ALB, Loki, Grafana | Deployed, verified and torn down. Evidence and cost in the project README. |
 | 04 | [WAF to Bedrock Threat Correlation to SOAR Pipeline](projects/04-waf-bedrock-threat-correlation-and-soar-pipeline/) | An AWS pipeline that turns WAF logs into scored findings, incidents and reports. Amazon Bedrock only explains. Deterministic code makes every decision, and containment is never automated. Cognito MFA and group-based access protect the API. | Terraform, AWS WAF, Lambda, Bedrock, EventBridge, DynamoDB, Cognito, Python | Deployed, verified and torn down. Based on a class group lab. Evidence is partial and the limitations are listed in the project README. |
 | 05 | [GCP to AWS HA VPN with BGP](projects/05-gcp-to-aws-ha-vpn-secure-connectivity/) | Four IPsec tunnels with BGP between a Google Cloud VPC and an AWS Transit Gateway, generated pre-shared keys and private test machines | Terraform, GCP HA VPN, Cloud Router, AWS Transit Gateway, Site-to-Site VPN | Deployed, verified and torn down. Based on a class group lab. |
+| 06 | [Local DevSecOps Pipeline with Jenkins](projects/06-jenkins-devsecops-ci-cd-pipeline/) | A 12-stage Jenkins pipeline, configured as code, that builds and tests a small Flask app, then scans it (SonarQube quality gate, gitleaks, Trivy, OWASP ZAP), deploys it to a local container and tears everything down. One run is blocked by Trivy on purpose and the fixed run passes. | Jenkins, SonarQube, Trivy, gitleaks, OWASP ZAP, Docker Compose, Python | Run, verified and torn down. Based on a class exercise. |
 
 ### In progress
 
@@ -44,6 +45,10 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | API authentication and role-based access (Cognito, MFA, API Gateway authorizer) | Project 04 |
 | Secrets handling (kept out of Git) | Projects 01 and 02 |
 | Secrets handling in Terraform (generated pre-shared keys) | Project 05 |
+| CI/CD with Jenkins (pipeline and configuration as code) | Project 06 |
+| SonarQube quality gates | Project 06 |
+| Trivy (dependency, container image and Terraform scanning) | Project 06 |
+| OWASP ZAP (baseline scan of a deployed container) | Project 06 |
 | Troubleshooting and evidence-based documentation | All projects |
 
 ## How the projects are documented
