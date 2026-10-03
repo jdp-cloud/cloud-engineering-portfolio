@@ -1,0 +1,16 @@
+build #1  result: FAILED  total 80s
+stage                                result     seconds
+Declarative: Checkout SCM            SUCCESS       0.1
+Checkout                             SUCCESS       0.4
+Build image                          SUCCESS      20.0
+Unit tests                           SUCCESS       2.2
+SonarQube analysis                   SUCCESS      14.2
+Quality gate                         SUCCESS       2.2
+Secret scan (gitleaks)               SUCCESS       4.7
+Trivy: filesystem                    FAILED       25.0
+Trivy: image                         SKIPPED       0.1
+Trivy: Terraform (IaC)               SKIPPED       0.1
+Deploy to a local container          SKIPPED       0.1
+OWASP ZAP baseline                   SKIPPED       0.1
+Publish reports                      SKIPPED       0.1
+Declarative: Post Actions            SUCCESS       3.7

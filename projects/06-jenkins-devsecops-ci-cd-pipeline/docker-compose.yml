@@ -1,0 +1,132 @@
+# Local DevSecOps lab: Jenkins, SonarQube + Postgres, and an isolated Docker-in-Docker sidecar.
+#
+# - Only two ports are published, and both are bound to 127.0.0.1 (Jenkins 8080, SonarQube 9000).
+# - Every image is pinned to an exact version. Nothing uses :latest.
+# - No password is stored here. scripts/up.sh generates them and passes them as environment variables.
+# - The host Docker socket is NOT mounted. Pipeline docker commands run against the dind sidecar,
+#   which is privileged (see the README for what that means).
+
+name: jenkins-devsecops
+
+services:
+  postgres:
+    image: postgres:16.15-alpine
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD:?set by scripts/up.sh}
+      POSTGRES_DB: sonarqube
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonarqube"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 512m
+    networks: [lab]
+
+  sonarqube:
+    image: sonarqube:26.8.0.126808-community
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD:?set by scripts/up.sh}
+      # The quality-gate webhook points at the Jenkins container on the private lab network,
+      # which SonarQube blocks by default. Safe here: the network is local and nothing is exposed.
+      SONAR_VALIDATEWEBHOOKS: "false"
+      SONAR_SEARCH_JAVAOPTS: "-Xms512m -Xmx512m"
+      SONAR_WEB_JAVAOPTS: "-Xmx512m"
+      SONAR_CE_JAVAOPTS: "-Xmx512m"
+    ports:
+      - "127.0.0.1:9000:9000"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/api/system/status | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 40s
+    mem_limit: 2500m
+    networks: [lab]
+
+  dind:
+    image: docker:29.8.1-dind
+    privileged: true # required by Docker-in-Docker; root-equivalent inside the Docker VM, not on macOS
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - dind-certs:/certs
+      - dind-data:/var/lib/docker
+      # Shared with Jenkins at the SAME path, so bind mounts of the workspace resolve in both containers.
+      - jenkins-home:/var/jenkins_home
+    healthcheck:
+      test: ["CMD-SHELL", "DOCKER_HOST=tcp://localhost:2376 DOCKER_TLS_VERIFY=1 DOCKER_CERT_PATH=/certs/client docker version >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 10s
+    mem_limit: 3g
+    networks:
+      lab:
+        aliases: [docker]
+
+  # One-shot job: builds a throwaway git repository from this folder so Jenkins has a real
+  # repository to check out, including a `vulnerable-demo` branch for the failing run.
+  seed:
+    image: alpine/git:v2.54.0
+    entrypoint: ["/bin/sh", "/project/scripts/seed.sh"]
+    volumes:
+      - ./:/project:ro
+      - seed-repo:/seed
+    networks: [lab]
+
+  jenkins:
+    build:
+      context: ./jenkins
+    image: devsecops-jenkins:1.0
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+      dind:
+        condition: service_healthy
+      sonarqube:
+        condition: service_healthy
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?set by scripts/up.sh}
+      SONAR_TOKEN: ${SONAR_TOKEN:?set by scripts/up.sh}
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: "1"
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      - dind-certs:/certs:ro
+      - seed-repo:/seed:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/login >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
+    mem_limit: 1500m
+    networks: [lab]
+
+networks:
+  lab: {}
+
+volumes:
+  postgres-data: {}
+  sonarqube-data: {}
+  sonarqube-extensions: {}
+  sonarqube-logs: {}
+  dind-certs: {}
+  dind-data: {}
+  jenkins-home: {}
+  seed-repo: {}

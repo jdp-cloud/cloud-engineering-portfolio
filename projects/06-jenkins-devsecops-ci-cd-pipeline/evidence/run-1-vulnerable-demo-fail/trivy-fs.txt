@@ -1,0 +1,46 @@
+2026-10-03T01:37:22Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-10-03T01:37:22Z	INFO	[secret] Secret scanning is enabled
+2026-10-03T01:37:22Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-10-03T01:37:22Z	INFO	[secret] Please see https://trivy.dev/docs/v0.74/guide/scanner/secret#recommendation for faster secret detection
+2026-10-03T01:37:22Z	WARN	[pip] Unable to find python `site-packages` directory. License detection is skipped.	err="unable to find path to Python executable"
+2026-10-03T01:37:22Z	INFO	Number of language-specific files	num=1
+2026-10-03T01:37:22Z	INFO	[pip] Detecting vulnerabilities...
+
+Report Summary
+
+┌──────────────────────┬──────┬─────────────────┬─────────┐
+│        Target        │ Type │ Vulnerabilities │ Secrets │
+├──────────────────────┼──────┼─────────────────┼─────────┤
+│ app/requirements.txt │ pip  │        5        │    -    │
+└──────────────────────┴──────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+app/requirements.txt (pip)
+==========================
+Total: 5 (HIGH: 5, CRITICAL: 0)
+
+┌──────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬─────────────────────────────────────────────────────────────┐
+│ Library  │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                            │
+├──────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼─────────────────────────────────────────────────────────────┤
+│ Flask    │ CVE-2023-30861 │ HIGH     │ fixed  │ 2.2.2             │ 2.3.2, 2.2.5  │ flask: Possible disclosure of permanent session cookie due  │
+│          │                │          │        │                   │               │ to missing Vary: Cookie...                                  │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2023-30861                  │
+├──────────┼────────────────┤          │        │                   ├───────────────┼─────────────────────────────────────────────────────────────┤
+│ Werkzeug │ CVE-2023-25577 │          │        │                   │ 2.2.3         │ python-werkzeug: high resource usage when parsing multipart │
+│          │                │          │        │                   │               │ form data with many fields...                               │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2023-25577                  │
+│          ├────────────────┤          │        │                   ├───────────────┼─────────────────────────────────────────────────────────────┤
+│          │ CVE-2024-34069 │          │        │                   │ 3.0.3         │ python-werkzeug: user may execute code on a developer's     │
+│          │                │          │        │                   │               │ machine                                                     │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2024-34069                  │
+├──────────┼────────────────┤          │        ├───────────────────┼───────────────┼─────────────────────────────────────────────────────────────┤
+│ gunicorn │ CVE-2024-1135  │          │        │ 20.1.0            │ 22.0.0        │ python-gunicorn: HTTP Request Smuggling due to improper     │
+│          │                │          │        │                   │               │ validation of Transfer-Encoding headers                     │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2024-1135                   │
+│          ├────────────────┤          │        │                   │               ├─────────────────────────────────────────────────────────────┤
+│          │ CVE-2024-6827  │          │        │                   │               │ gunicorn: HTTP Request Smuggling in benoitc/gunicorn        │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2024-6827                   │
+└──────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴─────────────────────────────────────────────────────────────┘

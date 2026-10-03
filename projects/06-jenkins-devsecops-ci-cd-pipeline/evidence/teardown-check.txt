@@ -1,0 +1,40 @@
+# Teardown check (read-only commands run after scripts/down.sh and the build-cache prune)
+# Captured (UTC): 2026-10-03T01:46:28Z
+
+## down.sh output (summary lines)
+Image sonarqube:26.8.0.126808-community Removed 
+Image postgres:16.15-alpine Removed 
+Image alpine/git:v2.54.0 Removed 
+Image docker:29.8.1-dind Removed 
+Image devsecops-jenkins:1.0 Removed 
+removed image jenkins/jenkins:2.568.3-lts-jdk21
+removed image docker:29.8.1-cli
+containers: 0
+volumes:    0
+networks:   0
+docker builder prune: removed the 1.154GB of BuildKit cache created by this project's builds
+
+## Independent checks (exact names)
+containers (docker ps -a): 0 labelled for this project, 0 with a project name
+volumes: 0 labelled for this project, 0 with a project name, 0 volumes in total
+networks: 0 labelled for this project, 0 with a project name
+images this project built or pulled, still present:
+  devsecops-jenkins: 0
+  sonarqube: 0
+  postgres: 0
+  docker: 0
+  alpine/git: 0
+  jenkins/jenkins: 0
+  aquasec/trivy: 0
+  ghcr.io/zaproxy/zaproxy: 0
+  ghcr.io/gitleaks/gitleaks: 0
+  python: 0
+
+## What is still in Docker (it was there before this project)
+docker/desktop-kubernetes:kubernetes-v1.34.1-cni-v1.7.1-critools-v1.33.0-cri-dockerd-v0.3.20-1-debian  552MB
+docker system df:
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          2         2         2.635GB   0B (0%)
+Containers      2         0         122.9kB   122.9kB (100%)
+Local Volumes   0         0         0B        0B
+Build Cache     0         0         0B        0B

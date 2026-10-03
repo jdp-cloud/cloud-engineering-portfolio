@@ -1,0 +1,221 @@
+// DevSecOps pipeline for a small Flask app. Everything runs locally.
+//
+// Every `docker` command below talks to the isolated Docker-in-Docker sidecar
+// (DOCKER_HOST is set in the Jenkins container), never to the host Docker.
+// No stage uses a cloud credential, and none touches AWS: the S3 Terraform in
+// terraform/ is only ever read by the scanner.
+
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        ansiColor('xterm')
+        timeout(time: 45, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        IMAGE          = "sample-app:${env.BUILD_NUMBER}"
+        TEST_IMAGE     = "sample-app-test:${env.BUILD_NUMBER}"
+        APP_NAME       = "sample-app-${env.BUILD_NUMBER}"
+        APP_NET        = "app-net-${env.BUILD_NUMBER}"
+        // Pinned tool images (run inside the Docker-in-Docker daemon)
+        TRIVY_IMAGE    = 'aquasec/trivy:0.74.0'
+        ZAP_IMAGE      = 'ghcr.io/zaproxy/zaproxy:2.17.0'
+        GITLEAKS_IMAGE = 'ghcr.io/gitleaks/gitleaks:v8.30.1'
+        HELPER_IMAGE   = 'python:3.12.15-slim-bookworm'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    rm -rf reports
+                    mkdir -p reports/zap reports/trivy reports/gitleaks
+                    chmod -R 777 reports
+                    git log -1 --oneline
+                '''
+            }
+        }
+
+        stage('Build image') {
+            steps {
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    docker build --progress=plain --target runtime -t "$IMAGE" app
+                    docker build --progress=plain --target test -t "$TEST_IMAGE" app
+                '''
+            }
+        }
+
+        stage('Unit tests') {
+            steps {
+                // The workspace is mounted at the same path inside the tool container, so the
+                // coverage report carries paths that SonarQube can resolve.
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
+                        -v "$WORKSPACE:$WORKSPACE" -w "$WORKSPACE/app" "$TEST_IMAGE" \
+                        python -m pytest -p no:cacheprovider --cov=main \
+                            --cov-report=xml:"$WORKSPACE/reports/coverage.xml" --cov-report=term \
+                            --junitxml="$WORKSPACE/reports/junit.xml"
+                '''
+            }
+            post {
+                always {
+                    junit testResults: 'reports/junit.xml', allowEmptyResults: false
+                }
+            }
+        }
+
+        stage('SonarQube analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh 'sonar-scanner -Dsonar.projectBaseDir="$WORKSPACE" -Dsonar.scm.disabled=true'
+                }
+            }
+        }
+
+        stage('Quality gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Secret scan (gitleaks)') {
+            steps {
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    docker run --rm -v "$WORKSPACE:/repo:ro" -v "$WORKSPACE/reports/gitleaks:/out" \
+                        "$GITLEAKS_IMAGE" dir /repo --no-banner --redact --exit-code 1 \
+                        --report-format json --report-path /out/gitleaks.json
+                '''
+            }
+        }
+
+        stage('Trivy: filesystem') {
+            steps {
+                // Gate: any fixable HIGH or CRITICAL vulnerability or any secret fails the build.
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    docker run --rm -v "$WORKSPACE:/src:ro" -v "$WORKSPACE/reports/trivy:/out" \
+                        -v trivy-cache:/root/.cache "$TRIVY_IMAGE" fs --scanners vuln,secret \
+                        --severity HIGH,CRITICAL --ignore-unfixed --no-progress --skip-dirs /src/reports \
+                        --format json --output /out/trivy-fs.json --exit-code 0 /src
+                    docker run --rm -v "$WORKSPACE:/src:ro" -v trivy-cache:/root/.cache \
+                        "$TRIVY_IMAGE" fs --scanners vuln,secret \
+                        --severity HIGH,CRITICAL --ignore-unfixed --no-progress --skip-dirs /src/reports \
+                        --exit-code 1 /src 2>&1 | tee reports/trivy/trivy-fs.txt
+                '''
+            }
+        }
+
+        stage('Trivy: image') {
+            steps {
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    trap 'rm -f reports/trivy/image.tar' EXIT
+                    docker save "$IMAGE" -o reports/trivy/image.tar
+                    docker run --rm -v "$WORKSPACE/reports/trivy:/out" -v trivy-cache:/root/.cache \
+                        "$TRIVY_IMAGE" image --input /out/image.tar --scanners vuln \
+                        --severity HIGH,CRITICAL --ignore-unfixed --no-progress \
+                        --format json --output /out/trivy-image.json --exit-code 0
+                    docker run --rm -v "$WORKSPACE/reports/trivy:/out" -v trivy-cache:/root/.cache \
+                        "$TRIVY_IMAGE" image --input /out/image.tar --scanners vuln \
+                        --severity HIGH,CRITICAL --ignore-unfixed --no-progress \
+                        --exit-code 1 2>&1 | tee reports/trivy/trivy-image.txt
+                '''
+            }
+        }
+
+        stage('Trivy: Terraform (IaC)') {
+            steps {
+                // The S3 Terraform is a scan target only: it is read, never planned or applied.
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    docker run --rm -v "$WORKSPACE/terraform:/src:ro" -v "$WORKSPACE/reports/trivy:/out" \
+                        -v trivy-cache:/root/.cache "$TRIVY_IMAGE" config --severity HIGH,CRITICAL \
+                        --format json --output /out/trivy-terraform.json --exit-code 0 /src
+                    docker run --rm -v "$WORKSPACE/terraform:/src:ro" -v trivy-cache:/root/.cache \
+                        "$TRIVY_IMAGE" config --severity HIGH,CRITICAL \
+                        --exit-code 1 /src 2>&1 | tee reports/trivy/trivy-terraform.txt
+                '''
+            }
+        }
+
+        stage('Deploy to a local container') {
+            steps {
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    docker network create "$APP_NET"
+                    docker run -d --name "$APP_NAME" --network "$APP_NET" \
+                        --read-only --tmpfs /dev/shm --cap-drop ALL \
+                        --security-opt no-new-privileges:true "$IMAGE"
+                    status=starting
+                    for i in $(seq 1 30); do
+                        status=$(docker inspect -f '{{.State.Health.Status}}' "$APP_NAME")
+                        [ "$status" = "healthy" ] && break
+                        sleep 2
+                    done
+                    echo "container health: $status"
+                    if [ "$status" != "healthy" ]; then docker logs "$APP_NAME"; exit 1; fi
+                '''
+            }
+        }
+
+        stage('OWASP ZAP baseline') {
+            steps {
+                // Scans only the container deployed above, over the private Docker network.
+                sh '''#!/bin/bash
+                    set -euo pipefail
+                    cp zap-rules.conf reports/zap/zap-rules.conf
+                    docker run --rm --network "$APP_NET" -v "$WORKSPACE/reports/zap:/zap/wrk:rw" \
+                        "$ZAP_IMAGE" zap-baseline.py -t "http://$APP_NAME:8000" -c zap-rules.conf \
+                        -r zap-baseline.html -J zap-baseline.json -w zap-baseline.md -I
+                '''
+            }
+        }
+
+        stage('Publish reports') {
+            steps {
+                publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'reports/zap',
+                    reportFiles: 'zap-baseline.html',
+                    reportName: 'ZAP baseline report'
+                ])
+                archiveArtifacts artifacts: 'reports/**', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        always {
+            // Teardown always runs, pass or fail: remove the deployed container, its network and the images.
+            sh '''#!/bin/bash
+                set +e
+                docker rm -f "$APP_NAME" >/dev/null 2>&1
+                docker network rm "$APP_NET" >/dev/null 2>&1
+                docker rmi -f "$IMAGE" "$TEST_IMAGE" >/dev/null 2>&1
+                rm -f reports/trivy/image.tar
+                echo "teardown: containers left for this build: $(docker ps -aq --filter name=sample-app-$BUILD_NUMBER | wc -l)"
+                exit 0
+            '''
+            archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
+            // Scanner containers run as root; hand their files back so the next run can clean the workspace.
+            sh '''#!/bin/bash
+                docker run --rm --user 0 -v "$WORKSPACE:/w" "$HELPER_IMAGE" chown -R 1000:1000 /w || true
+            '''
+        }
+        success { echo 'Pipeline finished: every gate passed.' }
+        failure { echo 'Pipeline failed: a gate blocked this build. See the failed stage above.' }
+    }
+}
