@@ -3,7 +3,7 @@
 #   deps    -> runtime dependencies only
 #   test    -> runtime + test dependencies (the pipeline mounts the sources and runs pytest here)
 #   runtime -> what gets deployed: non-root, no test tooling, no shell-based entrypoint
-FROM python:3.12.15-slim-bookworm AS base
+FROM python:3.14.0-slim-bookworm AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
