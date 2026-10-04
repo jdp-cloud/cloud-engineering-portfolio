@@ -4,6 +4,11 @@
 // (DOCKER_HOST is set in the Jenkins container), never to the host Docker.
 // No stage uses a cloud credential, and none touches AWS: the S3 Terraform in
 // terraform/ is only ever read by the scanner.
+//
+// Optional: with RUN_SNYK_JIRA ticked, a Snyk dependency gate runs right after the unit tests and a
+// Jira ticket is opened if the build fails. Both are off by default, and with the box unticked the
+// pipeline is exactly the 12 stages below. The Snyk and Jira values are Jenkins credentials that
+// come from 1Password through scripts/up.sh; they are bound with withCredentials, never echoed.
 
 pipeline {
     agent any
@@ -26,6 +31,9 @@ pipeline {
         ZAP_IMAGE      = 'ghcr.io/zaproxy/zaproxy:2.17.0'
         GITLEAKS_IMAGE = 'ghcr.io/gitleaks/gitleaks:v8.30.1'
         HELPER_IMAGE   = 'python:3.12.15-slim-bookworm'
+        // Optional Snyk stage. Pinned by digest (the python-3.12 tag as of 2026-10-04). The image is
+        // published for linux/amd64 only, so it runs under emulation on an Apple-silicon Docker.
+        SNYK_IMAGE     = 'snyk/snyk@sha256:2bf614cc097023e2f391ddd6953365f72d84167e16b1e9eaa11c5ef8891dda9b'
     }
 
     stages {
@@ -68,6 +76,55 @@ pipeline {
             post {
                 always {
                     junit testResults: 'reports/junit.xml', allowEmptyResults: false
+                }
+            }
+        }
+
+        stage('Snyk dependency scan (optional)') {
+            when { expression { params.RUN_SNYK_JIRA } }
+            steps {
+                script {
+                    if (env.SNYK_JIRA_ENABLED != '1') {
+                        error('RUN_SNYK_JIRA is ticked, but this stack was started without the Snyk and Jira secrets. Start it with: op run --env-file=jenkins/.env.op -- ./scripts/up.sh')
+                    }
+                }
+                // Gate: any HIGH or CRITICAL finding in the app's pinned dependencies fails the build.
+                // The pip packages are installed inside the scan container first so Snyk can resolve them.
+                // There is no --skip-unresolved: a dependency Snyk cannot resolve is an error, not a pass.
+                // This stage never runs `snyk monitor` or `snyk auth`; the token is read from SNYK_TOKEN.
+                withCredentials([
+                    string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN'),
+                    string(credentialsId: 'snyk-org', variable: 'SNYK_ORG')
+                ]) {
+                    sh '''#!/bin/bash
+                        set +x
+                        set -uo pipefail
+                        mkdir -p reports/snyk
+                        rc=0
+                        docker run --rm --platform linux/amd64 --user "$(id -u):$(id -g)" -e HOME=/tmp \
+                            -e SNYK_TOKEN -e SNYK_ORG -e SNYK_DISABLE_ANALYTICS=1 -e OUT="$WORKSPACE/reports/snyk" \
+                            -v "$WORKSPACE:$WORKSPACE" -w "$WORKSPACE/app" --entrypoint bash "$SNYK_IMAGE" -c '
+                                set -uo pipefail
+                                pip install --user --no-cache-dir --quiet -r requirements.txt || exit 2
+                                snyk test --file=requirements.txt --package-manager=pip \
+                                    --severity-threshold=high --org="$SNYK_ORG" \
+                                    --json-file-output="$OUT/snyk-raw.json" > "$OUT/snyk-raw.txt" 2>&1
+                            ' || rc=$?
+                        # Snyk prints the organisation name; drop that line before anything is shown or archived.
+                        sed '/^Organization:/d' reports/snyk/snyk-raw.txt | tee reports/snyk/snyk-report.txt || true
+                        if [ -s reports/snyk/snyk-raw.json ]; then
+                            docker run --rm -v "$WORKSPACE/reports/snyk:/w" "$HELPER_IMAGE" python -c '
+import json
+d = json.load(open("/w/snyk-raw.json"))
+for item in (d if isinstance(d, list) else [d]):
+    item.pop("org", None)
+json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
+'
+                        fi
+                        rm -f reports/snyk/snyk-raw.txt reports/snyk/snyk-raw.json
+                        echo "snyk exit code: $rc (0 = no HIGH or CRITICAL findings, 1 = findings, 2 or more = the scan itself failed)"
+                        exit "$rc"
+                    '''
                 }
             }
         }
@@ -216,6 +273,62 @@ pipeline {
             '''
         }
         success { echo 'Pipeline finished: every gate passed.' }
-        failure { echo 'Pipeline failed: a gate blocked this build. See the failed stage above.' }
+        failure {
+            echo 'Pipeline failed: a gate blocked this build. See the failed stage above.'
+            script {
+                if (params.RUN_SNYK_JIRA && env.SNYK_JIRA_ENABLED == '1') {
+                    try {
+                        // Branch names are untrusted: they travel as environment variables and the JSON is
+                        // built by python's json module, never by string concatenation. The ticket holds the
+                        // job name, branch, build number, failed stage and a pointer to the archived reports;
+                        // no secret, e-mail or site URL.
+                        withEnv(["FAILED_STAGE=${env.STAGE_NAME ?: 'unknown'}", "TICKET_BRANCH=${params.BRANCH}"]) {
+                            withCredentials([
+                                string(credentialsId: 'jira-api-token', variable: 'JIRA_API_TOKEN'),
+                                string(credentialsId: 'jira-email', variable: 'JIRA_EMAIL'),
+                                string(credentialsId: 'jira-site-url', variable: 'JIRA_SITE_URL'),
+                                string(credentialsId: 'jira-project-key', variable: 'JIRA_PROJECT_KEY')
+                            ]) {
+                                sh '''#!/bin/bash
+                                    set +x
+                                    set +e
+                                    payload_file="$(mktemp)"; response_file="$(mktemp)"
+                                    docker run --rm -e JIRA_PROJECT_KEY -e JOB_NAME -e BUILD_NUMBER -e TICKET_BRANCH -e FAILED_STAGE \
+                                        "$HELPER_IMAGE" python -c '
+import json, os
+e = os.environ
+summary = "Pipeline failure: %s #%s failed at stage %s" % (e["JOB_NAME"], e["BUILD_NUMBER"], e["FAILED_STAGE"])
+description = chr(10).join([
+    "A gate blocked the local DevSecOps pipeline.",
+    "Job: " + e["JOB_NAME"],
+    "Branch: " + e["TICKET_BRANCH"][:100],
+    "Build number: " + e["BUILD_NUMBER"],
+    "Failed stage: " + e["FAILED_STAGE"],
+    "Reports: see the archived artifacts of this build, for example reports/snyk/snyk-report.txt.",
+])
+print(json.dumps({"fields": {"project": {"key": e["JIRA_PROJECT_KEY"]}, "summary": summary[:250],
+                             "description": description, "issuetype": {"name": "Bug"}}}))
+' > "$payload_file"
+                                    # Credentials go to curl on stdin, not on its command line; curl's own error
+                                    # output is discarded because it can contain the host name.
+                                    code="$({ echo "url = ${JIRA_SITE_URL%/}/rest/api/2/issue"; echo "user = $JIRA_EMAIL:$JIRA_API_TOKEN"; } \
+                                        | curl -s -K - -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                            --data-binary @"$payload_file" -o "$response_file" -w '%{http_code}' 2>/dev/null)"
+                                    echo "Jira ticket request finished: HTTP ${code:-000}"
+                                    if [ "$code" = "201" ]; then
+                                        key="$(grep -o '"key":"[^"]*"' "$response_file" | head -1 | cut -d'"' -f4)"
+                                        echo "Jira ticket created, number ${key##*-}"
+                                    fi
+                                    rm -f "$payload_file" "$response_file"
+                                    exit 0
+                                '''
+                            }
+                        }
+                    } catch (err) {
+                        echo 'Jira ticket step could not run; the build result is unchanged.'
+                    }
+                }
+            }
+        }
     }
 }

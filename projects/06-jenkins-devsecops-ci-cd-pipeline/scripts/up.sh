@@ -7,6 +7,12 @@
 # Optional environment variables:
 #   SHOW_PASSWORDS=0     do not print the passwords at the end
 #   CREDENTIALS_OUT=PATH also write them to PATH (mode 0600). The path must be OUTSIDE this repository.
+#
+# Optional Snyk dependency stage and Jira ticket on failure (off unless all six values are present):
+#   op run --env-file=jenkins/.env.op -- ./scripts/up.sh
+# The values come from 1Password through `op run`, are handed to Docker Compose as secrets (files under
+# /run/secrets in the Jenkins container) and are never written to a file or printed by this script.
+# Started any other way, the lab is exactly the 12-stage lab.
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -27,6 +33,30 @@ gen_complex() { printf 'Aa1-%s' "$(openssl rand -hex 14)"; }
 export JENKINS_ADMIN_PASSWORD="$(gen)" SONAR_ADMIN_PASSWORD="$(gen_complex)" SONAR_DB_PASSWORD="$(gen)"
 # Compose needs a value to parse the file; the real token replaces this once SonarQube is up.
 export SONAR_TOKEN="placeholder"
+
+# Optional integrations: all six values present = enabled, none = off, anything in between is a mistake.
+# Only the NAMES of missing variables are ever printed, never a value.
+integration_vars=(SNYK_TOKEN SNYK_ORG JIRA_API_TOKEN JIRA_EMAIL JIRA_SITE_URL JIRA_PROJECT_KEY)
+present=0; missing=""; unresolved=""
+for name in "${integration_vars[@]}"; do
+  if [ -n "${!name:-}" ]; then
+    present=$((present + 1))
+    case "${!name}" in op://*) unresolved="$unresolved $name" ;; esac
+  else
+    missing="$missing $name"
+  fi
+done
+if [ -n "$unresolved" ]; then
+  die "still an op:// reference:$unresolved. Start with: op run --env-file=jenkins/.env.op -- ./scripts/up.sh"
+elif [ "$present" -eq "${#integration_vars[@]}" ]; then
+  export COMPOSE_FILE="docker-compose.yml:docker-compose.integrations.yml"
+  INTEGRATIONS=on
+elif [ "$present" -eq 0 ]; then
+  INTEGRATIONS=off
+else
+  die "the Snyk and Jira values are only partly set. Missing:$missing"
+fi
+echo "==> Optional Snyk and Jira stages: $INTEGRATIONS"
 
 SONAR_URL="http://127.0.0.1:9000"
 JENKINS_URL="http://127.0.0.1:8080"
@@ -97,3 +127,6 @@ if [ "${SHOW_PASSWORDS:-1}" = "1" ]; then
   echo "These are shown once. They are not stored anywhere in this repository."
 fi
 echo "Run the job 'sample-app-devsecops' with BRANCH=main (passes) or BRANCH=vulnerable-demo (a gate blocks it)."
+if [ "$INTEGRATIONS" = "on" ]; then
+  echo "Tick RUN_SNYK_JIRA to add the Snyk gate and a Jira ticket on failure."
+fi

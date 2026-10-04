@@ -1,5 +1,8 @@
-# Jenkins Configuration as Code. No secret is stored here: every ${...} is an
-# environment variable that scripts/up.sh generates when the stack starts.
+# Jenkins Configuration as Code. No secret is stored here: every ${...} is either an environment
+# variable that scripts/up.sh generates when the stack starts, or (for the optional Snyk and Jira
+# credentials) a Docker secret file that Configuration as Code reads from /run/secrets. Those six
+# are empty unless docker-compose.integrations.yml is in use, and the pipeline refuses to use them
+# in that case.
 jenkins:
   systemMessage: "Local DevSecOps lab. Not for production use."
   numExecutors: 2
@@ -35,6 +38,38 @@ credentials:
               id: "sonar-token"
               description: "SonarQube analysis token, generated at start"
               secret: "${SONAR_TOKEN}"
+          # Optional Snyk and Jira credentials (see docker-compose.integrations.yml). Empty when the
+          # integration is off, in which case the pipeline's optional stages are never selected.
+          - string:
+              scope: GLOBAL
+              id: "snyk-token"
+              description: "Snyk personal access token (optional stage)"
+              secret: "${snyk_token:-}"
+          - string:
+              scope: GLOBAL
+              id: "snyk-org"
+              description: "Snyk organisation (optional stage)"
+              secret: "${snyk_org:-}"
+          - string:
+              scope: GLOBAL
+              id: "jira-api-token"
+              description: "Jira API token (optional stage)"
+              secret: "${jira_api_token:-}"
+          - string:
+              scope: GLOBAL
+              id: "jira-email"
+              description: "Jira account e-mail (optional stage)"
+              secret: "${jira_email:-}"
+          - string:
+              scope: GLOBAL
+              id: "jira-site-url"
+              description: "Jira site URL (optional stage)"
+              secret: "${jira_site_url:-}"
+          - string:
+              scope: GLOBAL
+              id: "jira-project-key"
+              description: "Jira project key (optional stage)"
+              secret: "${jira_project_key:-}"
 
 jobs:
   - script: >
@@ -42,6 +77,7 @@ jobs:
         description('Builds, tests, scans, deploys and DAST-scans the sample app. Run with a BRANCH of main (passes) or vulnerable-demo (a gate blocks it).')
         parameters {
           stringParam('BRANCH', 'main', 'Branch of the seeded repository to build')
+          booleanParam('RUN_SNYK_JIRA', false, 'Optional: add a Snyk dependency gate after the unit tests and open a Jira ticket if the build fails. Needs the stack to be started with 1Password (see the README).')
         }
         definition {
           cpsScm {

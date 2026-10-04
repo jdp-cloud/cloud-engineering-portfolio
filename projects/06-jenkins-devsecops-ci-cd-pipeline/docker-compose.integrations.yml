@@ -1,0 +1,32 @@
+# Overlay for the OPTIONAL Snyk and Jira stages. scripts/up.sh adds it only when all six values are
+# present in its environment (see jenkins/.env.op), so without it the lab is exactly the base file.
+#
+# The values reach Jenkins as Docker Compose secrets taken from up.sh's own environment. Compose
+# mounts each one as a read-only file under /run/secrets in the Jenkins container (an in-memory
+# filesystem), and Configuration as Code reads them from there. They are not container environment
+# variables, so `docker inspect` does not show them, and they disappear with the container.
+services:
+  jenkins:
+    environment:
+      SNYK_JIRA_ENABLED: "1"
+    secrets:
+      - snyk_token
+      - snyk_org
+      - jira_api_token
+      - jira_email
+      - jira_site_url
+      - jira_project_key
+
+secrets:
+  snyk_token:
+    environment: SNYK_TOKEN
+  snyk_org:
+    environment: SNYK_ORG
+  jira_api_token:
+    environment: JIRA_API_TOKEN
+  jira_email:
+    environment: JIRA_EMAIL
+  jira_site_url:
+    environment: JIRA_SITE_URL
+  jira_project_key:
+    environment: JIRA_PROJECT_KEY
