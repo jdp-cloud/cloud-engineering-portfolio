@@ -37,6 +37,8 @@ pipeline {
     }
 
     stages {
+        // Each stage records its own name in FAILED_STAGE if it fails. The Jira step at the end reads it,
+        // because STAGE_NAME inside the final post block only ever names the post-actions pseudo-stage.
         stage('Checkout') {
             steps {
                 checkout scm
@@ -48,6 +50,9 @@ pipeline {
                     git log -1 --oneline
                 '''
             }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
+            }
         }
 
         stage('Build image') {
@@ -57,6 +62,9 @@ pipeline {
                     docker build --progress=plain --target runtime -t "$IMAGE" app
                     docker build --progress=plain --target test -t "$TEST_IMAGE" app
                 '''
+            }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
 
@@ -77,6 +85,7 @@ pipeline {
                 always {
                     junit testResults: 'reports/junit.xml', allowEmptyResults: false
                 }
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
 
@@ -127,6 +136,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                     '''
                 }
             }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
+            }
         }
 
         stage('SonarQube analysis') {
@@ -135,6 +147,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                     sh 'sonar-scanner -Dsonar.projectBaseDir="$WORKSPACE" -Dsonar.scm.disabled=true'
                 }
             }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
+            }
         }
 
         stage('Quality gate') {
@@ -142,6 +157,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
+            }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
 
@@ -153,6 +171,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                         "$GITLEAKS_IMAGE" dir /repo --no-banner --redact --exit-code 1 \
                         --report-format json --report-path /out/gitleaks.json
                 '''
+            }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
 
@@ -170,6 +191,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                         --severity HIGH,CRITICAL --ignore-unfixed --no-progress --skip-dirs /src/reports \
                         --exit-code 1 /src 2>&1 | tee reports/trivy/trivy-fs.txt
                 '''
+            }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
 
@@ -189,6 +213,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                         --exit-code 1 2>&1 | tee reports/trivy/trivy-image.txt
                 '''
             }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
+            }
         }
 
         stage('Trivy: Terraform (IaC)') {
@@ -203,6 +230,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                         "$TRIVY_IMAGE" config --severity HIGH,CRITICAL \
                         --exit-code 1 /src 2>&1 | tee reports/trivy/trivy-terraform.txt
                 '''
+            }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
 
@@ -224,6 +254,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                     if [ "$status" != "healthy" ]; then docker logs "$APP_NAME"; exit 1; fi
                 '''
             }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
+            }
         }
 
         stage('OWASP ZAP baseline') {
@@ -236,6 +269,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                         "$ZAP_IMAGE" zap-baseline.py -t "http://$APP_NAME:8000" -c zap-rules.conf \
                         -r zap-baseline.html -J zap-baseline.json -w zap-baseline.md -I
                 '''
+            }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
 
@@ -250,6 +286,9 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                     reportName: 'ZAP baseline report'
                 ])
                 archiveArtifacts artifacts: 'reports/**', fingerprint: true
+            }
+            post {
+                failure { script { env.FAILED_STAGE = env.STAGE_NAME } }
             }
         }
     }
@@ -282,7 +321,7 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                         // built by python's json module, never by string concatenation. The ticket holds the
                         // job name, branch, build number, failed stage and a pointer to the archived reports;
                         // no secret, e-mail or site URL.
-                        withEnv(["FAILED_STAGE=${env.STAGE_NAME ?: 'unknown'}", "TICKET_BRANCH=${params.BRANCH}"]) {
+                        withEnv(["FAILED_STAGE=${env.FAILED_STAGE ?: 'unknown'}", "TICKET_BRANCH=${params.BRANCH}"]) {
                             withCredentials([
                                 string(credentialsId: 'jira-api-token', variable: 'JIRA_API_TOKEN'),
                                 string(credentialsId: 'jira-email', variable: 'JIRA_EMAIL'),
@@ -297,13 +336,16 @@ json.dump(d, open("/w/snyk-sanitized.json", "w"), indent=2)
                                         "$HELPER_IMAGE" python -c '
 import json, os
 e = os.environ
-summary = "Pipeline failure: %s #%s failed at stage %s" % (e["JOB_NAME"], e["BUILD_NUMBER"], e["FAILED_STAGE"])
+stage = e["FAILED_STAGE"]
+known = stage != "unknown"
+where = "failed at stage " + stage if known else "failed (see the build log for the failed stage)"
+summary = "Pipeline failure: %s #%s %s" % (e["JOB_NAME"], e["BUILD_NUMBER"], where)
 description = chr(10).join([
     "A gate blocked the local DevSecOps pipeline.",
     "Job: " + e["JOB_NAME"],
     "Branch: " + e["TICKET_BRANCH"][:100],
     "Build number: " + e["BUILD_NUMBER"],
-    "Failed stage: " + e["FAILED_STAGE"],
+    "Failed stage: " + (stage if known else "not recorded, see the build log"),
     "Reports: see the archived artifacts of this build, for example reports/snyk/snyk-report.txt.",
 ])
 print(json.dumps({"fields": {"project": {"key": e["JIRA_PROJECT_KEY"]}, "summary": summary[:250],
