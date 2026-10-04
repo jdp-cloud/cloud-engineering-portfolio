@@ -318,6 +318,16 @@ print(json.dumps({"fields": {"project": {"key": e["JIRA_PROJECT_KEY"]}, "summary
                                     if [ "$code" = "201" ]; then
                                         key="$(grep -o '"key":"[^"]*"' "$response_file" | head -1 | cut -d'"' -f4)"
                                         echo "Jira ticket created, number ${key##*-}"
+                                    else
+                                        # Jira's error fields only (they carry no secret; Jenkins masks the project key).
+                                        docker run --rm -i "$HELPER_IMAGE" python -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print("Jira said:", json.dumps({k: d[k] for k in ("errorMessages", "errors") if d.get(k)}))
+except Exception:
+    print("Jira said: (no JSON body)")
+' < "$response_file"
                                     fi
                                     rm -f "$payload_file" "$response_file"
                                     exit 0
