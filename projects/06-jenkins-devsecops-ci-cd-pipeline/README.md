@@ -5,7 +5,7 @@
 ![Docker](https://img.shields.io/badge/Docker%20Compose-local%20only-2496ED?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/status-run%2C%20verified%20and%20torn%20down-brightgreen)
 
-A Jenkins pipeline, configured as code, that builds a small Flask app, tests it, scans it six ways (code quality, secrets, dependencies, the image, the Terraform and, once it is deployed to a local container, the running app with OWASP ZAP). It all runs in Docker on one laptop and costs nothing. One run fails on purpose to show that a gate blocks a vulnerable dependency, and the next run, on the fixed code, passed on 2026-10-03. A rerun on 2026-10-04 stopped at the image scan on a base-image package finding (see [Evidence](#evidence)), so the result depends on the date.
+A Jenkins pipeline, configured as code, that builds a small Flask app, tests it, scans it six ways (code quality, secrets, dependencies, the image, the Terraform and, once it is deployed to a local container, the running app with OWASP ZAP). It all runs in Docker on one laptop and costs nothing. One run fails on purpose to show that a gate blocks a vulnerable dependency, and the next run, on the fixed code, passed on 2026-10-03. A rerun on 2026-10-04 stopped at the image scan on a base-image package finding; after a small Dockerfile fix it passed all 12 stages again on 2026-10-04 (see [Evidence](#evidence)). Results depend on the date, because the base image and the scanners' databases change.
 
 > **Scope:** This is a local lab, not a production setup. It runs on one machine, builds one small sample app, uses plain HTTP on `127.0.0.1` and, by default, has no cloud account behind it. Two optional stages (Snyk and a Jira ticket on failure, off by default) do talk to those two services. See [Scope and limitations](#scope-and-limitations).
 
@@ -16,7 +16,7 @@ A Jenkins pipeline, configured as code, that builds a small Flask app, tests it,
 | **Problem** | A pipeline that only builds and deploys proves little. I wanted one that blocks insecure code, shows that it blocks it, and leaves nothing running or lying around afterwards. |
 | **Solution** | Docker Compose runs Jenkins (configured as code, 82 plugins pinned and baked into the image), SonarQube with Postgres, and an isolated Docker-in-Docker sidecar. A 12-stage pipeline builds, tests, runs SonarQube with a strict quality gate, gitleaks and three Trivy scans, deploys the app to a hardened container and runs a ZAP baseline scan against it. |
 | **Environment** | MacBook Pro (Apple M3 Pro), Docker Desktop, everything bound to `127.0.0.1`. Every image is pinned to an exact version, with no `:latest`. |
-| **Proof** | Run 1 on a branch with known-vulnerable dependencies was stopped by Trivy with 5 HIGH findings. Run 2 on the fixed code passed all 12 stages on 2026-10-03: 16 of 16 tests, 100% coverage, a strict SonarQube gate, no secrets, no HIGH or CRITICAL findings, and a ZAP baseline with 0 failures and 0 warnings. Teardown left no containers, volumes or project images. A later run with the optional Snyk and Jira stages on stopped on `main` at `Trivy: image` because of a Debian package in the base image; the details are [below](#optional-snyk-and-jira-run-2026-10-04). |
+| **Proof** | Run 1 on a branch with known-vulnerable dependencies was stopped by Trivy with 5 HIGH findings. Run 2 on the fixed code passed all 12 stages on 2026-10-03: 16 of 16 tests, 100% coverage, a strict SonarQube gate, no secrets, no HIGH or CRITICAL findings, and a ZAP baseline with 0 failures and 0 warnings. Teardown left no containers, volumes or project images. A later run with the optional Snyk and Jira stages on stopped on `main` at `Trivy: image` because of a Debian package in the base image; the details are [below](#optional-snyk-and-jira-run-2026-10-04). After a Dockerfile fix, `main` passed all 12 stages again on 2026-10-04 ([below](#base-image-fix-2026-10-04)). |
 | **Hardest problem** | Ten failures along the way, from a SonarQube password policy to a quality gate that said "OK" next to an open critical issue. The gate was the most useful one to find: [the full list](evidence/what-failed-and-how-i-fixed-it.md). |
 | **Cost** | $0. By default there is no cloud account, no cloud credential and no cloud stage. The optional Snyk and Jira stages use free-tier accounts and API tokens kept in 1Password. |
 | **Skills shown** | Jenkins pipelines and Configuration as Code, Docker Compose, Docker-in-Docker isolation, SonarQube quality gates, Trivy, gitleaks, OWASP ZAP, pinning and supply-chain hygiene, secrets handling, negative testing, evidence-based documentation |
@@ -151,7 +151,7 @@ cd projects/06-jenkins-devsecops-ci-cd-pipeline
 # 2. Open Jenkins at http://127.0.0.1:8080 (user: admin), job "sample-app-devsecops",
 #    "Build with Parameters":
 #      BRANCH=vulnerable-demo   a gate blocks it (Trivy, 5 HIGH findings)
-#      BRANCH=main              passed all 12 stages on 2026-10-03; it can fail later if a scanner
+#      BRANCH=main              passed all 12 stages on 2026-10-03 and again on 2026-10-04; it can fail later if a scanner
 #                               finds something new (see Evidence)
 #    SonarQube is at http://127.0.0.1:9000 (user: admin).
 
@@ -198,7 +198,7 @@ Revoke both tokens in Snyk and Atlassian when you have finished.
 | Check | Expected |
 | --- | --- |
 | `BRANCH=vulnerable-demo` | Fails at `Trivy: filesystem` with 5 HIGH findings; later stages are skipped; teardown still runs |
-| `BRANCH=main` | All 12 stages passed on 2026-10-03. This is date-dependent: on 2026-10-04 the image scan found a HIGH issue in a base-image package and stopped the build there. |
+| `BRANCH=main` | All 12 stages passed on 2026-10-03. This is date-dependent: on 2026-10-04 the image scan found a HIGH issue in a base-image package and stopped the build there. After the Dockerfile fix it passed again on 2026-10-04. |
 | Jenkins job | Exists with a `BRANCH` parameter, created from code |
 | Anonymous request to Jenkins | HTTP 403 (observed while building; not captured as evidence) |
 | `docker ps` on the host during a run | Only the four Compose containers; no container mounts the host Docker socket |
@@ -206,7 +206,7 @@ Revoke both tokens in Snyk and Atlassian when you have finished.
 
 ## Evidence
 
-All of it is in [`evidence/`](evidence/), with an [index](evidence/README.md). It was produced in one session on 2026-10-03 (UTC), on a clean stack, from the final code. The optional Snyk and Jira stages have their own evidence from a second session on 2026-10-04, in [`evidence/optional-snyk-jira/`](evidence/optional-snyk-jira/).
+All of it is in [`evidence/`](evidence/), with an [index](evidence/README.md). It was produced in one session on 2026-10-03 (UTC), on a clean stack, from the final code. The optional Snyk and Jira stages have their own evidence from a second session on 2026-10-04, in [`evidence/optional-snyk-jira/`](evidence/optional-snyk-jira/). A third session on 2026-10-04, in [`evidence/base-image-fix-2026-10-04/`](evidence/base-image-fix-2026-10-04/), reran `main` after the base-image fix.
 
 | Claim | Where to see it |
 | --- | --- |
@@ -242,9 +242,17 @@ Two builds on a freshly started lab, started with `op run`, with `RUN_SNYK_JIRA`
 | #1 | `vulnerable-demo` | Failed at the Snyk stage with 5 HIGH findings (werkzeug, flask, gunicorn); every stage after it was skipped. Jira returned HTTP 201 and the ticket names the Snyk stage. |
 | #2 | `main` | Snyk passed with no findings, then SonarQube, its quality gate, gitleaks and the Trivy filesystem scan passed. **`Trivy: image` failed** with 1 HIGH finding, `libpcre2-8-0` (CVE-2026-103111), in the base image's Debian packages. The Terraform scan, deploy, ZAP and report stages did not run. Jira returned HTTP 201 and the ticket names `Trivy: image`. |
 
-Build #2 is **not** a pass, and the run label `run-4-snyk-jira-main` only says which branch it used. Nothing was ignored or loosened to make it pass. The image scan in the 2026-10-03 run reported no finding for the same pinned tag, and I did not investigate why the result differs. A base-image digest bump is proposed as a separate pull request.
+Build #2 is **not** a pass, and the run label `run-4-snyk-jira-main` only says which branch it used. Nothing was ignored or loosened to make it pass. The image scan in the 2026-10-03 run reported no finding for the same pinned tag. The `python:3.12.15-slim-bookworm` tag was last pushed on 2026-10-02 (Docker Hub, checked on 2026-10-04), before both the 2026-10-03 run and the 2026-10-04 run, so the image was unchanged between them and the new finding most likely came from Trivy's vulnerability data. Debian's security tracker lists the fixed `libpcre2` version for bookworm. The base-image fix and a rerun are described next.
 
 What this shows: the Snyk gate blocks a vulnerable dependency set and passes a clean one, and a failing build creates a Jira ticket that names the failing stage, confirmed on two different stages. What it does not show: a full 13-stage pass, or a ZAP result with the optional stages on.
+
+### Base-image fix (2026-10-04)
+
+The fix for the `Trivy: image` finding is in `app/Dockerfile` only: the base image is now pinned by digest (`python@sha256:54c85f3c…`, which is `python:3.12.15-slim-bookworm`), and the runtime stage upgrades only `libpcre2-8-0` (to `10.42-1+deb12u2`, the fixed version). The upgrade step carries a comment saying it is a workaround for CVE-2026-103111 and should be removed once a rebuilt base image includes the fix. No scanner finding was suppressed and there is no `.trivyignore`.
+
+`main` was then run on a fresh lab with the optional stages off, seeded from commit `a4784348`, and **passed all 12 stages**: the optional Snyk stage did not run, as intended. Results: 16 of 16 tests, 100% coverage, the strict SonarQube gate passed, no secrets, no HIGH or CRITICAL findings in the Trivy filesystem, image or Terraform scans, and the ZAP baseline with 0 failures and 0 warnings. The first attempt on the changed Dockerfile had failed the SonarQube gate on two Dockerfile code smells; that and its fix are in the [failure log](evidence/what-failed-and-how-i-fixed-it.md). Evidence and a Full Stage View screenshot are in [`evidence/base-image-fix-2026-10-04/`](evidence/base-image-fix-2026-10-04/).
+
+This is a snapshot: it passes as of 2026-10-04, and a new advisory or a rebuilt base image can change that.
 
 ## What failed and how I fixed it
 
@@ -286,7 +294,7 @@ Tools used: Jenkins, SonarQube Community Build, Trivy, gitleaks, OWASP ZAP, Dock
 - **Trivy ignores unfixed vulnerabilities (`--ignore-unfixed`).** That keeps the gate actionable, but it hides findings that have no fix yet.
 - **The ZAP baseline is passive.** It spiders a handful of pages and checks responses. It does not run active attacks.
 - **Checkov will still flag the S3 Terraform.** The pipeline's Trivy gate is HIGH and CRITICAL only. The repository's Checkov scan reports 5 lower-severity items on the same file (event notifications, lifecycle, access logging, replication and a KMS key policy). I ran Checkov locally to find this out.
-- **Tools are pinned by tag, not digest,** and Jenkins downloads the tool images and the Trivy database from the internet at run time.
+- **Tools are pinned by tag, not digest (only the app's base image is pinned by digest),** and Jenkins downloads the tool images and the Trivy database from the internet at run time.
 - **Secrets exist in memory while it runs.** The generated passwords are in the containers' environment variables, which `docker inspect` can show, until teardown.
 - **The optional Snyk and Jira values are not environment variables of the Jenkins container, but they do pass through environment variables while a stage runs.** In Jenkins they are files under `/run/secrets` (mode 0444, so any process in that container can read them; the filesystem is not tmpfs, see [`stack-and-secrets-check.txt`](evidence/optional-snyk-jira/stack-and-secrets-check.txt)) and credentials, readable by anyone with access to that container or to Jenkins. While the Snyk and Jira steps run, they are passed as environment variables to short-lived containers in the Docker-in-Docker daemon, where `docker inspect` on that daemon can show them until the container exits.
 - **`snyk test` sends the dependency list to Snyk's service,** so with the optional stage on the pipeline is no longer local-only. It needs a Snyk account, and a free tier has scan limits. The Jira step creates a real ticket in a real Jira site.

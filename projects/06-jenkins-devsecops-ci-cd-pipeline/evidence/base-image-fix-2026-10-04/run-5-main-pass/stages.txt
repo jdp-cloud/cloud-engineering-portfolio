@@ -1,0 +1,17 @@
+build #1  result: SUCCESS  total 223s
+stage                                result     seconds
+Declarative: Checkout SCM            SUCCESS       0.1
+Checkout                             SUCCESS       0.5
+Build image                          SUCCESS      20.6
+Unit tests                           SUCCESS       1.9
+Snyk dependency scan (optional)      NOT_EXECUTED    0.2
+SonarQube analysis                   SUCCESS      13.0
+Quality gate                         SUCCESS       3.0
+Secret scan (gitleaks)               SUCCESS       5.9
+Trivy: filesystem                    SUCCESS      25.9
+Trivy: image                         SUCCESS       2.4
+Trivy: Terraform (IaC)               SUCCESS       3.7
+Deploy to a local container          SUCCESS       6.9
+OWASP ZAP baseline                   SUCCESS     126.9
+Publish reports                      SUCCESS       0.4
+Declarative: Post Actions            SUCCESS       4.8

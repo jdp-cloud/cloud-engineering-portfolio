@@ -61,9 +61,9 @@ The scan uses `--severity-threshold=high`, so MEDIUM and LOW findings are not sh
 
 [`run-4-snyk-jira-main/trivy-image-summary.txt`](run-4-snyk-jira-main/trivy-image-summary.txt) and [`trivy-image.txt`](run-4-snyk-jira-main/trivy-image.txt) show one HIGH finding, fixable only (the scan ignores unfixed ones): `libpcre2-8-0`, CVE-2026-103111, installed `10.42-1+deb12u1`, fixed in `10.42-1+deb12u2`. It is a Debian package inside the base image `python:3.12.15-slim-bookworm` (Debian 12.15). The Python packages in the image had 0 findings.
 
-The gate was not loosened and there is no `.trivyignore`. For comparison, the image scan in `run-2-main-pass` on 2026-10-03 reported 0 findings for the same tag and the same Debian release. I did not investigate why the result differs.
+The gate was not loosened and there is no `.trivyignore`. For comparison, the image scan in `run-2-main-pass` on 2026-10-03 reported 0 findings for the same tag and the same Debian release. The `python:3.12.15-slim-bookworm` tag was last pushed on 2026-10-02 (Docker Hub, checked on 2026-10-04), before both the 2026-10-03 run and the 2026-10-04 run, so the image was unchanged between them and the new finding most likely came from Trivy's vulnerability data. Debian's security tracker lists the fixed `libpcre2` version for bookworm.
 
-**Follow-up (not part of this change):** pin the base image by digest and bump it to one that carries the fixed package, in a separate pull request.
+**Follow-up:** the base-image fix was done in a separate change and `main` was rerun on 2026-10-04. See [`../base-image-fix-2026-10-04/`](../base-image-fix-2026-10-04/).
 
 ## Jira
 

@@ -1,0 +1,24 @@
+2026-10-05T00:46:57Z	INFO	[misconfig] Misconfiguration scanning is enabled
+2026-10-05T00:46:57Z	INFO	[checks-client] Using existing checks from cache	path="/root/.cache/trivy/policy/content"
+2026-10-05T00:46:57Z	INFO	[terraform scanner] Scanning root module	file_path="."
+2026-10-05T00:46:58Z	INFO	Detected config files	num=2
+
+📣 Notices:
+  - Version 0.75.0 of Trivy is now available, current version is 0.74.0
+
+To suppress version checks, run Trivy scans with the --skip-version-check flag
+
+
+Report Summary
+
+┌─────────┬───────────┬───────────────────┐
+│ Target  │   Type    │ Misconfigurations │
+├─────────┼───────────┼───────────────────┤
+│ .       │ terraform │         0         │
+├─────────┼───────────┼───────────────────┤
+│ main.tf │ terraform │         0         │
+└─────────┴───────────┴───────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
