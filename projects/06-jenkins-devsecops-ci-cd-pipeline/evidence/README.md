@@ -7,7 +7,7 @@ Everything here comes from one session on a MacBook Pro (Apple M3 Pro, Docker De
 | Folder | Branch | Result |
 | --- | --- | --- |
 | [`run-1-vulnerable-demo-fail/`](run-1-vulnerable-demo-fail/) | `vulnerable-demo` (known-vulnerable Flask, Werkzeug and gunicorn pins) | **Failed at `Trivy: filesystem`** after build, tests, SonarQube, quality gate and gitleaks had passed. The stages after it were skipped. Teardown still ran. |
-| [`run-2-main-pass/`](run-2-main-pass/) | `main` | **Passed** all 12 stages on 2026-10-03. Date-dependent: a rerun on 2026-10-04 stopped at `Trivy: image` on a base-image package finding (see below). |
+| [`run-2-main-pass/`](run-2-main-pass/) | `main` | **Passed** all 12 stages on 2026-10-03. Date-dependent: a rerun on 2026-10-04 stopped at `Trivy: image` on a base-image package finding (see below); after a Dockerfile fix it passed again, see the next section. |
 
 Each folder holds the same kinds of file:
 
@@ -26,6 +26,10 @@ Each folder holds the same kinds of file:
 ## The optional Snyk and Jira run (2026-10-04)
 
 A second session, in [`optional-snyk-jira/`](optional-snyk-jira/), with its own README. It was seeded from commit `a0c5986`. The hashes `5035c00` and `7d8b647` that Jenkins shows in its console belong to the throwaway lab repository, and the Jenkins branches `main` and `vulnerable-demo` are lab-only, not branches of this GitHub repository. Build #1 (`vulnerable-demo`) was failed by the Snyk stage. Build #2 (`main`) passed Snyk and then failed at `Trivy: image` because of one HIGH finding in a Debian package of the base image, so it is not a pass. The folders above are unchanged.
+
+## The base-image fix (2026-10-04)
+
+A third session, in [`base-image-fix-2026-10-04/`](base-image-fix-2026-10-04/), with its own README. After a Dockerfile fix, `main` was rerun on a fresh lab with the optional stages off and passed all 12 stages. Seeded from commit `a4784348`; the Jenkins branch `main` there is lab-only.
 
 ## Other files
 

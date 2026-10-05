@@ -1,0 +1,17 @@
+# After ./scripts/down.sh and one extra cleanup, 2026-10-04
+
+containers carrying this project's compose label : 0
+volumes carrying this project's compose label    : 0
+networks carrying this project's compose label   : 0
+all containers on this Docker                    : 0
+all volumes on this Docker                       : 0
+BuildKit cache                                   : 0B
+untagged images                                  : 0
+images from this project (sample-app, devsecops-jenkins, sonarqube, postgres, docker, jenkins, alpine/git, python) : 0
+
+Tagged images still present (this project never references any of them):
+hashicorp/terraform-mcp-server:0.4.0
+docker/desktop-kubernetes:kubernetes-v1.34.1-cni-v1.7.1-crit
+alpine:latest
+
+The extra cleanup: right after down.sh, 292.8 MB of BuildKit cache and 13 untagged image layers (the Python base image pulled by digest and layers of the Jenkins image) were still on the host Docker. They came from my image builds for testing the Dockerfile and from the lab's Jenkins image build; down.sh did not remove them. I removed only untagged, unreferenced images (docker image prune) and the build cache (docker builder prune); nothing tagged was touched. Before the pipeline run, I also removed a Trivy image and a cache volume I had used for the scan, and the throw-away test image.
