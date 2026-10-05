@@ -1,0 +1,17 @@
+build #1  result: FAILED  total 95s
+stage                                result     seconds
+Declarative: Checkout SCM            SUCCESS       0.1
+Checkout                             SUCCESS       0.5
+Build image                          SUCCESS      20.7
+Unit tests                           SUCCESS       2.1
+Snyk dependency scan (optional)      FAILED       55.9
+SonarQube analysis                   SKIPPED       0.1
+Quality gate                         SKIPPED       0.1
+Secret scan (gitleaks)               SKIPPED       0.0
+Trivy: filesystem                    SKIPPED       0.1
+Trivy: image                         SKIPPED       0.1
+Trivy: Terraform (IaC)               SKIPPED       0.1
+Deploy to a local container          SKIPPED       0.1
+OWASP ZAP baseline                   SKIPPED       0.1
+Publish reports                      SKIPPED       0.1
+Declarative: Post Actions            SUCCESS       7.0

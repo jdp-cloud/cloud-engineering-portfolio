@@ -1,0 +1,673 @@
+Started by user admin
+Checking out git file:///seed/repo into /var/jenkins_home/workspace/sample-app-devsecops@script/2afefc76bc40acc429cb5c9cacf825ad5567c8b4d7f3a1100056d4fc0df38694 to read Jenkinsfile
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/sample-app-devsecops@script/2afefc76bc40acc429cb5c9cacf825ad5567c8b4d7f3a1100056d4fc0df38694/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url file:///seed/repo # timeout=10
+Fetching upstream changes from file:///seed/repo
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- file:///seed/repo +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 5035c00444ab3d54cdd966d865501d761e8d07fe (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 5035c00444ab3d54cdd966d865501d761e8d07fe # timeout=10
+Commit message: "main: clean sample app"
+First time build. Skipping changelog.
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/jenkins_home/workspace/sample-app-devsecops
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/sample-app-devsecops/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url file:///seed/repo # timeout=10
+Fetching upstream changes from file:///seed/repo
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- file:///seed/repo +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 5035c00444ab3d54cdd966d865501d761e8d07fe (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 5035c00444ab3d54cdd966d865501d761e8d07fe # timeout=10
+Commit message: "main: clean sample app"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] ansiColor
+[Pipeline] {
+[2026-10-04T23:28:28.711Z] 
+[Pipeline] timeout
+[2026-10-04T23:28:28.736Z] Timeout set to expire in 45 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+[2026-10-04T23:28:28.812Z] The recommended git tool is: NONE
+[2026-10-04T23:28:28.812Z] No credentials specified
+[2026-10-04T23:28:28.812Z]  > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/sample-app-devsecops/.git # timeout=10
+[2026-10-04T23:28:28.817Z] Fetching changes from the remote Git repository
+[2026-10-04T23:28:28.819Z]  > git config remote.origin.url file:///seed/repo # timeout=10
+[2026-10-04T23:28:28.825Z] Fetching upstream changes from file:///seed/repo
+[2026-10-04T23:28:28.825Z]  > git --version # timeout=10
+[2026-10-04T23:28:28.830Z]  > git --version # 'git version 2.47.3'
+[2026-10-04T23:28:28.830Z]  > git fetch --tags --force --progress -- file:///seed/repo +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-10-04T23:28:28.840Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-10-04T23:28:28.845Z] Checking out Revision 5035c00444ab3d54cdd966d865501d761e8d07fe (refs/remotes/origin/main)
+[2026-10-04T23:28:28.845Z]  > git config core.sparsecheckout # timeout=10
+[2026-10-04T23:28:28.848Z]  > git checkout -f 5035c00444ab3d54cdd966d865501d761e8d07fe # timeout=10
+[2026-10-04T23:28:28.858Z] Commit message: "main: clean sample app"
+[Pipeline] sh
+[2026-10-04T23:28:29.136Z] 5035c00 main: clean sample app
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build image)
+[Pipeline] sh
+[2026-10-04T23:28:30.577Z] #0 building with "default" instance using docker driver
+[2026-10-04T23:28:30.578Z] 
+[2026-10-04T23:28:30.578Z] #1 [internal] load build definition from Dockerfile
+[2026-10-04T23:28:30.829Z] #1 transferring dockerfile: 1.27kB 0.0s done
+[2026-10-04T23:28:30.829Z] #1 DONE 0.0s
+[2026-10-04T23:28:30.829Z] 
+[2026-10-04T23:28:30.829Z] #2 [internal] load metadata for docker.io/library/python:3.12.15-slim-bookworm
+[2026-10-04T23:28:30.829Z] #2 DONE 0.0s
+[2026-10-04T23:28:30.829Z] 
+[2026-10-04T23:28:30.829Z] #3 [internal] load .dockerignore
+[2026-10-04T23:28:30.829Z] #3 transferring context: 116B done
+[2026-10-04T23:28:30.829Z] #3 DONE 0.0s
+[2026-10-04T23:28:30.829Z] 
+[2026-10-04T23:28:30.829Z] #4 [internal] load build context
+[2026-10-04T23:28:30.829Z] #4 transferring context: 2.81kB done
+[2026-10-04T23:28:30.829Z] #4 DONE 0.0s
+[2026-10-04T23:28:30.829Z] 
+[2026-10-04T23:28:30.829Z] #5 [base 1/2] FROM docker.io/library/python:3.12.15-slim-bookworm@sha256:54c85f3c47607a77f32adec749d3c81d1348bf25833671f512b26a9b6d778cb3
+[2026-10-04T23:28:30.829Z] #5 resolve docker.io/library/python:3.12.15-slim-bookworm@sha256:54c85f3c47607a77f32adec749d3c81d1348bf25833671f512b26a9b6d778cb3 0.0s done
+[2026-10-04T23:28:30.829Z] #5 DONE 0.0s
+[2026-10-04T23:28:30.829Z] 
+[2026-10-04T23:28:30.829Z] #6 [base 2/2] WORKDIR /app
+[2026-10-04T23:28:30.829Z] #6 CACHED
+[2026-10-04T23:28:30.829Z] 
+[2026-10-04T23:28:30.829Z] #7 [deps 1/2] COPY requirements.txt .
+[2026-10-04T23:28:30.829Z] #7 DONE 0.0s
+[2026-10-04T23:28:30.829Z] 
+[2026-10-04T23:28:30.829Z] #8 [deps 2/2] RUN pip install -r requirements.txt
+[2026-10-04T23:28:33.325Z] #8 2.029 Collecting blinker==1.9.0 (from -r requirements.txt (line 2))
+[2026-10-04T23:28:33.326Z] #8 2.287   Downloading blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+[2026-10-04T23:28:33.326Z] #8 2.321 Collecting click==8.5.0 (from -r requirements.txt (line 3))
+[2026-10-04T23:28:33.326Z] #8 2.349   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+[2026-10-04T23:28:33.326Z] #8 2.381 Collecting Flask==3.1.3 (from -r requirements.txt (line 4))
+[2026-10-04T23:28:33.326Z] #8 2.408   Downloading flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+[2026-10-04T23:28:33.326Z] #8 2.439 Collecting gunicorn==26.2.0 (from -r requirements.txt (line 5))
+[2026-10-04T23:28:33.326Z] #8 2.466   Downloading gunicorn-26.2.0-py3-none-any.whl.metadata (5.5 kB)
+[2026-10-04T23:28:33.326Z] #8 2.495 Collecting itsdangerous==2.2.0 (from -r requirements.txt (line 6))
+[2026-10-04T23:28:33.326Z] #8 2.518   Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+[2026-10-04T23:28:33.577Z] #8 2.545 Collecting Jinja2==3.1.6 (from -r requirements.txt (line 7))
+[2026-10-04T23:28:33.577Z] #8 2.717   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+[2026-10-04T23:28:33.577Z] #8 2.813 Collecting MarkupSafe==3.0.4 (from -r requirements.txt (line 8))
+[2026-10-04T23:28:33.577Z] #8 2.836   Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl.metadata (2.7 kB)
+[2026-10-04T23:28:33.833Z] #8 2.865 Collecting Werkzeug==3.1.9 (from -r requirements.txt (line 9))
+[2026-10-04T23:28:33.833Z] #8 2.888   Downloading werkzeug-3.1.9-py3-none-any.whl.metadata (4.1 kB)
+[2026-10-04T23:28:33.833Z] #8 2.928 Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+[2026-10-04T23:28:33.833Z] #8 2.954 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+[2026-10-04T23:28:33.833Z] #8 3.024 Downloading flask-3.1.3-py3-none-any.whl (103 kB)
+[2026-10-04T23:28:33.833Z] #8 3.059 Downloading gunicorn-26.2.0-py3-none-any.whl (228 kB)
+[2026-10-04T23:28:34.089Z] #8 3.242 Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+[2026-10-04T23:28:34.089Z] #8 3.276 Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+[2026-10-04T23:28:34.089Z] #8 3.310 Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (24 kB)
+[2026-10-04T23:28:34.089Z] #8 3.338 Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB)
+[2026-10-04T23:28:34.089Z] #8 3.362 Installing collected packages: MarkupSafe, itsdangerous, gunicorn, click, blinker, Werkzeug, Jinja2, Flask
+[2026-10-04T23:28:34.645Z] #8 3.948 Successfully installed Flask-3.1.3 Jinja2-3.1.6 MarkupSafe-3.0.4 Werkzeug-3.1.9 blinker-1.9.0 click-8.5.0 gunicorn-26.2.0 itsdangerous-2.2.0
+[2026-10-04T23:28:34.897Z] #8 3.948 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-04T23:28:34.897Z] #8 DONE 4.1s
+[2026-10-04T23:28:35.148Z] 
+[2026-10-04T23:28:35.148Z] #9 [runtime 1/2] RUN groupadd --system --gid 10001 app  && useradd --system --uid 10001 --gid app --no-create-home --shell /usr/sbin/nologin app
+[2026-10-04T23:28:35.148Z] #9 0.200 useradd warning: app's uid 10001 is greater than SYS_UID_MAX 999
+[2026-10-04T23:28:35.401Z] #9 DONE 0.2s
+[2026-10-04T23:28:35.401Z] 
+[2026-10-04T23:28:35.401Z] #10 [runtime 2/2] COPY main.py .
+[2026-10-04T23:28:35.401Z] #10 DONE 0.0s
+[2026-10-04T23:28:35.401Z] 
+[2026-10-04T23:28:35.401Z] #11 exporting to image
+[2026-10-04T23:28:35.401Z] #11 exporting layers
+[2026-10-04T23:28:35.652Z] #11 exporting layers 0.4s done
+[2026-10-04T23:28:35.904Z] #11 exporting manifest sha256:23621a0f8b3124f4bbb6523644ac8c4ab82225868adb25ddde0680cb9d6707d6 done
+[2026-10-04T23:28:35.904Z] #11 exporting config sha256:70632af21d98b98bad6a5883952568268230267d8d266c87fdbb2cef04a57fa2 done
+[2026-10-04T23:28:35.904Z] #11 exporting attestation manifest sha256:dcfa89abb57e2335fc447d0bcc62ab996514c9ca9ed909b145ba734b68e15959 0.0s done
+[2026-10-04T23:28:35.904Z] #11 exporting manifest list sha256:3353f95456d3cfeef1e77b13a645a86fa9bf17d768c90e9ffc9ad722259b583a done
+[2026-10-04T23:28:35.904Z] #11 naming to docker.io/library/sample-app:2 done
+[2026-10-04T23:28:35.904Z] #11 unpacking to docker.io/library/sample-app:2
+[2026-10-04T23:28:35.904Z] #11 unpacking to docker.io/library/sample-app:2 0.2s done
+[2026-10-04T23:28:35.904Z] #11 DONE 0.6s
+[2026-10-04T23:28:36.460Z] #0 building with "default" instance using docker driver
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #1 [internal] load build definition from Dockerfile
+[2026-10-04T23:28:36.460Z] #1 transferring dockerfile: 1.27kB done
+[2026-10-04T23:28:36.460Z] #1 DONE 0.0s
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #2 [internal] load metadata for docker.io/library/python:3.12.15-slim-bookworm
+[2026-10-04T23:28:36.460Z] #2 DONE 0.0s
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #3 [internal] load .dockerignore
+[2026-10-04T23:28:36.460Z] #3 transferring context: 116B done
+[2026-10-04T23:28:36.460Z] #3 DONE 0.0s
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #4 [base 1/2] FROM docker.io/library/python:3.12.15-slim-bookworm@sha256:54c85f3c47607a77f32adec749d3c81d1348bf25833671f512b26a9b6d778cb3
+[2026-10-04T23:28:36.460Z] #4 resolve docker.io/library/python:3.12.15-slim-bookworm@sha256:54c85f3c47607a77f32adec749d3c81d1348bf25833671f512b26a9b6d778cb3 0.0s done
+[2026-10-04T23:28:36.460Z] #4 DONE 0.0s
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #5 [internal] load build context
+[2026-10-04T23:28:36.460Z] #5 transferring context: 265B done
+[2026-10-04T23:28:36.460Z] #5 DONE 0.0s
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #6 [deps 1/2] COPY requirements.txt .
+[2026-10-04T23:28:36.460Z] #6 CACHED
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #7 [base 2/2] WORKDIR /app
+[2026-10-04T23:28:36.460Z] #7 CACHED
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #8 [deps 2/2] RUN pip install -r requirements.txt
+[2026-10-04T23:28:36.460Z] #8 CACHED
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #9 [test 1/2] COPY requirements-dev.txt .
+[2026-10-04T23:28:36.460Z] #9 DONE 0.1s
+[2026-10-04T23:28:36.460Z] 
+[2026-10-04T23:28:36.460Z] #10 [test 2/2] RUN pip install -r requirements-dev.txt
+[2026-10-04T23:28:37.813Z] #10 1.340 Requirement already satisfied: blinker==1.9.0 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 2)) (1.9.0)
+[2026-10-04T23:28:37.813Z] #10 1.340 Requirement already satisfied: click==8.5.0 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 3)) (8.5.0)
+[2026-10-04T23:28:37.814Z] #10 1.341 Requirement already satisfied: Flask==3.1.3 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 4)) (3.1.3)
+[2026-10-04T23:28:37.814Z] #10 1.341 Requirement already satisfied: gunicorn==26.2.0 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 5)) (26.2.0)
+[2026-10-04T23:28:37.814Z] #10 1.341 Requirement already satisfied: itsdangerous==2.2.0 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 6)) (2.2.0)
+[2026-10-04T23:28:37.814Z] #10 1.342 Requirement already satisfied: Jinja2==3.1.6 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 7)) (3.1.6)
+[2026-10-04T23:28:37.814Z] #10 1.342 Requirement already satisfied: MarkupSafe==3.0.4 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 8)) (3.0.4)
+[2026-10-04T23:28:37.814Z] #10 1.342 Requirement already satisfied: Werkzeug==3.1.9 in /usr/local/lib/python3.12/site-packages (from -r /app/requirements.txt (line 9)) (3.1.9)
+[2026-10-04T23:28:37.814Z] #10 1.510 Collecting pytest==9.1.1 (from -r requirements-dev.txt (line 3))
+[2026-10-04T23:28:38.067Z] #10 1.653   Downloading pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+[2026-10-04T23:28:38.320Z] #10 1.688 Collecting pytest-cov==7.1.0 (from -r requirements-dev.txt (line 4))
+[2026-10-04T23:28:38.321Z] #10 1.862   Downloading pytest_cov-7.1.0-py3-none-any.whl.metadata (32 kB)
+[2026-10-04T23:28:38.321Z] #10 1.894 Collecting Pygments==2.21.0 (from -r requirements-dev.txt (line 5))
+[2026-10-04T23:28:38.321Z] #10 1.912   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+[2026-10-04T23:28:38.876Z] #10 2.518 Collecting coverage==7.16.2 (from -r requirements-dev.txt (line 6))
+[2026-10-04T23:28:38.876Z] #10 2.542   Downloading coverage-7.16.2-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl.metadata (8.2 kB)
+[2026-10-04T23:28:38.876Z] #10 2.570 Collecting iniconfig==2.3.0 (from -r requirements-dev.txt (line 7))
+[2026-10-04T23:28:38.876Z] #10 2.591   Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+[2026-10-04T23:28:38.876Z] #10 2.620 Collecting packaging==26.3 (from -r requirements-dev.txt (line 8))
+[2026-10-04T23:28:39.128Z] #10 2.638   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+[2026-10-04T23:28:39.128Z] #10 2.666 Collecting pluggy==1.6.0 (from -r requirements-dev.txt (line 9))
+[2026-10-04T23:28:39.128Z] #10 2.686   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+[2026-10-04T23:28:39.128Z] #10 2.750 Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+[2026-10-04T23:28:39.380Z] #10 2.988 Downloading pytest_cov-7.1.0-py3-none-any.whl (22 kB)
+[2026-10-04T23:28:39.380Z] #10 3.010 Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+[2026-10-04T23:28:39.380Z] #10 3.065    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 25.3 MB/s eta 0:00:00
+[2026-10-04T23:28:39.380Z] #10 3.089 Downloading coverage-7.16.2-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (259 kB)
+[2026-10-04T23:28:39.634Z] #10 3.117 Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+[2026-10-04T23:28:39.634Z] #10 3.135 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+[2026-10-04T23:28:39.634Z] #10 3.156 Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+[2026-10-04T23:28:39.634Z] #10 3.177 Installing collected packages: Pygments, pluggy, packaging, iniconfig, coverage, pytest, pytest-cov
+[2026-10-04T23:28:40.984Z] #10 4.348 Successfully installed Pygments-2.21.0 coverage-7.16.2 iniconfig-2.3.0 packaging-26.3 pluggy-1.6.0 pytest-9.1.1 pytest-cov-7.1.0
+[2026-10-04T23:28:40.984Z] #10 4.348 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-04T23:28:40.984Z] #10 DONE 4.6s
+[2026-10-04T23:28:41.236Z] 
+[2026-10-04T23:28:41.236Z] #11 exporting to image
+[2026-10-04T23:28:41.236Z] #11 exporting layers
+[2026-10-04T23:28:41.487Z] #11 exporting layers 0.6s done
+[2026-10-04T23:28:41.738Z] #11 exporting manifest sha256:37fceec981d42a1a2bb3e80388f2a369f62b71e84c765a11301682c06c59788c 0.0s done
+[2026-10-04T23:28:41.738Z] #11 exporting config sha256:fd5556a28b5b6ef149c5503699ddb9ac31640d02413c8623fcc611431e2245da done
+[2026-10-04T23:28:41.738Z] #11 exporting attestation manifest sha256:6d620e7e89ebc3c0e1ecc3edc35c7c3ff618a968b3273fb1fdb0894e145c6db9 done
+[2026-10-04T23:28:41.738Z] #11 exporting manifest list sha256:1d7e8cb827180623612bcab37304ea4657d3b53d3db5f50cb2a7bafedf2976f2 0.0s done
+[2026-10-04T23:28:41.738Z] #11 naming to docker.io/library/sample-app-test:2 done
+[2026-10-04T23:28:41.738Z] #11 unpacking to docker.io/library/sample-app-test:2
+[2026-10-04T23:28:41.738Z] #11 unpacking to docker.io/library/sample-app-test:2 0.2s done
+[2026-10-04T23:28:41.989Z] #11 DONE 0.9s
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit tests)
+[Pipeline] sh
+[2026-10-04T23:28:43.490Z] ============================= test session starts ==============================
+[2026-10-04T23:28:43.490Z] platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.6.0
+[2026-10-04T23:28:43.490Z] rootdir: /var/jenkins_home/workspace/sample-app-devsecops/app
+[2026-10-04T23:28:43.490Z] plugins: cov-7.1.0
+[2026-10-04T23:28:43.490Z] collected 16 items
+[2026-10-04T23:28:43.490Z] 
+[2026-10-04T23:28:43.742Z] tests/test_main.py ................                                      [100%]
+[2026-10-04T23:28:43.742Z] 
+[2026-10-04T23:28:43.742Z] - generated xml file: /var/jenkins_home/workspace/sample-app-devsecops/reports/junit.xml -
+[2026-10-04T23:28:43.742Z] ================================ tests coverage ================================
+[2026-10-04T23:28:43.742Z] _______________ coverage: platform linux, python 3.12.15-final-0 _______________
+[2026-10-04T23:28:43.742Z] 
+[2026-10-04T23:28:43.742Z] Name      Stmts   Miss  Cover
+[2026-10-04T23:28:43.742Z] -----------------------------
+[2026-10-04T23:28:43.742Z] main.py      34      0   100%
+[2026-10-04T23:28:43.742Z] -----------------------------
+[2026-10-04T23:28:43.742Z] TOTAL        34      0   100%
+[2026-10-04T23:28:43.742Z] Coverage XML written to file /var/jenkins_home/workspace/sample-app-devsecops/reports/coverage.xml
+[2026-10-04T23:28:43.742Z] ============================== 16 passed in 0.39s ==============================
+Post stage
+[Pipeline] junit
+[2026-10-04T23:28:44.033Z] Recording test results
+[2026-10-04T23:28:44.073Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Snyk dependency scan (optional))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] withCredentials
+[2026-10-04T23:28:44.330Z] Masking supported pattern matches of $SNYK_TOKEN or $SNYK_ORG
+[Pipeline] {
+[Pipeline] sh
+[2026-10-04T23:28:49.599Z]   WARNING: The scripts gunicorn and gunicornc are installed in '/tmp/.local/bin' which is not on PATH.
+[2026-10-04T23:28:49.601Z]   Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+[2026-10-04T23:28:49.601Z]   WARNING: The script flask is installed in '/tmp/.local/bin' which is not on PATH.
+[2026-10-04T23:28:49.601Z]   Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+[2026-10-04T23:28:49.859Z] 
+[2026-10-04T23:28:49.859Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[2026-10-04T23:28:49.859Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-04T23:29:11.716Z] 
+[2026-10-04T23:29:11.716Z] Testing  (requirements.txt) ...
+[2026-10-04T23:29:11.716Z]                                                                     
+[2026-10-04T23:29:11.717Z] ✔ Tested 8 dependencies for known issues, no vulnerable paths found.
+[2026-10-04T23:29:11.717Z]                                                                     
+[2026-10-04T23:29:11.717Z]         
+[2026-10-04T23:29:11.717Z] 💡 Tip
+[2026-10-04T23:29:11.717Z] 
+[2026-10-04T23:29:11.717Z]    You are currently viewing results with --severity-threshold applied.
+[2026-10-04T23:29:11.717Z]    To view all issues, remove the --severity-threshold flag            
+[2026-10-04T23:29:11.717Z]                                                                        
+[2026-10-04T23:29:11.717Z] ╭──────────────────────────────────────────────────────────────────────────────╮
+[2026-10-04T23:29:11.717Z] │ Test Summary                                                                 │
+[2026-10-04T23:29:11.717Z] │                                                                              │
+[2026-10-04T23:29:11.717Z] │   Test type:         open-source                                             │
+[2026-10-04T23:29:11.717Z] │   Project path:      /var/jenkins_home/workspace/sample-app-devsecops/app    │
+[2026-10-04T23:29:11.717Z] │                                                                              │
+[2026-10-04T23:29:11.717Z] │   Total issues: 0                                                            │
+[2026-10-04T23:29:11.717Z] ╰──────────────────────────────────────────────────────────────────────────────╯
+[2026-10-04T23:29:11.717Z] 💡 Tip
+[2026-10-04T23:29:11.717Z] 
+[2026-10-04T23:29:11.717Z]    To view ignored issues, use the --include-ignores option.
+[2026-10-04T23:29:11.717Z]                                                             
+[2026-10-04T23:29:11.717Z] 
+[2026-10-04T23:29:11.717Z] snyk exit code: 0 (0 = no HIGH or CRITICAL findings, 1 = findings, 2 or more = the scan itself failed)
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (SonarQube analysis)
+[Pipeline] withSonarQubeEnv
+[2026-10-04T23:29:12.007Z] Injecting SonarQube environment variables using the configuration: sonarqube
+[Pipeline] {
+[Pipeline] sh
+[2026-10-04T23:29:12.580Z] + sonar-scanner -Dsonar.projectBaseDir=/var/jenkins_home/workspace/sample-app-devsecops -Dsonar.scm.disabled=true
+[2026-10-04T23:29:13.135Z] 23:29:12.902 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties
+[2026-10-04T23:29:13.135Z] 23:29:12.908 INFO  Project root configuration file: /var/jenkins_home/workspace/sample-app-devsecops/sonar-project.properties
+[2026-10-04T23:29:13.135Z] 23:29:12.937 INFO  SonarScanner CLI 8.1.0.6389
+[2026-10-04T23:29:13.135Z] 23:29:12.940 INFO  Linux 7.0.14-linuxkit aarch64
+[2026-10-04T23:29:16.371Z] 23:29:16.220 INFO  Communicating with SonarQube Community Build 26.8.0.126808
+[2026-10-04T23:29:16.371Z] 23:29:16.221 INFO  JRE provisioning: os[linux], arch[aarch64]
+[2026-10-04T23:29:21.583Z] 23:29:20.559 INFO  Starting SonarScanner Engine...
+[2026-10-04T23:29:21.583Z] 23:29:20.559 INFO  Java 21.0.11 Eclipse Adoptium (64-bit)
+[2026-10-04T23:29:24.080Z] 23:29:23.709 INFO  Load global settings
+[2026-10-04T23:29:24.080Z] 23:29:23.938 INFO  Load global settings (done) | time=230ms
+[2026-10-04T23:29:24.080Z] 23:29:23.944 INFO  Server id: AA2DD71C-AaEJKQKJige0r-Gg9q93
+[2026-10-04T23:29:24.080Z] 23:29:23.964 INFO  Loading required plugins
+[2026-10-04T23:29:24.080Z] 23:29:23.964 INFO  Load plugins index
+[2026-10-04T23:29:24.080Z] 23:29:24.055 INFO  Load plugins index (done) | time=92ms
+[2026-10-04T23:29:24.080Z] 23:29:24.055 INFO  Load/download plugins
+[2026-10-04T23:29:24.638Z] 23:29:24.568 INFO  Load/download plugins (done) | time=513ms
+[2026-10-04T23:29:24.888Z] 23:29:24.884 INFO  Process project properties
+[2026-10-04T23:29:25.139Z] 23:29:24.899 INFO  Process project properties (done) | time=14ms
+[2026-10-04T23:29:25.139Z] 23:29:24.908 INFO  Project key: sample-app
+[2026-10-04T23:29:25.139Z] 23:29:24.908 INFO  Base dir: /var/jenkins_home/workspace/sample-app-devsecops
+[2026-10-04T23:29:25.139Z] 23:29:24.908 INFO  Working dir: /var/jenkins_home/workspace/sample-app-devsecops/.scannerwork
+[2026-10-04T23:29:25.139Z] 23:29:24.917 INFO  Load project settings for component key: 'sample-app'
+[2026-10-04T23:29:25.139Z] 23:29:24.985 INFO  Load project settings for component key: 'sample-app' (done) | time=68ms
+[2026-10-04T23:29:25.139Z] 23:29:25.010 INFO  Load quality profiles
+[2026-10-04T23:29:25.391Z] 23:29:25.251 INFO  Load quality profiles (done) | time=241ms
+[2026-10-04T23:29:25.391Z] 23:29:25.264 INFO  Auto-configuring with CI 'Jenkins'
+[2026-10-04T23:29:25.391Z] 23:29:25.282 INFO  Load active rules
+[2026-10-04T23:29:26.305Z] 23:29:26.003 INFO  Load active rules (done) | time=721ms
+[2026-10-04T23:29:26.305Z] 23:29:26.007 INFO  Load analysis cache
+[2026-10-04T23:29:26.305Z] 23:29:26.026 INFO  Load analysis cache (404) | time=19ms
+[2026-10-04T23:29:26.305Z] 23:29:26.154 INFO  Preprocessing files...
+[2026-10-04T23:29:26.305Z] 23:29:26.173 INFO  2 languages detected in 7 preprocessed files (done) | time=18ms
+[2026-10-04T23:29:26.305Z] 23:29:26.173 INFO  0 files ignored because of inclusion/exclusion patterns
+[2026-10-04T23:29:26.305Z] 23:29:26.174 INFO  1 directory skipped because of exclusion patterns (content not counted)
+[2026-10-04T23:29:26.305Z] 23:29:26.175 INFO  Loading plugins for detected languages
+[2026-10-04T23:29:26.305Z] 23:29:26.175 INFO  Load/download plugins
+[2026-10-04T23:29:26.557Z] 23:29:26.480 INFO  Load/download plugins (done) | time=304ms
+[2026-10-04T23:29:26.808Z] 23:29:26.575 INFO  Load project repositories
+[2026-10-04T23:29:26.808Z] 23:29:26.709 INFO  Load project repositories (done) | time=133ms
+[2026-10-04T23:29:26.808Z] 23:29:26.728 INFO  Indexing files...
+[2026-10-04T23:29:26.808Z] 23:29:26.729 INFO  Project configuration:
+[2026-10-04T23:29:26.808Z] 23:29:26.729 INFO    Excluded sources: app/tests/**
+[2026-10-04T23:29:26.808Z] 23:29:26.749 INFO  7 files indexed (done) | time=21ms
+[2026-10-04T23:29:26.808Z] 23:29:26.750 INFO  Quality profile for docker: Sonar way
+[2026-10-04T23:29:26.809Z] 23:29:26.751 INFO  Quality profile for py: Sonar way
+[2026-10-04T23:29:26.809Z] 23:29:26.751 INFO  ------------- Run sensors on module sample-app
+[2026-10-04T23:29:26.809Z] 23:29:26.791 INFO  Load metrics repository
+[2026-10-04T23:29:27.061Z] 23:29:26.822 INFO  Load metrics repository (done) | time=31ms
+[2026-10-04T23:29:27.612Z] 23:29:27.525 INFO  Sensor IaC hadolint report Sensor [iac]
+[2026-10-04T23:29:27.613Z] 23:29:27.525 INFO  Sensor IaC hadolint report Sensor [iac] (done) | time=0ms
+[2026-10-04T23:29:27.613Z] 23:29:27.525 INFO  Sensor Java Config Sensor [iac]
+[2026-10-04T23:29:27.613Z] 23:29:27.551 INFO  There are no files to be analyzed for the Java language
+[2026-10-04T23:29:27.613Z] 23:29:27.552 INFO  Sensor Java Config Sensor [iac] (done) | time=26ms
+[2026-10-04T23:29:27.613Z] 23:29:27.552 INFO  Sensor IaC Docker Sensor [iac]
+[2026-10-04T23:29:27.868Z] 23:29:27.644 INFO  1 source file to be analyzed
+[2026-10-04T23:29:27.868Z] 23:29:27.732 INFO  1/1 source file has been analyzed
+[2026-10-04T23:29:27.868Z] 23:29:27.732 INFO  Sensor IaC Docker Sensor [iac] (done) | time=180ms
+[2026-10-04T23:29:27.868Z] 23:29:27.732 INFO  Sensor Python Sensor [python]
+[2026-10-04T23:29:28.126Z] 23:29:27.881 INFO  Starting global symbols computation
+[2026-10-04T23:29:28.127Z] 23:29:27.882 INFO  2 source files to be analyzed
+[2026-10-04T23:29:28.385Z] 23:29:28.211 INFO  2/2 source files have been analyzed
+[2026-10-04T23:29:28.385Z] 23:29:28.212 INFO  Finished step global symbols computation in 330ms
+[2026-10-04T23:29:28.385Z] 23:29:28.236 INFO  Starting rules execution
+[2026-10-04T23:29:28.385Z] 23:29:28.236 INFO  2 source files to be analyzed
+[2026-10-04T23:29:29.737Z] 23:29:29.310 INFO  2/2 source files have been analyzed
+[2026-10-04T23:29:29.737Z] 23:29:29.311 INFO  Finished step rules execution in 1074ms
+[2026-10-04T23:29:29.737Z] 23:29:29.311 INFO  The Python analyzer was able to leverage cached data from previous analyses for 0 out of 2 files. These files were not parsed.
+[2026-10-04T23:29:29.737Z] 23:29:29.312 INFO  Sensor Python Sensor [python] (done) | time=1580ms
+[2026-10-04T23:29:29.737Z] 23:29:29.312 INFO  Sensor Cobertura Sensor for Python coverage [python]
+[2026-10-04T23:29:29.737Z] 23:29:29.318 INFO  Python test coverage
+[2026-10-04T23:29:29.737Z] 23:29:29.320 INFO  Parsing report '/var/jenkins_home/workspace/sample-app-devsecops/reports/coverage.xml'
+[2026-10-04T23:29:29.737Z] 23:29:29.365 INFO  Sensor Cobertura Sensor for Python coverage [python] (done) | time=52ms
+[2026-10-04T23:29:29.737Z] 23:29:29.365 INFO  Sensor PythonXUnitSensor [python]
+[2026-10-04T23:29:29.737Z] 23:29:29.370 INFO  Processing report '/var/jenkins_home/workspace/sample-app-devsecops/reports/junit.xml'
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.372 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 WARN  The resource for 'tests.test_main' is not found, drilling down to the details of this test won't be possible
+[2026-10-04T23:29:29.737Z] 23:29:29.373 INFO  Sensor PythonXUnitSensor [python] (done) | time=7ms
+[2026-10-04T23:29:29.737Z] 23:29:29.374 INFO  Sensor Python Dependency Sensor [python]
+[2026-10-04T23:29:29.737Z] 23:29:29.377 INFO  Sensor Python Dependency Sensor [python] (done) | time=4ms
+[2026-10-04T23:29:29.738Z] 23:29:29.377 INFO  Sensor TextAndSecretsSensor [text]
+[2026-10-04T23:29:29.738Z] 23:29:29.390 INFO  Available processors: 11
+[2026-10-04T23:29:29.738Z] 23:29:29.390 INFO  Using 11 threads for analysis.
+[2026-10-04T23:29:29.738Z] 23:29:29.666 INFO  Start fetching files for the text and secrets analysis
+[2026-10-04T23:29:29.738Z] 23:29:29.675 INFO  Using Git CLI to retrieve dirty files
+[2026-10-04T23:29:29.738Z] 23:29:29.685 INFO  Retrieving language associated files and files included via "sonar.text.inclusions" that are tracked by git
+[2026-10-04T23:29:29.738Z] 23:29:29.686 INFO  Starting the text and secrets analysis
+[2026-10-04T23:29:29.738Z] 23:29:29.687 INFO  4 source files to be analyzed for the text and secrets analysis
+[2026-10-04T23:29:29.738Z] 23:29:29.697 INFO  4/4 source files have been analyzed for the text and secrets analysis
+[2026-10-04T23:29:29.738Z] 23:29:29.697 INFO  1 file is ignored because it is untracked by git or has been modified
+[2026-10-04T23:29:29.738Z] 23:29:29.698 INFO  Sensor TextAndSecretsSensor [text] (done) | time=320ms
+[2026-10-04T23:29:29.738Z] 23:29:29.699 INFO  ------------- Run sensors on project
+[2026-10-04T23:29:29.989Z] 23:29:29.844 INFO  Sensor IaC Project Sensor [iac]
+[2026-10-04T23:29:29.989Z] 23:29:29.845 INFO  Sensor IaC Project Sensor [iac] (done) | time=1ms
+[2026-10-04T23:29:29.989Z] 23:29:29.845 INFO  Sensor Zero Coverage Sensor
+[2026-10-04T23:29:29.989Z] 23:29:29.846 INFO  Sensor Zero Coverage Sensor (done) | time=0ms
+[2026-10-04T23:29:29.989Z] 23:29:29.846 INFO  ------------- Gather SCA dependencies on project
+[2026-10-04T23:29:29.989Z] 23:29:29.851 INFO  Dependency analysis skipped
+[2026-10-04T23:29:29.989Z] 23:29:29.852 INFO  SCM Publisher is disabled
+[2026-10-04T23:29:29.989Z] 23:29:29.855 INFO  CPD Executor Calculating CPD for 1 file
+[2026-10-04T23:29:29.989Z] 23:29:29.862 INFO  CPD Executor CPD calculation finished (done) | time=7ms
+[2026-10-04T23:29:29.989Z] 23:29:29.865 INFO  SCM revision ID '5035c00444ab3d54cdd966d865501d761e8d07fe'
+[2026-10-04T23:29:29.989Z] 23:29:29.934 INFO  Analysis report generated in 68ms, dir size=303.6 kB
+[2026-10-04T23:29:29.989Z] 23:29:29.949 INFO  Analysis report compressed in 14ms, zip size=41.0 kB
+[2026-10-04T23:29:30.241Z] 23:29:30.044 INFO  Analysis report uploaded in 94ms
+[2026-10-04T23:29:30.241Z] 23:29:30.045 INFO  ANALYSIS SUCCESSFUL, you can find the results at: http://sonarqube:9000/dashboard?id=sample-app
+[2026-10-04T23:29:30.241Z] 23:29:30.045 INFO  Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
+[2026-10-04T23:29:30.241Z] 23:29:30.045 INFO  More about the report processing at http://sonarqube:9000/api/ce/task?id=01e74d00-8f1b-4e95-bfb6-b951c3c06a1a
+[2026-10-04T23:29:30.241Z] 23:29:30.051 INFO  Analysis total time: 5.428 s
+[2026-10-04T23:29:30.241Z] 23:29:30.051 INFO  SonarScanner Engine completed successfully
+[2026-10-04T23:29:30.241Z] 23:29:30.100 INFO  EXECUTION SUCCESS
+[2026-10-04T23:29:30.241Z] 23:29:30.105 INFO  Total time: 17.239s
+[Pipeline] }
+[Pipeline] // withSonarQubeEnv
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Quality gate)
+[Pipeline] timeout
+[2026-10-04T23:29:30.766Z] Timeout set to expire in 5 min 0 sec
+[Pipeline] {
+[Pipeline] waitForQualityGate
+[2026-10-04T23:29:30.830Z] Checking status of SonarQube task '01e74d00-8f1b-4e95-bfb6-b951c3c06a1a' on server 'sonarqube'
+[2026-10-04T23:29:30.994Z] SonarQube task '01e74d00-8f1b-4e95-bfb6-b951c3c06a1a' status is 'PENDING'
+[2026-10-04T23:29:34.456Z] SonarQube task '01e74d00-8f1b-4e95-bfb6-b951c3c06a1a' status is 'SUCCESS'
+[2026-10-04T23:29:34.456Z] SonarQube task '01e74d00-8f1b-4e95-bfb6-b951c3c06a1a' completed. Quality gate is 'OK'
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Secret scan (gitleaks))
+[Pipeline] sh
+[2026-10-04T23:29:34.857Z] Unable to find image 'ghcr.io/gitleaks/gitleaks:v8.30.1' locally
+[2026-10-04T23:29:36.730Z] v8.30.1: Pulling from gitleaks/gitleaks
+[2026-10-04T23:29:38.088Z] e2bec8d3df2d: Pulling fs layer
+[2026-10-04T23:29:38.088Z] 4c3e14845bb7: Pulling fs layer
+[2026-10-04T23:29:38.088Z] fe5506365b94: Pulling fs layer
+[2026-10-04T23:29:38.088Z] d741ee1608f3: Pulling fs layer
+[2026-10-04T23:29:38.649Z] 2b7176d4001f: Download complete
+[2026-10-04T23:29:38.649Z] 4c3e14845bb7: Download complete
+[2026-10-04T23:29:39.567Z] e2bec8d3df2d: Download complete
+[2026-10-04T23:29:39.567Z] fe5506365b94: Download complete
+[2026-10-04T23:29:42.066Z] d741ee1608f3: Download complete
+[2026-10-04T23:29:42.066Z] d741ee1608f3: Pull complete
+[2026-10-04T23:29:42.066Z] e2bec8d3df2d: Pull complete
+[2026-10-04T23:29:42.066Z] 4c3e14845bb7: Pull complete
+[2026-10-04T23:29:42.066Z] fe5506365b94: Pull complete
+[2026-10-04T23:29:42.066Z] Digest: sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+[2026-10-04T23:29:42.066Z] Status: Downloaded newer image for ghcr.io/gitleaks/gitleaks:v8.30.1
+[2026-10-04T23:29:42.618Z] 11:29PM INF scanned ~35223 bytes (35.22 KB) in 31.7ms
+[2026-10-04T23:29:42.619Z] 11:29PM INF no leaks found
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Trivy: filesystem)
+[Pipeline] sh
+[2026-10-04T23:29:43.052Z] Unable to find image 'aquasec/trivy:0.74.0' locally
+[2026-10-04T23:29:43.974Z] 0.74.0: Pulling from aquasec/trivy
+[2026-10-04T23:29:44.892Z] 44136fa355b3: Already exists
+[2026-10-04T23:29:45.146Z] bec689ee1450: Pulling fs layer
+[2026-10-04T23:29:45.146Z] 5de55e5ef9c0: Pulling fs layer
+[2026-10-04T23:29:45.146Z] 6782ff926fe2: Pulling fs layer
+[2026-10-04T23:29:45.146Z] 25365ceb5b73: Pulling fs layer
+[2026-10-04T23:29:45.146Z] f6101cace3f1: Download complete
+[2026-10-04T23:29:45.397Z] bec689ee1450: Download complete
+[2026-10-04T23:29:46.309Z] 00d9a7139810: Download complete
+[2026-10-04T23:29:46.860Z] 5de55e5ef9c0: Download complete
+[2026-10-04T23:29:46.860Z] 5de55e5ef9c0: Pull complete
+[2026-10-04T23:29:47.111Z] 6782ff926fe2: Download complete
+[2026-10-04T23:29:47.363Z] 6782ff926fe2: Pull complete
+[2026-10-04T23:29:49.239Z] 25365ceb5b73: Download complete
+[2026-10-04T23:29:50.158Z] bec689ee1450: Pull complete
+[2026-10-04T23:29:50.158Z] 25365ceb5b73: Pull complete
+[2026-10-04T23:29:50.158Z] Digest: sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969
+[2026-10-04T23:29:50.158Z] Status: Downloaded newer image for aquasec/trivy:0.74.0
+[2026-10-04T23:29:51.080Z] 2026-10-04T23:29:50Z	INFO	[vulndb] Need to update DB
+[2026-10-04T23:29:51.080Z] 2026-10-04T23:29:50Z	INFO	[vulndb] Downloading vulnerability DB...
+[2026-10-04T23:29:51.080Z] 2026-10-04T23:29:50Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+[2026-10-04T23:30:09.089Z] 2026-10-04T23:30:05Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:05Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:05Z	INFO	[secret] Secret scanning is enabled
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:05Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:05Z	INFO	[secret] Please see https://trivy.dev/docs/v0.74/guide/scanner/secret#recommendation for faster secret detection
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:05Z	WARN	[pip] Unable to find python `site-packages` directory. License detection is skipped.	err="unable to find path to Python executable"
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:05Z	INFO	Number of language-specific files	num=1
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:05Z	INFO	[pip] Detecting vulnerabilities...
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:08Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:08Z	INFO	[secret] Secret scanning is enabled
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:08Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:08Z	INFO	[secret] Please see https://trivy.dev/docs/v0.74/guide/scanner/secret#recommendation for faster secret detection
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:08Z	WARN	[pip] Unable to find python `site-packages` directory. License detection is skipped.	err="unable to find path to Python executable"
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:08Z	INFO	Number of language-specific files	num=1
+[2026-10-04T23:30:09.090Z] 2026-10-04T23:30:08Z	INFO	[pip] Detecting vulnerabilities...
+[2026-10-04T23:30:09.090Z] 
+[2026-10-04T23:30:09.090Z] Report Summary
+[2026-10-04T23:30:09.090Z] 
+[2026-10-04T23:30:09.090Z] ┌──────────────────────┬──────┬─────────────────┬─────────┐
+[2026-10-04T23:30:09.090Z] │        Target        │ Type │ Vulnerabilities │ Secrets │
+[2026-10-04T23:30:09.090Z] ├──────────────────────┼──────┼─────────────────┼─────────┤
+[2026-10-04T23:30:09.090Z] │ app/requirements.txt │ pip  │        0        │    -    │
+[2026-10-04T23:30:09.090Z] └──────────────────────┴──────┴─────────────────┴─────────┘
+[2026-10-04T23:30:09.090Z] Legend:
+[2026-10-04T23:30:09.090Z] - '-': Not scanned
+[2026-10-04T23:30:09.090Z] - '0': Clean (no security findings detected)
+[2026-10-04T23:30:09.090Z] 
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Trivy: image)
+[Pipeline] sh
+[2026-10-04T23:30:10.691Z] 2026-10-04T23:30:10Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-04T23:30:11.244Z] 2026-10-04T23:30:11Z	INFO	[python] Licenses acquired from one or more METADATA files may be subject to additional terms. Use `--debug` flag to see all affected packages.
+[2026-10-04T23:30:11.496Z] 2026-10-04T23:30:11Z	INFO	Detected OS	family="debian" version="12.15"
+[2026-10-04T23:30:11.496Z] 2026-10-04T23:30:11Z	INFO	[debian] Detecting vulnerabilities...	os_version="12" pkg_num=105
+[2026-10-04T23:30:11.496Z] 2026-10-04T23:30:11Z	INFO	Number of language-specific files	num=1
+[2026-10-04T23:30:11.496Z] 2026-10-04T23:30:11Z	INFO	[python-pkg] Detecting vulnerabilities...
+[2026-10-04T23:30:11.496Z] 2026-10-04T23:30:11Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.74/guide/scanner/vulnerability#severity-selection for details.
+[2026-10-04T23:30:11.496Z] 
+[2026-10-04T23:30:11.496Z] 📣 Notices:
+[2026-10-04T23:30:11.496Z]   - Version 0.75.0 of Trivy is now available, current version is 0.74.0
+[2026-10-04T23:30:11.496Z] 
+[2026-10-04T23:30:11.496Z] To suppress version checks, run Trivy scans with the --skip-version-check flag
+[2026-10-04T23:30:11.496Z] 
+[2026-10-04T23:30:11.747Z] 2026-10-04T23:30:11Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-04T23:30:11.999Z] 2026-10-04T23:30:11Z	INFO	Detected OS	family="debian" version="12.15"
+[2026-10-04T23:30:11.999Z] 2026-10-04T23:30:11Z	INFO	[debian] Detecting vulnerabilities...	os_version="12" pkg_num=105
+[2026-10-04T23:30:11.999Z] 2026-10-04T23:30:11Z	INFO	Number of language-specific files	num=1
+[2026-10-04T23:30:11.999Z] 2026-10-04T23:30:11Z	INFO	[python-pkg] Detecting vulnerabilities...
+[2026-10-04T23:30:11.999Z] 2026-10-04T23:30:11Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.74/guide/scanner/vulnerability#severity-selection for details.
+[2026-10-04T23:30:11.999Z] 
+[2026-10-04T23:30:11.999Z] Report Summary
+[2026-10-04T23:30:11.999Z] 
+[2026-10-04T23:30:11.999Z] ┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────────────┐
+[2026-10-04T23:30:11.999Z] │                                    Target                                    │    Type    │ Vulnerabilities │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ /out/image.tar (debian 12.15)                                                │   debian   │        1        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/blinker-1.9.0.dist-info/METADATA      │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/click-8.5.0.dist-info/METADATA        │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/flask-3.1.3.dist-info/METADATA        │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/gunicorn-26.2.0.dist-info/METADATA    │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/itsdangerous-2.2.0.dist-info/METADATA │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/jinja2-3.1.6.dist-info/METADATA       │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/markupsafe-3.0.4.dist-info/METADATA   │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/pip-25.0.1.dist-info/METADATA         │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┤
+[2026-10-04T23:30:11.999Z] │ usr/local/lib/python3.12/site-packages/werkzeug-3.1.9.dist-info/METADATA     │ python-pkg │        0        │
+[2026-10-04T23:30:11.999Z] └──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────────────┘
+[2026-10-04T23:30:11.999Z] Legend:
+[2026-10-04T23:30:11.999Z] - '-': Not scanned
+[2026-10-04T23:30:11.999Z] - '0': Clean (no security findings detected)
+[2026-10-04T23:30:11.999Z] 
+[2026-10-04T23:30:11.999Z] 
+[2026-10-04T23:30:11.999Z] /out/image.tar (debian 12.15)
+[2026-10-04T23:30:11.999Z] =============================
+[2026-10-04T23:30:11.999Z] Total: 1 (HIGH: 1, CRITICAL: 0)
+[2026-10-04T23:30:11.999Z] 
+[2026-10-04T23:30:11.999Z] ┌──────────────┬─────────────────┬──────────┬────────┬───────────────────┬─────────────────┬───────────────────────────────────────────────────────┐
+[2026-10-04T23:30:11.999Z] │   Library    │  Vulnerability  │ Severity │ Status │ Installed Version │  Fixed Version  │                         Title                         │
+[2026-10-04T23:30:11.999Z] ├──────────────┼─────────────────┼──────────┼────────┼───────────────────┼─────────────────┼───────────────────────────────────────────────────────┤
+[2026-10-04T23:30:11.999Z] │ libpcre2-8-0 │ CVE-2026-103111 │ HIGH     │ fixed  │ 10.42-1+deb12u1   │ 10.42-1+deb12u2 │ pcre2: pcre2: Out-of-bounds write via crafted regular │
+[2026-10-04T23:30:11.999Z] │              │                 │          │        │                   │                 │ expression                                            │
+[2026-10-04T23:30:11.999Z] │              │                 │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2026-103111           │
+[2026-10-04T23:30:11.999Z] └──────────────┴─────────────────┴──────────┴────────┴───────────────────┴─────────────────┴───────────────────────────────────────────────────────┘
+Post stage
+[Pipeline] script
+[Pipeline] {
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Trivy: Terraform (IaC))
+Stage "Trivy: Terraform (IaC)" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy to a local container)
+Stage "Deploy to a local container" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (OWASP ZAP baseline)
+Stage "OWASP ZAP baseline" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish reports)
+Stage "Publish reports" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] sh
+[2026-10-04T23:30:12.843Z] teardown: containers left for this build: 0
+[Pipeline] archiveArtifacts
+[2026-10-04T23:30:12.883Z] Archiving artifacts
+[Pipeline] sh
+[Pipeline] echo
+[2026-10-04T23:30:13.503Z] Pipeline failed: a gate blocked this build. See the failed stage above.
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-10-04T23:30:13.606Z] Masking supported pattern matches of $JIRA_API_TOKEN or $JIRA_EMAIL or $JIRA_SITE_URL or $JIRA_PROJECT_KEY
+[Pipeline] {
+[Pipeline] sh
+[2026-10-04T23:30:15.516Z] Jira ticket request finished: HTTP 201
+[2026-10-04T23:30:15.516Z] Jira ticket created, number 3
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[2026-10-04T23:30:15.704Z] 
+[Pipeline] // ansiColor
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+Finished: FAILURE

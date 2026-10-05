@@ -3,8 +3,8 @@
 #
 #   JENKINS_ADMIN_PASSWORD=... SONAR_ADMIN_PASSWORD=... scripts/collect-evidence.sh BUILD_NUMBER LABEL OUT_DIR
 #
-# Everything written is masked: passwords and tokens that were passed in, the local user name and
-# any IP address other than 127.0.0.1. Run it while the stack is still up (see scripts/up.sh).
+# Everything written is masked: passwords and tokens that were passed in (including the optional Snyk and Jira
+# values when present), the local user name and any IP address other than 127.0.0.1. Run it while the stack is still up (see scripts/up.sh).
 set -euo pipefail
 
 BUILD="${1:?build number}"; LABEL="${2:?label, e.g. run-1-vulnerable-demo-fail}"; OUT="${3:?output directory}"
@@ -20,10 +20,16 @@ mask() {
   python3 -c '
 import os, re, sys
 text = sys.stdin.read()
-for name in ("JENKINS_ADMIN_PASSWORD", "SONAR_ADMIN_PASSWORD", "SONAR_TOKEN"):
+# The optional Snyk and Jira values are masked too when they are in the environment (run this script under
+# `op run --env-file=jenkins/.env.op --` to have them). The project key and e-mail are masked as well.
+for name in ("JENKINS_ADMIN_PASSWORD", "SONAR_ADMIN_PASSWORD", "SONAR_TOKEN", "SNYK_TOKEN", "SNYK_ORG",
+             "JIRA_API_TOKEN", "JIRA_EMAIL", "JIRA_SITE_URL", "JIRA_PROJECT_KEY"):
     value = os.environ.get(name)
     if value and value != "placeholder":
-        text = text.replace(value, "<masked>")
+        if len(value) < 6:   # short values such as a project key: whole words only, so other text is not damaged
+            text = re.sub(r"(?<![A-Za-z0-9])" + re.escape(value) + r"(?![A-Za-z0-9])", "<masked>", text)
+        else:
+            text = text.replace(value, "<masked>")
 text = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", text)                      # colour codes
 text = text.replace(os.environ.get("USER", "__none__"), "<user>")
 octet = r"(?:25[0-5]|2[0-4]\d|1?\d?\d)"

@@ -20,6 +20,8 @@ override.tf.json
 # Secrets and local environment files
 .env
 .env.*
+# The one exception: jenkins/.env.op holds only op:// pointers, never values.
+!jenkins/.env.op
 *.pem
 *.key
 credentials.env

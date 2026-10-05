@@ -7,7 +7,7 @@ Everything here comes from one session on a MacBook Pro (Apple M3 Pro, Docker De
 | Folder | Branch | Result |
 | --- | --- | --- |
 | [`run-1-vulnerable-demo-fail/`](run-1-vulnerable-demo-fail/) | `vulnerable-demo` (known-vulnerable Flask, Werkzeug and gunicorn pins) | **Failed at `Trivy: filesystem`** after build, tests, SonarQube, quality gate and gitleaks had passed. The stages after it were skipped. Teardown still ran. |
-| [`run-2-main-pass/`](run-2-main-pass/) | `main` | **Passed** all 12 stages. |
+| [`run-2-main-pass/`](run-2-main-pass/) | `main` | **Passed** all 12 stages on 2026-10-03. Date-dependent: a rerun on 2026-10-04 stopped at `Trivy: image` on a base-image package finding (see below). |
 
 Each folder holds the same kinds of file:
 
@@ -22,6 +22,10 @@ Each folder holds the same kinds of file:
 | `trivy-image.txt`, `trivy-image-summary.txt` | Trivy image scan (run 2 only, because run 1 stopped before it) |
 | `trivy-terraform.txt`, `trivy-terraform.json` | Trivy scan of the S3 Terraform (run 2 only) |
 | `zap-baseline.html`, `.json`, `.md`, `zap.yaml` | OWASP ZAP baseline report against the deployed container (run 2 only) |
+
+## The optional Snyk and Jira run (2026-10-04)
+
+A second session, in [`optional-snyk-jira/`](optional-snyk-jira/), with its own README. It was seeded from commit `a0c5986`. The hashes `5035c00` and `7d8b647` that Jenkins shows in its console belong to the throwaway lab repository, and the Jenkins branches `main` and `vulnerable-demo` are lab-only, not branches of this GitHub repository. Build #1 (`vulnerable-demo`) was failed by the Snyk stage. Build #2 (`main`) passed Snyk and then failed at `Trivy: image` because of one HIGH finding in a Debian package of the base image, so it is not a pass. The folders above are unchanged.
 
 ## Other files
 

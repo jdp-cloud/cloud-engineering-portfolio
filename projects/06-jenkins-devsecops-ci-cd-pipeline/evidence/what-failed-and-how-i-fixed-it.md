@@ -30,3 +30,24 @@ After fixes 1 to 9 (fix 10 came afterwards and changes only the format of the pl
 | My first Jenkins stage-view screenshot cut off the right-hand columns, and the SonarQube pages were covered by promotional banners. | Wider viewport; the script clicks the banners' dismiss buttons before capturing. |
 | A `rm -rf evidence/*` in one of my commands was blocked by a safety check, and the command did not run. | It was unnecessary (the folder was empty). I dropped it and did not try to get around the check. |
 | Creating folders or files in the project occasionally failed with "Operation not permitted". | A retry succeeded every time. I did not change any permissions. |
+
+## The optional Snyk and Jira run (2026-10-04)
+
+These came up while building and trying the optional stages, before the evidence in [`optional-snyk-jira/`](optional-snyk-jira/). Nothing from that trial is used as evidence.
+
+| # | What happened | Why | Fix |
+| --- | --- | --- | --- |
+| 11 | The Jira step logged `HTTP 400` and no ticket was created, although the Snyk stage had worked. | Read-only checks showed Jira was rejecting the e-mail and token pair (HTTP 401 on `/myself`). With a failed login Jira treats the request as anonymous, and an anonymous caller cannot see the project, which is my explanation for the 400. I could not read the response body, because my own script deleted it right after logging the status. | The e-mail and token in the 1Password item were corrected in 1Password. The step now prints Jira's `errorMessages` and `errors` fields on a failure, and I tested that code with fake bodies. |
+| 12 | A trial ticket named the wrong stage: "failed at stage Declarative: Post Actions". | `STAGE_NAME` inside the pipeline's final `post` block is always that pseudo-stage. I reproduced it on a throw-away Jenkins. | Each stage records its own name in `FAILED_STAGE` when it fails, and the Jira step reads that. On the evidence runs the tickets name the Snyk stage and `Trivy: image`. |
+| 13 | Snyk's `Organization:` line was not removed from the saved report. | My filter only matched the line at the start of a row, but Snyk draws that row inside a box. The value was blank in this setup, and I checked that the organisation name did not appear anywhere, but a different setup could have printed it. | The filter now matches the word anywhere on the line, and I tested it on a sample box line with a fake value. |
+| 14 | On `main`, the pipeline stopped at `Trivy: image` with a HIGH finding in a Debian package of the base image. | The same pinned base-image tag had no finding in the first evidence run the day before. I did not investigate why the result differs. | Not fixed here, on purpose: the gate was not loosened and nothing was ignored. A base-image digest bump is proposed as a separate pull request. |
+
+A few slips in my own tooling during that session:
+
+| What happened | Fix |
+| --- | --- |
+| My first attempt to run `docker compose` with several variables on one line passed them as a single argument, so Compose reported them missing. | Passed each variable separately. |
+| Throw-away Jenkins checks returned 401 because my shell did not split an options variable the way I expected. | Wrote the `curl` options out in full. |
+| A read-only Jira check printed a response header that contained the Jira site name in encoded form. | It was flagged immediately, and from then on only status codes and field names were printed. |
+| Throw-away Jenkins containers I started for configuration and lint checks left nine anonymous volumes (about 3 GB) behind, because `docker rm -f` keeps anonymous volumes and `down.sh` only looks for compose-labelled ones. I first mistook two of them for another tool's volumes. | Checked each one's contents (all were Jenkins homes), removed them, and recorded it in the teardown check. Future checks should use `docker rm -fv`. |
+| The collector would have saved SonarQube results from build #2 into the folder for build #1, which never reached SonarQube. | Removed those two files from the run 3 folder and said why in its README. |
