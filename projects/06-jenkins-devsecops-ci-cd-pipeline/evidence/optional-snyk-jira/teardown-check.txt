@@ -1,0 +1,16 @@
+# After ./scripts/down.sh on 2026-10-04 (run with its default settings)
+
+containers carrying this project's compose label : 0
+volumes carrying this project's compose label    : 0
+networks carrying this project's compose label   : 0
+all containers on this Docker                    : 0
+all volumes on this Docker                       : 0
+BuildKit cache                                   : 0B
+images from this project (sample-app, devsecops-jenkins, sonarqube, postgres, docker, jenkins, alpine/git) : 0
+
+Images still present (this project never references any of them; alpine:latest appeared during the session and I do not know what pulled it, so I left it):
+hashicorp/terraform-mcp-server:0.4.0
+docker/desktop-kubernetes:kubernetes-v1.34.1-cni-v1.7.1-crit
+alpine:latest
+
+One cleanup that down.sh does not do: before this check, nine anonymous volumes were left by throw-away Jenkins containers that I started for configuration and lint checks (docker rm without -v keeps them). down.sh does not see them because they carry no compose label. I confirmed each held a Jenkins home (config.xml, secret.key, jobs/) and removed them, which is why the volume count above is 0.

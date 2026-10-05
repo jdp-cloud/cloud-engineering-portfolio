@@ -74,7 +74,7 @@ credentials:
 jobs:
   - script: >
       pipelineJob('sample-app-devsecops') {
-        description('Builds, tests, scans, deploys and DAST-scans the sample app. Run with a BRANCH of main (passes) or vulnerable-demo (a gate blocks it).')
+        description('Builds, tests, scans, deploys and DAST-scans the sample app. Run with a BRANCH of main or vulnerable-demo (a gate blocks it). Whether main passes depends on the base image\'s current CVEs; see the README.')
         parameters {
           stringParam('BRANCH', 'main', 'Branch of the seeded repository to build')
           booleanParam('RUN_SNYK_JIRA', false, 'Optional: add a Snyk dependency gate after the unit tests and open a Jira ticket if the build fails. Needs the stack to be started with 1Password (see the README).')

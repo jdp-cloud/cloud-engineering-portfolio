@@ -2,8 +2,8 @@
 # present in its environment (see jenkins/.env.op), so without it the lab is exactly the base file.
 #
 # The values reach Jenkins as Docker Compose secrets taken from up.sh's own environment. Compose
-# mounts each one as a read-only file under /run/secrets in the Jenkins container (an in-memory
-# filesystem), and Configuration as Code reads them from there. They are not container environment
+# mounts each one as a read-only file (mode 0444) under /run/secrets in the Jenkins container, on an
+# overlay filesystem, not tmpfs, and Configuration as Code reads them from there. They are not container environment
 # variables, so `docker inspect` does not show them, and they disappear with the container.
 services:
   jenkins:

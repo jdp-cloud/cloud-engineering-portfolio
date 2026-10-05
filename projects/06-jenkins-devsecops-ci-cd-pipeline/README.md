@@ -5,7 +5,7 @@
 ![Docker](https://img.shields.io/badge/Docker%20Compose-local%20only-2496ED?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/status-run%2C%20verified%20and%20torn%20down-brightgreen)
 
-A Jenkins pipeline, configured as code, that builds a small Flask app, tests it, scans it six ways (code quality, secrets, dependencies, the image, the Terraform and, once it is deployed to a local container, the running app with OWASP ZAP). It all runs in Docker on one laptop and costs nothing. One run fails on purpose to show that a gate blocks a vulnerable dependency, and the next run, on the fixed code, passes.
+A Jenkins pipeline, configured as code, that builds a small Flask app, tests it, scans it six ways (code quality, secrets, dependencies, the image, the Terraform and, once it is deployed to a local container, the running app with OWASP ZAP). It all runs in Docker on one laptop and costs nothing. One run fails on purpose to show that a gate blocks a vulnerable dependency, and the next run, on the fixed code, passed on 2026-10-03. A rerun on 2026-10-04 stopped at the image scan on a base-image package finding (see [Evidence](#evidence)), so the result depends on the date.
 
 > **Scope:** This is a local lab, not a production setup. It runs on one machine, builds one small sample app, uses plain HTTP on `127.0.0.1` and, by default, has no cloud account behind it. Two optional stages (Snyk and a Jira ticket on failure, off by default) do talk to those two services. See [Scope and limitations](#scope-and-limitations).
 
@@ -16,7 +16,7 @@ A Jenkins pipeline, configured as code, that builds a small Flask app, tests it,
 | **Problem** | A pipeline that only builds and deploys proves little. I wanted one that blocks insecure code, shows that it blocks it, and leaves nothing running or lying around afterwards. |
 | **Solution** | Docker Compose runs Jenkins (configured as code, 82 plugins pinned and baked into the image), SonarQube with Postgres, and an isolated Docker-in-Docker sidecar. A 12-stage pipeline builds, tests, runs SonarQube with a strict quality gate, gitleaks and three Trivy scans, deploys the app to a hardened container and runs a ZAP baseline scan against it. |
 | **Environment** | MacBook Pro (Apple M3 Pro), Docker Desktop, everything bound to `127.0.0.1`. Every image is pinned to an exact version, with no `:latest`. |
-| **Proof** | Run 1 on a branch with known-vulnerable dependencies was stopped by Trivy with 5 HIGH findings. Run 2 on the fixed code passed all 12 stages: 16 of 16 tests, 100% coverage, a strict SonarQube gate, no secrets, no HIGH or CRITICAL findings, and a ZAP baseline with 0 failures and 0 warnings. Teardown left no containers, volumes or project images. |
+| **Proof** | Run 1 on a branch with known-vulnerable dependencies was stopped by Trivy with 5 HIGH findings. Run 2 on the fixed code passed all 12 stages on 2026-10-03: 16 of 16 tests, 100% coverage, a strict SonarQube gate, no secrets, no HIGH or CRITICAL findings, and a ZAP baseline with 0 failures and 0 warnings. Teardown left no containers, volumes or project images. A later run with the optional Snyk and Jira stages on stopped on `main` at `Trivy: image` because of a Debian package in the base image; the details are [below](#optional-snyk-and-jira-run-2026-10-04). |
 | **Hardest problem** | Ten failures along the way, from a SonarQube password policy to a quality gate that said "OK" next to an open critical issue. The gate was the most useful one to find: [the full list](evidence/what-failed-and-how-i-fixed-it.md). |
 | **Cost** | $0. By default there is no cloud account, no cloud credential and no cloud stage. The optional Snyk and Jira stages use free-tier accounts and API tokens kept in 1Password. |
 | **Skills shown** | Jenkins pipelines and Configuration as Code, Docker Compose, Docker-in-Docker isolation, SonarQube quality gates, Trivy, gitleaks, OWASP ZAP, pinning and supply-chain hygiene, secrets handling, negative testing, evidence-based documentation |
@@ -151,18 +151,19 @@ cd projects/06-jenkins-devsecops-ci-cd-pipeline
 # 2. Open Jenkins at http://127.0.0.1:8080 (user: admin), job "sample-app-devsecops",
 #    "Build with Parameters":
 #      BRANCH=vulnerable-demo   a gate blocks it (Trivy, 5 HIGH findings)
-#      BRANCH=main              passes all 12 stages
+#      BRANCH=main              passed all 12 stages on 2026-10-03; it can fail later if a scanner
+#                               finds something new (see Evidence)
 #    SonarQube is at http://127.0.0.1:9000 (user: admin).
 
 # 3. Tear everything down: containers, volumes, networks, images and build cache.
 ./scripts/down.sh
 ```
 
-To collect evidence from a finished build, with the passwords from step 1:
+To collect evidence from a finished build, with the passwords from step 1 (use a new label each time: the script overwrites files in an existing label's folder):
 
 ```bash
 JENKINS_ADMIN_PASSWORD=... SONAR_ADMIN_PASSWORD=... \
-  ./scripts/collect-evidence.sh 2 run-2-main-pass evidence
+  ./scripts/collect-evidence.sh 2 my-run-label evidence
 ```
 
 `down.sh` clears all BuildKit cache on this Docker daemon. Set `PRUNE_BUILD_CACHE=0` to keep it.
@@ -186,7 +187,7 @@ Then tick `RUN_SNYK_JIRA` under "Build with Parameters". `jenkins/.env.op` is co
 How the values are kept out of the repository and the logs:
 
 - They live only in 1Password. `op run` hands them to `up.sh` as environment variables for that one command, and `up.sh` never prints or writes them. If only some of the six are set, it stops and names the missing ones.
-- Docker Compose passes them to Jenkins as **secrets** (files under `/run/secrets` in the Jenkins container, an in-memory filesystem), so they are not container environment variables and `docker inspect` does not show them. Configuration as Code turns them into Jenkins credentials.
+- Docker Compose passes them to Jenkins as **secrets** (read-only files under `/run/secrets` in the Jenkins container, removed with the container), so they are not container environment variables and `docker inspect` does not show them. Configuration as Code turns them into Jenkins credentials.
 - The Jenkinsfile reads them with `withCredentials`, which masks them in the console log, inside `sh` blocks that are single-quoted, start with `set +x` and never put a value on a command line. The Jira call gives its credentials to `curl` on standard input and discards curl's error output.
 - `collect-evidence.sh` also masks the values when it runs under `op run`.
 
@@ -197,7 +198,7 @@ Revoke both tokens in Snyk and Atlassian when you have finished.
 | Check | Expected |
 | --- | --- |
 | `BRANCH=vulnerable-demo` | Fails at `Trivy: filesystem` with 5 HIGH findings; later stages are skipped; teardown still runs |
-| `BRANCH=main` | All 12 stages pass |
+| `BRANCH=main` | All 12 stages passed on 2026-10-03. This is date-dependent: on 2026-10-04 the image scan found a HIGH issue in a base-image package and stopped the build there. |
 | Jenkins job | Exists with a `BRANCH` parameter, created from code |
 | Anonymous request to Jenkins | HTTP 403 (observed while building; not captured as evidence) |
 | `docker ps` on the host during a run | Only the four Compose containers; no container mounts the host Docker socket |
@@ -205,15 +206,15 @@ Revoke both tokens in Snyk and Atlassian when you have finished.
 
 ## Evidence
 
-All of it is in [`evidence/`](evidence/), with an [index](evidence/README.md). It was produced in one session on 2026-10-03 (UTC), on a clean stack, from the final code.
+All of it is in [`evidence/`](evidence/), with an [index](evidence/README.md). It was produced in one session on 2026-10-03 (UTC), on a clean stack, from the final code. The optional Snyk and Jira stages have their own evidence from a second session on 2026-10-04, in [`evidence/optional-snyk-jira/`](evidence/optional-snyk-jira/).
 
 | Claim | Where to see it |
 | --- | --- |
 | A gate blocks a vulnerable dependency | [`run-1-vulnerable-demo-fail/trivy-fs.txt`](evidence/run-1-vulnerable-demo-fail/trivy-fs.txt) lists 5 HIGH findings: Flask CVE-2023-30861, Werkzeug CVE-2023-25577 and CVE-2024-34069, gunicorn CVE-2024-1135 and CVE-2024-6827. [`stages.txt`](evidence/run-1-vulnerable-demo-fail/stages.txt) shows the stages before it passed and the stages after it skipped. |
-| The fixed run passes everything | [`run-2-main-pass/stages.txt`](evidence/run-2-main-pass/stages.txt), [`console.log`](evidence/run-2-main-pass/console.log) and the [stage view](evidence/screenshots/01-jenkins-stage-view-both-runs.png) |
+| The fixed run passed everything on 2026-10-03 (see the caveat below) | [`run-2-main-pass/stages.txt`](evidence/run-2-main-pass/stages.txt), [`console.log`](evidence/run-2-main-pass/console.log) and the [stage view](evidence/screenshots/01-jenkins-stage-view-both-runs.png) |
 | Tests pass | 16 of 16 in both runs ([JUnit page](evidence/screenshots/02-jenkins-junit-results.png)) |
 | SonarQube is clean under the strict gate | [Overall code](evidence/screenshots/03-sonarqube-overall-code.png): 0 open issues, 100% coverage on 34 lines, 0.0% duplication. [`sonarqube-quality-gate.json`](evidence/run-2-main-pass/sonarqube-quality-gate.json) |
-| No secrets, no HIGH or CRITICAL findings | [`gitleaks.json`](evidence/run-2-main-pass/gitleaks.json), [`trivy-image-summary.txt`](evidence/run-2-main-pass/trivy-image-summary.txt), [`trivy-terraform.txt`](evidence/run-2-main-pass/trivy-terraform.txt) |
+| No secrets, no HIGH or CRITICAL findings on 2026-10-03 | [`gitleaks.json`](evidence/run-2-main-pass/gitleaks.json), [`trivy-image-summary.txt`](evidence/run-2-main-pass/trivy-image-summary.txt), [`trivy-terraform.txt`](evidence/run-2-main-pass/trivy-terraform.txt) |
 | ZAP found nothing to fail on | [Report](evidence/screenshots/05-zap-baseline-report.png): 0 High, 0 Medium, 0 Low, 1 Informational; 66 rules passed, 1 ignored |
 | The stack is isolated | [`stack-isolation-check.txt`](evidence/stack-isolation-check.txt) |
 | Teardown is complete | [`teardown-check.txt`](evidence/teardown-check.txt) |
@@ -232,9 +233,22 @@ Timings from the final runs, with the tool images already cached: a clean `up.sh
 
 I do not know exactly why the internal drive ended 3 GiB lower. Docker's disk image is on the SSD, and about 0.5 GB of that was my scratch folder (a Chrome profile, two Python environments and Checkov), but I did not trace the rest.
 
+### Optional Snyk and Jira run (2026-10-04)
+
+Two builds on a freshly started lab, started with `op run`, with `RUN_SNYK_JIRA` ticked, seeded from commit `a0c5986`. The Jenkins branches `main` and `vulnerable-demo` are lab-only branches of a throwaway repository, not branches of this GitHub repository. Full details, screenshots and notes are in [`evidence/optional-snyk-jira/`](evidence/optional-snyk-jira/).
+
+| Build | Lab branch | Result |
+| --- | --- | --- |
+| #1 | `vulnerable-demo` | Failed at the Snyk stage with 5 HIGH findings (werkzeug, flask, gunicorn); every stage after it was skipped. Jira returned HTTP 201 and the ticket names the Snyk stage. |
+| #2 | `main` | Snyk passed with no findings, then SonarQube, its quality gate, gitleaks and the Trivy filesystem scan passed. **`Trivy: image` failed** with 1 HIGH finding, `libpcre2-8-0` (CVE-2026-103111), in the base image's Debian packages. The Terraform scan, deploy, ZAP and report stages did not run. Jira returned HTTP 201 and the ticket names `Trivy: image`. |
+
+Build #2 is **not** a pass, and the run label `run-4-snyk-jira-main` only says which branch it used. Nothing was ignored or loosened to make it pass. The image scan in the 2026-10-03 run reported no finding for the same pinned tag, and I did not investigate why the result differs. A base-image digest bump is proposed as a separate pull request.
+
+What this shows: the Snyk gate blocks a vulnerable dependency set and passes a clean one, and a failing build creates a Jira ticket that names the failing stage, confirmed on two different stages. What it does not show: a full 13-stage pass, or a ZAP result with the optional stages on.
+
 ## What failed and how I fixed it
 
-Ten failures of the project, found in order, plus a list of slips in my own tooling. The full table is in [`evidence/what-failed-and-how-i-fixed-it.md`](evidence/what-failed-and-how-i-fixed-it.md). The ones worth telling:
+Ten failures of the project, found in order, plus a list of slips in my own tooling. The optional Snyk and Jira run added four more, listed at the end of the same file. The full table is in [`evidence/what-failed-and-how-i-fixed-it.md`](evidence/what-failed-and-how-i-fixed-it.md). The ones worth telling:
 
 - **The quality gate said OK while SonarQube listed a critical issue.** The default gate only fails on new issues against the previous version. I found it by reading the measures, replaced the gate with one on overall code, and recorded my review of the finding.
 - **A scan stage failed because of a flag, not a finding.** `trivy config` does not accept `--no-progress`. I treated it as a bug in the pipeline and not as a security result.
@@ -274,10 +288,10 @@ Tools used: Jenkins, SonarQube Community Build, Trivy, gitleaks, OWASP ZAP, Dock
 - **Checkov will still flag the S3 Terraform.** The pipeline's Trivy gate is HIGH and CRITICAL only. The repository's Checkov scan reports 5 lower-severity items on the same file (event notifications, lifecycle, access logging, replication and a KMS key policy). I ran Checkov locally to find this out.
 - **Tools are pinned by tag, not digest,** and Jenkins downloads the tool images and the Trivy database from the internet at run time.
 - **Secrets exist in memory while it runs.** The generated passwords are in the containers' environment variables, which `docker inspect` can show, until teardown.
-- **The optional Snyk and Jira values are not environment variables of the Jenkins container, but they do pass through environment variables while a stage runs.** In Jenkins they are files under `/run/secrets` and credentials, readable by anyone with access to that container or to Jenkins. While the Snyk and Jira steps run, they are passed as environment variables to short-lived containers in the Docker-in-Docker daemon, where `docker inspect` on that daemon can show them until the container exits.
+- **The optional Snyk and Jira values are not environment variables of the Jenkins container, but they do pass through environment variables while a stage runs.** In Jenkins they are files under `/run/secrets` (mode 0444, so any process in that container can read them; the filesystem is not tmpfs, see [`stack-and-secrets-check.txt`](evidence/optional-snyk-jira/stack-and-secrets-check.txt)) and credentials, readable by anyone with access to that container or to Jenkins. While the Snyk and Jira steps run, they are passed as environment variables to short-lived containers in the Docker-in-Docker daemon, where `docker inspect` on that daemon can show them until the container exits.
 - **`snyk test` sends the dependency list to Snyk's service,** so with the optional stage on the pipeline is no longer local-only. It needs a Snyk account, and a free tier has scan limits. The Jira step creates a real ticket in a real Jira site.
 - **The Snyk CLI image is published for linux/amd64 only,** so on an Apple-silicon Mac it runs under emulation. I confirmed that image starts inside the Docker-in-Docker sidecar and that the app's packages install in it.
-- **The Snyk and Jira stages were not part of the first evidence runs.** Until their own evidence is added, treat them as written and checked (Jenkins accepted the Jenkinsfile, and the credentials and the new parameter loaded with test values), but not demonstrated against the real services.
+- **The optional Snyk and Jira stages were run once for evidence,** on 2026-10-04, one build per branch. The Snyk gate and the Jira ticket worked on both. The build on `main` then stopped at `Trivy: image`, so there is no full pass and no ZAP result with the optional stages on. The Jira ticket was created with HTTP 201 twice; I did not test other Jira projects or failure modes beyond that.
 - **The evidence is from a single session.** The throughput-style numbers (timings, memory, disk) are one measurement, not an average. The collector masks the evidence, and I checked the screenshots by eye and with OCR, but I did not have an independent review.
 
 ## Repository layout

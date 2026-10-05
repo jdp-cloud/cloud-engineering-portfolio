@@ -1,0 +1,5 @@
+Trivy image scan summary (HIGH and CRITICAL, fixable only)
+  /out/image.tar (debian 12.15) [os-pkgs/debian]: 1 finding(s)
+    HIGH     CVE-2026-103111 libpcre2-8-0 10.42-1+deb12u1 -> fixed in 10.42-1+deb12u2
+  Python [lang-pkgs/python-pkg]: 0 finding(s)
+Scanned artifact: /out/image.tar (container_image)

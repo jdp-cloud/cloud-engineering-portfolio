@@ -126,7 +126,7 @@ if [ "${SHOW_PASSWORDS:-1}" = "1" ]; then
   echo "SonarQube password:  $SONAR_ADMIN_PASSWORD"
   echo "These are shown once. They are not stored anywhere in this repository."
 fi
-echo "Run the job 'sample-app-devsecops' with BRANCH=main (passes) or BRANCH=vulnerable-demo (a gate blocks it)."
+echo "Run the job 'sample-app-devsecops' with BRANCH=main or BRANCH=vulnerable-demo (a gate blocks it). Whether main passes depends on the base image's current CVEs; see the README."
 if [ "$INTEGRATIONS" = "on" ]; then
   echo "Tick RUN_SNYK_JIRA to add the Snyk gate and a Jira ticket on failure."
 fi

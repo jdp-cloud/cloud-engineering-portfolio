@@ -1,0 +1,24 @@
+
+Testing  (requirements.txt) ...
+                                                                    
+✔ Tested 8 dependencies for known issues, no vulnerable paths found.
+                                                                    
+        
+💡 Tip
+
+   You are currently viewing results with --severity-threshold applied.
+   To view all issues, remove the --severity-threshold flag            
+                                                                       
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Test Summary                                                                 │
+│                                                                              │
+│   Test type:         open-source                                             │
+│   Project path:      /var/jenkins_home/workspace/sample-app-devsecops/app    │
+│                                                                              │
+│   Total issues: 0                                                            │
+╰──────────────────────────────────────────────────────────────────────────────╯
+💡 Tip
+
+   To view ignored issues, use the --include-ignores option.
+                                                            
+

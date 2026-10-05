@@ -1,0 +1,81 @@
+
+Testing  (requirements.txt) ...
+
+Tested 8 dependencies for known issues, found 5 issues, 7 vulnerable paths.
+
+Security issues: 5
+
+ ✗ [HIGH] Remote Code Execution (RCE)
+   Finding ID: SNYK-PYTHON-WERKZEUG-6808933
+   Info: https://snyk.io/vuln/SNYK-PYTHON-WERKZEUG-6808933
+   Introduced by: app@0.0.0
+   Introduced through: app@0.0.0 > werkzeug@2.2.2 and 1 other path
+   Risk Score: N/A
+
+ ✗ [HIGH] Information Exposure
+   Finding ID: SNYK-PYTHON-FLASK-5490129
+   Info: https://snyk.io/vuln/SNYK-PYTHON-FLASK-5490129
+   Introduced by: app@0.0.0
+   Introduced through: app@0.0.0 > flask@2.2.2
+   Risk Score: N/A
+
+ ✗ [HIGH] HTTP Request Smuggling
+   Finding ID: SNYK-PYTHON-GUNICORN-9510910
+   Info: https://snyk.io/vuln/SNYK-PYTHON-GUNICORN-9510910
+   Introduced by: app@0.0.0
+   Introduced through: app@0.0.0 > gunicorn@20.1.0
+   Risk Score: N/A
+
+ ✗ [HIGH] HTTP Request Smuggling
+   Finding ID: SNYK-PYTHON-GUNICORN-6615672
+   Info: https://snyk.io/vuln/SNYK-PYTHON-GUNICORN-6615672
+   Introduced by: app@0.0.0
+   Introduced through: app@0.0.0 > gunicorn@20.1.0
+   Risk Score: N/A
+
+ ✗ [HIGH] Denial of Service (DoS)
+   Finding ID: SNYK-PYTHON-WERKZEUG-3319936
+   Info: https://snyk.io/vuln/SNYK-PYTHON-WERKZEUG-3319936
+   Introduced by: app@0.0.0
+   Introduced through: app@0.0.0 > werkzeug@2.2.2 and 1 other path
+   Risk Score: N/A
+
+Issues to fix by upgrading:
+                           
+  Upgrade flask@2.2.2 to flask@2.2.5 to fix
+  ✗ Information Exposure [High Severity] [https://security.snyk.io/vuln/SNYK-PYTHON-FLASK-5490129] in flask
+    introduced by app@0.0.0 > flask@2.2.2
+
+  Upgrade gunicorn@20.1.0 to gunicorn@23.0.0 to fix
+  ✗ HTTP Request Smuggling [High Severity] [https://security.snyk.io/vuln/SNYK-PYTHON-GUNICORN-9510910] in gunicorn
+    introduced by app@0.0.0 > gunicorn@20.1.0
+  ✗ HTTP Request Smuggling [High Severity] [https://security.snyk.io/vuln/SNYK-PYTHON-GUNICORN-6615672] in gunicorn
+    introduced by app@0.0.0 > gunicorn@20.1.0
+
+  Upgrade werkzeug@2.2.2 to werkzeug@3.0.3 to fix
+  ✗ Remote Code Execution (RCE) [High Severity] [https://security.snyk.io/vuln/SNYK-PYTHON-WERKZEUG-6808933] in werkzeug
+    introduced by app@0.0.0 > werkzeug@2.2.2
+  ✗ Denial of Service (DoS) [High Severity] [https://security.snyk.io/vuln/SNYK-PYTHON-WERKZEUG-3319936] in werkzeug
+    introduced by app@0.0.0 > werkzeug@2.2.2
+
+        
+💡 Tip
+
+   You are currently viewing results with --severity-threshold applied.
+   To view all issues, remove the --severity-threshold flag            
+                                                                       
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Test Summary                                                                 │
+│                                                                              │
+│   Test type:         open-source                                             │
+│   Project path:      /var/jenkins_home/workspace/sample-app-devsecops/app    │
+│                                                                              │
+│   Total security issues: 5                                                   │
+│   Ignored: 0 [ 0 CRITICAL  0 HIGH  0 MEDIUM  0 LOW ]                         │
+│   Open   : 5 [ 0 CRITICAL  5 HIGH  0 MEDIUM  0 LOW ]                         │
+╰──────────────────────────────────────────────────────────────────────────────╯
+💡 Tip
+
+   To view ignored issues, use the --include-ignores option.
+                                                            
+
