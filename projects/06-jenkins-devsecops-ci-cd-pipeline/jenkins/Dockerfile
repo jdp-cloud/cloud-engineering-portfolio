@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:2.568.3-lts-jdk21
+FROM jenkins/jenkins:2.580.1-lts-jdk21
 
 # Docker CLI only (a static binary copied from the pinned CLI image). It talks to the
 # Docker-in-Docker sidecar over TLS; the host Docker socket is never mounted.
