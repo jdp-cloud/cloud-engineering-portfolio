@@ -101,6 +101,18 @@ data "aws_iam_policy_document" "staging_deploy" {
   }
 
   statement {
+    sid     = "DescribeImages"
+    effect  = "Allow"
+    actions = ["ecr:DescribeImages"]
+    # The rollback workflow resolves an image tag to a digest.
+    # DescribeImages is scoped to the two repositories this project pushes.
+    resources = [
+      aws_ecr_repository.web.arn,
+      aws_ecr_repository.api.arn,
+    ]
+  }
+
+  statement {
     sid       = "PassExecutionRole"
     effect    = "Allow"
     actions   = ["iam:PassRole"]
@@ -144,6 +156,18 @@ data "aws_iam_policy_document" "production_deploy" {
     # Service Authorization Reference for Amazon ECS, fetched 2026-11-02:
     # these two actions have no resource type, so IAM requires "*".
     resources = ["*"]
+  }
+
+  statement {
+    sid     = "DescribeImages"
+    effect  = "Allow"
+    actions = ["ecr:DescribeImages"]
+    # The rollback workflow resolves an image tag to a digest.
+    # DescribeImages is scoped to the two repositories this project pushes.
+    resources = [
+      aws_ecr_repository.web.arn,
+      aws_ecr_repository.api.arn,
+    ]
   }
 
   statement {
