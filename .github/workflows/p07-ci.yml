@@ -1,0 +1,172 @@
+name: p07 CI
+
+# Runs on every pull request to main, including ones that do not touch this
+# project, so the required check is never left pending. This workflow does not
+# authenticate to AWS.
+
+on:
+  pull_request:
+    branches:
+      - main
+
+# A new push to the same pull request replaces the run already in progress.
+# The required check is the result job on the latest run.
+concurrency:
+  group: p07-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      app: ${{ steps.diff.outputs.app }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Detect Project 07 changes
+        id: diff
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # The repository is public, so this fetch works without persisted
+          # credentials, including for a pull request opened from a fork.
+          git fetch --no-tags --depth=1 origin "${BASE_SHA}"
+          git fetch --no-tags --depth=1 origin "pull/${PR_NUMBER}/head"
+          matched=$(git diff --name-only "${BASE_SHA}" FETCH_HEAD | grep -E '^(projects/07-github-actions-ecs-cicd-pipeline/|\.github/workflows/p07-)' || true)
+          if [[ -n "$matched" ]]; then
+            echo "Project 07 changes:"
+            printf '%s\n' "$matched"
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No Project 07 changes."
+            echo "app=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  test:
+    name: test
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: write # setup-node writes the npm cache; contents: read cannot
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, api]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: projects/07-github-actions-ecs-cicd-pipeline/.nvmrc
+          cache: npm
+          cache-dependency-path: projects/07-github-actions-ecs-cicd-pipeline/apps/${{ matrix.app }}/package-lock.json
+
+      - name: Lint, test, and build
+        env:
+          APP: ${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          cd "projects/07-github-actions-ecs-cicd-pipeline/apps/${APP}"
+          npm ci
+          npm run lint
+          npm test
+          npm run build
+
+  image-scan:
+    name: image-scan
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, api]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build the image
+        env:
+          APP: ${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          docker build --platform linux/amd64 \
+            -t "p07-${APP}:ci" \
+            "projects/07-github-actions-ecs-cicd-pipeline/apps/${APP}"
+
+      - name: Scan the image
+        env:
+          APP: ${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          # Trivy 0.76.1, the same version as the local scans. The digest is
+          # from `docker pull aquasec/trivy:0.76.1` on 2026-11-02. --input
+          # reads a tarball, so this step does not mount the Docker socket.
+          tar="${RUNNER_TEMP}/p07-${APP}.tar"
+          docker save "p07-${APP}:ci" -o "$tar"
+          docker run --rm \
+            -v "${tar}:/image.tar:ro" \
+            aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
+            image --input /image.tar \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --exit-code 1
+
+  p07-ci-result:
+    name: p07-ci-result
+    needs: [changes, test, image-scan]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Fail when a needed job failed or was cancelled
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          TEST: ${{ needs.test.result }}
+          IMAGE_SCAN: ${{ needs.image-scan.result }}
+        run: |
+          set -euo pipefail
+          failed=0
+          report() {
+            local name=$1
+            local result=$2
+            echo "${name}=${result}"
+            case "$result" in
+              success|skipped) ;;
+              *) failed=1 ;;
+            esac
+          }
+          report changes "$CHANGES"
+          report test "$TEST"
+          report image-scan "$IMAGE_SCAN"
+          if [[ "$failed" -ne 0 ]]; then
+            echo "A needed job failed or was cancelled." >&2
+            exit 1
+          fi

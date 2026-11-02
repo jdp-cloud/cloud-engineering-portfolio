@@ -1,0 +1,456 @@
+name: p07 build and deploy
+
+# Builds linux/amd64 images once, deploys that digest to staging, then deploys
+# the same digest to production. Production waits on the production environment's
+# required reviewer. The image is never rebuilt between the two deploys.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - projects/07-github-actions-ecs-cicd-pipeline/**
+      - .github/workflows/p07-build-and-deploy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      id-token: write # OIDC for the ECR push role; this job has no environment
+    # Queue image builds. Deploys use their own groups and are not cancelled.
+    concurrency:
+      group: p07-build
+      cancel-in-progress: false
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      api_image: ${{ steps.push.outputs.api_image }}
+      web_image: ${{ steps.push.outputs.web_image }}
+    steps:
+      - name: Mask the push role ARN
+        env:
+          ROLE_ARN: ${{ vars.P07_ECR_PUSH_ROLE_ARN }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$ROLE_ARN" ]]; then
+            echo "::add-mask::${ROLE_ARN}"
+          fi
+
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.P07_ECR_PUSH_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Compute the version
+        id: meta
+        run: |
+          set -euo pipefail
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "version=v1.0.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        id: push
+        env:
+          SHORT_SHA: ${{ steps.meta.outputs.short_sha }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          set -euo pipefail
+          if [[ "$AWS_REGION" != "us-east-1" ]]; then
+            echo "AWS_REGION must be us-east-1." >&2
+            exit 1
+          fi
+          if [[ -z "$SHORT_SHA" || -z "$VERSION" ]]; then
+            echo "The short sha or version is empty." >&2
+            exit 1
+          fi
+          account=$(aws sts get-caller-identity --query Account --output text)
+          registry="${account}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          echo "::add-mask::${registry}"
+          logged_in=0
+          ensure_login() {
+            if [[ "$logged_in" -eq 0 ]]; then
+              aws ecr get-login-password --region "$AWS_REGION" \
+                | docker login --username AWS --password-stdin "$registry"
+              logged_in=1
+            fi
+          }
+          # The push role has ecr:BatchGetImage and does not have
+          # ecr:DescribeImages. DescribeImages is on the deploy roles, for
+          # rollback. A re-run finds the immutable sha tag and skips the push.
+          push_app() {
+            local app=$1
+            local repo="${registry}/p07-${app}"
+            local tag="sha-${SHORT_SHA}"
+            local digest
+            echo "::add-mask::${repo}"
+            digest=$(aws ecr batch-get-image \
+              --region "$AWS_REGION" \
+              --repository-name "p07-${app}" \
+              --image-ids "imageTag=${tag}" \
+              --query 'images[0].imageId.imageDigest' \
+              --output text)
+            if [[ -n "$digest" && "$digest" != "None" ]]; then
+              echo "p07-${app}: sha tag already exists; reusing the digest and skipping the push."
+            else
+              ensure_login
+              docker buildx build \
+                --platform linux/amd64 \
+                --push \
+                -t "${repo}:${tag}" \
+                -t "${repo}:${VERSION}" \
+                "projects/07-github-actions-ecs-cicd-pipeline/apps/${app}"
+              digest=$(aws ecr batch-get-image \
+                --region "$AWS_REGION" \
+                --repository-name "p07-${app}" \
+                --image-ids "imageTag=${tag}" \
+                --query 'images[0].imageId.imageDigest' \
+                --output text)
+            fi
+            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "ECR did not return a digest for p07-${app}." >&2
+              exit 1
+            fi
+            echo "${app}_image=${repo}@${digest}" >> "$GITHUB_OUTPUT"
+          }
+          push_app api
+          push_app web
+
+  deploy-staging:
+    name: deploy-staging
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: staging
+    concurrency:
+      group: p07-deploy-staging
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write # OIDC for the staging deploy role
+    outputs:
+      api_digest: ${{ steps.deployed.outputs.api_digest }}
+      web_digest: ${{ steps.deployed.outputs.web_digest }}
+    steps:
+      - name: Mask the load balancer DNS and the deploy role
+        env:
+          ALB_DNS: ${{ vars.P07_ALB_DNS }}
+          ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          API_IMAGE: ${{ needs.build.outputs.api_image }}
+          WEB_IMAGE: ${{ needs.build.outputs.web_image }}
+        run: |
+          set -euo pipefail
+          mask() {
+            if [[ -n "$1" ]]; then
+              echo "::add-mask::$1"
+            fi
+          }
+          mask "$ALB_DNS"
+          mask "$ROLE_ARN"
+          mask "${API_IMAGE%%@*}"
+          mask "${WEB_IMAGE%%@*}"
+
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Fetch the live api task definition
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+        run: |
+          set -euo pipefail
+          if [[ "$AWS_REGION" != "us-east-1" ]]; then
+            echo "AWS_REGION must be us-east-1." >&2
+            exit 1
+          fi
+          if ! [[ "$ECS_CLUSTER" =~ ^p07-(staging|production)$ ]]; then
+            echo "ECS_CLUSTER must be p07-staging or p07-production." >&2
+            exit 1
+          fi
+          aws ecs describe-task-definition \
+            --region "$AWS_REGION" \
+            --task-definition "${ECS_CLUSTER}-api" \
+            --query taskDefinition \
+            --output json > "${RUNNER_TEMP}/api-task-definition.json"
+
+      - name: Render the api task definition
+        id: render-api
+        uses: aws-actions/amazon-ecs-render-task-definition@8d79160660ad39c402a16e5fc7cd2a32e8f7d6b7 # v1.9.1
+        with:
+          task-definition: ${{ runner.temp }}/api-task-definition.json
+          container-name: api
+          image: ${{ needs.build.outputs.api_image }}
+          environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
+
+      - name: Deploy the api task definition
+        id: deploy-api
+        uses: aws-actions/amazon-ecs-deploy-task-definition@a00d4d57ac0de1a99b39fe469f3d898d38717c2b # v2.6.4
+        with:
+          task-definition: ${{ steps.render-api.outputs.task-definition }}
+          service: ${{ vars.ECS_CLUSTER }}-api
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: "15"
+
+      - name: Fetch the live web task definition
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+        run: |
+          set -euo pipefail
+          aws ecs describe-task-definition \
+            --region "$AWS_REGION" \
+            --task-definition "${ECS_CLUSTER}-web" \
+            --query taskDefinition \
+            --output json > "${RUNNER_TEMP}/web-task-definition.json"
+
+      - name: Render the web task definition
+        id: render-web
+        uses: aws-actions/amazon-ecs-render-task-definition@8d79160660ad39c402a16e5fc7cd2a32e8f7d6b7 # v1.9.1
+        with:
+          task-definition: ${{ runner.temp }}/web-task-definition.json
+          container-name: web
+          image: ${{ needs.build.outputs.web_image }}
+          environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
+
+      - name: Deploy the web task definition
+        id: deploy-web
+        uses: aws-actions/amazon-ecs-deploy-task-definition@a00d4d57ac0de1a99b39fe469f3d898d38717c2b # v2.6.4
+        with:
+          task-definition: ${{ steps.render-web.outputs.task-definition }}
+          service: ${{ vars.ECS_CLUSTER }}-web
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: "15"
+
+      - name: Read the deployed digests
+        id: deployed
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          API_TD: ${{ steps.deploy-api.outputs.task-definition-arn }}
+          WEB_TD: ${{ steps.deploy-web.outputs.task-definition-arn }}
+        run: |
+          set -euo pipefail
+          echo "::add-mask::${API_TD}"
+          echo "::add-mask::${WEB_TD}"
+          read_digest() {
+            local name=$1
+            local td=$2
+            local image digest
+            image=$(aws ecs describe-task-definition \
+              --region "$AWS_REGION" \
+              --task-definition "$td" \
+              --query "taskDefinition.containerDefinitions[?name=='${name}'].image | [0]" \
+              --output text)
+            digest="${image#*@}"
+            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "The deployed ${name} image is not pinned by digest." >&2
+              exit 1
+            fi
+            echo "${name}_digest=${digest}" >> "$GITHUB_OUTPUT"
+            echo "${name} ${digest}"
+          }
+          read_digest api "$API_TD"
+          read_digest web "$WEB_TD"
+
+      - name: Smoke test
+        env:
+          ALB_DNS: ${{ vars.P07_ALB_DNS }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          projects/07-github-actions-ecs-cicd-pipeline/scripts/smoke-test.sh "$ALB_DNS" "$VERSION"
+
+  deploy-production:
+    name: deploy-production
+    needs: [build, deploy-staging]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: production
+    concurrency:
+      group: p07-deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write # OIDC for the production deploy role
+    steps:
+      - name: Mask the load balancer DNS and the deploy role
+        env:
+          ALB_DNS: ${{ vars.P07_ALB_DNS }}
+          ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          API_IMAGE: ${{ needs.build.outputs.api_image }}
+          WEB_IMAGE: ${{ needs.build.outputs.web_image }}
+        run: |
+          set -euo pipefail
+          mask() {
+            if [[ -n "$1" ]]; then
+              echo "::add-mask::$1"
+            fi
+          }
+          mask "$ALB_DNS"
+          mask "$ROLE_ARN"
+          mask "${API_IMAGE%%@*}"
+          mask "${WEB_IMAGE%%@*}"
+
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Fetch the live api task definition
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+        run: |
+          set -euo pipefail
+          if [[ "$AWS_REGION" != "us-east-1" ]]; then
+            echo "AWS_REGION must be us-east-1." >&2
+            exit 1
+          fi
+          if ! [[ "$ECS_CLUSTER" =~ ^p07-(staging|production)$ ]]; then
+            echo "ECS_CLUSTER must be p07-staging or p07-production." >&2
+            exit 1
+          fi
+          aws ecs describe-task-definition \
+            --region "$AWS_REGION" \
+            --task-definition "${ECS_CLUSTER}-api" \
+            --query taskDefinition \
+            --output json > "${RUNNER_TEMP}/api-task-definition.json"
+
+      - name: Render the api task definition
+        id: render-api
+        uses: aws-actions/amazon-ecs-render-task-definition@8d79160660ad39c402a16e5fc7cd2a32e8f7d6b7 # v1.9.1
+        with:
+          task-definition: ${{ runner.temp }}/api-task-definition.json
+          container-name: api
+          image: ${{ needs.build.outputs.api_image }}
+          environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
+
+      - name: Deploy the api task definition
+        id: deploy-api
+        uses: aws-actions/amazon-ecs-deploy-task-definition@a00d4d57ac0de1a99b39fe469f3d898d38717c2b # v2.6.4
+        with:
+          task-definition: ${{ steps.render-api.outputs.task-definition }}
+          service: ${{ vars.ECS_CLUSTER }}-api
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: "15"
+
+      - name: Fetch the live web task definition
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+        run: |
+          set -euo pipefail
+          aws ecs describe-task-definition \
+            --region "$AWS_REGION" \
+            --task-definition "${ECS_CLUSTER}-web" \
+            --query taskDefinition \
+            --output json > "${RUNNER_TEMP}/web-task-definition.json"
+
+      - name: Render the web task definition
+        id: render-web
+        uses: aws-actions/amazon-ecs-render-task-definition@8d79160660ad39c402a16e5fc7cd2a32e8f7d6b7 # v1.9.1
+        with:
+          task-definition: ${{ runner.temp }}/web-task-definition.json
+          container-name: web
+          image: ${{ needs.build.outputs.web_image }}
+          environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
+
+      - name: Deploy the web task definition
+        id: deploy-web
+        uses: aws-actions/amazon-ecs-deploy-task-definition@a00d4d57ac0de1a99b39fe469f3d898d38717c2b # v2.6.4
+        with:
+          task-definition: ${{ steps.render-web.outputs.task-definition }}
+          service: ${{ vars.ECS_CLUSTER }}-web
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: "15"
+
+      - name: Read the deployed digests
+        id: deployed
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          API_TD: ${{ steps.deploy-api.outputs.task-definition-arn }}
+          WEB_TD: ${{ steps.deploy-web.outputs.task-definition-arn }}
+        run: |
+          set -euo pipefail
+          echo "::add-mask::${API_TD}"
+          echo "::add-mask::${WEB_TD}"
+          read_digest() {
+            local name=$1
+            local td=$2
+            local image digest
+            image=$(aws ecs describe-task-definition \
+              --region "$AWS_REGION" \
+              --task-definition "$td" \
+              --query "taskDefinition.containerDefinitions[?name=='${name}'].image | [0]" \
+              --output text)
+            digest="${image#*@}"
+            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "The deployed ${name} image is not pinned by digest." >&2
+              exit 1
+            fi
+            echo "${name}_digest=${digest}" >> "$GITHUB_OUTPUT"
+            echo "${name} ${digest}"
+          }
+          read_digest api "$API_TD"
+          read_digest web "$WEB_TD"
+
+      - name: Compare staging and production digests
+        env:
+          STAGING_API: ${{ needs.deploy-staging.outputs.api_digest }}
+          STAGING_WEB: ${{ needs.deploy-staging.outputs.web_digest }}
+          PROD_API: ${{ steps.deployed.outputs.api_digest }}
+          PROD_WEB: ${{ steps.deployed.outputs.web_digest }}
+        run: |
+          set -euo pipefail
+          {
+            echo "api"
+            echo "  staging     ${STAGING_API}"
+            echo "  production  ${PROD_API}"
+            echo "web"
+            echo "  staging     ${STAGING_WEB}"
+            echo "  production  ${PROD_WEB}"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          if [[ "$STAGING_API" != "$PROD_API" || "$STAGING_WEB" != "$PROD_WEB" ]]; then
+            echo "Staging and production are not running the same digests." >&2
+            exit 1
+          fi
+
+      - name: Smoke test
+        env:
+          ALB_DNS: ${{ vars.P07_ALB_DNS }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          projects/07-github-actions-ecs-cicd-pipeline/scripts/smoke-test.sh "$ALB_DNS" "$VERSION"

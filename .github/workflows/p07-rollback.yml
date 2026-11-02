@@ -1,0 +1,353 @@
+name: p07 rollback
+
+# Rolls staging or production back without building an image.
+# Leave image_tag empty to return to the newest older ACTIVE revision.
+# Set image_tag to resolve that ECR tag to a digest and deploy it.
+# Production uses the production environment, so the required reviewer applies.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to roll back
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      service:
+        description: Service to roll back
+        required: true
+        type: choice
+        options:
+          - web
+          - api
+          - both
+      image_tag:
+        description: ECR image tag to deploy. Leave empty to return to the previous ACTIVE revision.
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    name: rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: p07-deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write # OIDC for the selected environment's deploy role
+    steps:
+      - name: Mask the load balancer DNS and the deploy role
+        env:
+          ALB_DNS: ${{ vars.P07_ALB_DNS }}
+          ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$ALB_DNS" ]]; then
+            echo "::add-mask::${ALB_DNS}"
+          fi
+          if [[ -n "$ROLE_ARN" ]]; then
+            echo "::add-mask::${ROLE_ARN}"
+          fi
+
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Roll back to the previous revision
+        if: success() && inputs.image_tag == ''
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          SERVICE: ${{ inputs.service }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+        run: |
+          set -euo pipefail
+          case "$ENVIRONMENT" in
+            staging|production) ;;
+            *) echo "environment must be staging or production." >&2; exit 1 ;;
+          esac
+          case "$SERVICE" in
+            web|api|both) ;;
+            *) echo "service must be web, api, or both." >&2; exit 1 ;;
+          esac
+          if [[ "$AWS_REGION" != "us-east-1" ]]; then
+            echo "AWS_REGION must be us-east-1." >&2
+            exit 1
+          fi
+          if [[ "$ECS_CLUSTER" != "p07-${ENVIRONMENT}" ]]; then
+            echo "ECS_CLUSTER does not match the selected environment." >&2
+            exit 1
+          fi
+          selected=()
+          if [[ "$SERVICE" == "api" || "$SERVICE" == "both" ]]; then
+            selected+=(api)
+          fi
+          if [[ "$SERVICE" == "web" || "$SERVICE" == "both" ]]; then
+            selected+=(web)
+          fi
+          # Resolve every target before updating either service. A missing
+          # revision then fails before api has moved and web has not.
+          targets=()
+          froms=()
+          tos=()
+          for svc in "${selected[@]}"; do
+            family="${ECS_CLUSTER}-${svc}"
+            current=$(aws ecs describe-services \
+              --region "$AWS_REGION" \
+              --cluster "$ECS_CLUSTER" \
+              --services "$family" \
+              --query 'services[0].taskDefinition' \
+              --output text)
+            if [[ -z "$current" || "$current" == "None" ]]; then
+              echo "Service ${family} has no task definition." >&2
+              exit 1
+            fi
+            from_rev="${current##*:}"
+            arn_text=$(aws ecs list-task-definitions \
+              --region "$AWS_REGION" \
+              --family-prefix "$family" \
+              --status ACTIVE \
+              --sort DESC \
+              --query 'taskDefinitionArns[]' \
+              --output text)
+            mapfile -t arns < <(printf '%s\n' "$arn_text" | tr '\t' '\n' | sed '/^$/d')
+            target=""
+            for arn in "${arns[@]}"; do
+              case "$arn" in
+                */"${family}":*) ;;
+                *) continue ;;
+              esac
+              rev="${arn##*:}"
+              if [[ "$rev" -lt "$from_rev" ]]; then
+                target=$arn
+                break
+              fi
+            done
+            if [[ -z "$target" ]]; then
+              echo "No ACTIVE revision of ${family} is older than revision ${from_rev}." >&2
+              exit 1
+            fi
+            targets+=("$target")
+            froms+=("$from_rev")
+            tos+=("${target##*:}")
+          done
+          {
+            echo "### Rollback"
+            echo ""
+            echo "| Service | From revision | To revision | Image digest |"
+            echo "| --- | --- | --- | --- |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for i in "${!selected[@]}"; do
+            svc=${selected[$i]}
+            family="${ECS_CLUSTER}-${svc}"
+            target=${targets[$i]}
+            from_rev=${froms[$i]}
+            to_rev=${tos[$i]}
+            aws ecs update-service \
+              --region "$AWS_REGION" \
+              --cluster "$ECS_CLUSTER" \
+              --service "$family" \
+              --task-definition "$target" \
+              --query 'service.serviceName' \
+              --output text >/dev/null
+            aws ecs wait services-stable \
+              --region "$AWS_REGION" \
+              --cluster "$ECS_CLUSTER" \
+              --services "$family"
+            image=$(aws ecs describe-task-definition \
+              --region "$AWS_REGION" \
+              --task-definition "$target" \
+              --query "taskDefinition.containerDefinitions[?name=='${svc}'].image | [0]" \
+              --output text)
+            digest="${image#*@}"
+            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "Revision ${to_rev} of ${family} is not pinned by digest." >&2
+              exit 1
+            fi
+            echo "| ${svc} | ${from_rev} | ${to_rev} | ${digest} |" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Resolve the image tag and fetch the live task definition
+        id: resolve
+        if: success() && inputs.image_tag != ''
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          SERVICE: ${{ inputs.service }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+        run: |
+          set -euo pipefail
+          case "$ENVIRONMENT" in
+            staging|production) ;;
+            *) echo "environment must be staging or production." >&2; exit 1 ;;
+          esac
+          case "$SERVICE" in
+            web|api|both) ;;
+            *) echo "service must be web, api, or both." >&2; exit 1 ;;
+          esac
+          if [[ "$AWS_REGION" != "us-east-1" ]]; then
+            echo "AWS_REGION must be us-east-1." >&2
+            exit 1
+          fi
+          if [[ "$ECS_CLUSTER" != "p07-${ENVIRONMENT}" ]]; then
+            echo "ECS_CLUSTER does not match the selected environment." >&2
+            exit 1
+          fi
+          if ! [[ "$IMAGE_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
+            echo "image_tag is not a valid ECR tag." >&2
+            exit 1
+          fi
+          account=$(aws sts get-caller-identity --query Account --output text)
+          registry="${account}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          echo "::add-mask::${registry}"
+          resolve_one() {
+            local svc=$1
+            local family="${ECS_CLUSTER}-${svc}"
+            local current from digest
+            current=$(aws ecs describe-services \
+              --region "$AWS_REGION" \
+              --cluster "$ECS_CLUSTER" \
+              --services "$family" \
+              --query 'services[0].taskDefinition' \
+              --output text)
+            if [[ -z "$current" || "$current" == "None" ]]; then
+              echo "Service ${family} has no task definition." >&2
+              exit 1
+            fi
+            from="${current##*:}"
+            if ! digest=$(aws ecr describe-images \
+              --region "$AWS_REGION" \
+              --repository-name "p07-${svc}" \
+              --image-ids "imageTag=${IMAGE_TAG}" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text); then
+              echo "No image with that tag in p07-${svc}." >&2
+              exit 1
+            fi
+            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "ECR did not return a digest for p07-${svc}." >&2
+              exit 1
+            fi
+            aws ecs describe-task-definition \
+              --region "$AWS_REGION" \
+              --task-definition "$family" \
+              --query taskDefinition \
+              --output json > "${RUNNER_TEMP}/${svc}-task-definition.json"
+            {
+              echo "${svc}_from=${from}"
+              echo "${svc}_digest=${digest}"
+              echo "${svc}_image=${registry}/p07-${svc}@${digest}"
+            } >> "$GITHUB_OUTPUT"
+          }
+          if [[ "$SERVICE" == "api" || "$SERVICE" == "both" ]]; then
+            resolve_one api
+          fi
+          if [[ "$SERVICE" == "web" || "$SERVICE" == "both" ]]; then
+            resolve_one web
+          fi
+
+      - name: Render the api task definition
+        id: render-api
+        if: success() && inputs.image_tag != '' && (inputs.service == 'api' || inputs.service == 'both')
+        uses: aws-actions/amazon-ecs-render-task-definition@8d79160660ad39c402a16e5fc7cd2a32e8f7d6b7 # v1.9.1
+        with:
+          task-definition: ${{ runner.temp }}/api-task-definition.json
+          container-name: api
+          image: ${{ steps.resolve.outputs.api_image }}
+          environment-variables: APP_VERSION=${{ inputs.image_tag }}
+
+      - name: Deploy the api task definition
+        id: deploy-api
+        if: success() && inputs.image_tag != '' && (inputs.service == 'api' || inputs.service == 'both')
+        uses: aws-actions/amazon-ecs-deploy-task-definition@a00d4d57ac0de1a99b39fe469f3d898d38717c2b # v2.6.4
+        with:
+          task-definition: ${{ steps.render-api.outputs.task-definition }}
+          service: ${{ vars.ECS_CLUSTER }}-api
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: "15"
+
+      - name: Render the web task definition
+        id: render-web
+        if: success() && inputs.image_tag != '' && (inputs.service == 'web' || inputs.service == 'both')
+        uses: aws-actions/amazon-ecs-render-task-definition@8d79160660ad39c402a16e5fc7cd2a32e8f7d6b7 # v1.9.1
+        with:
+          task-definition: ${{ runner.temp }}/web-task-definition.json
+          container-name: web
+          image: ${{ steps.resolve.outputs.web_image }}
+          environment-variables: APP_VERSION=${{ inputs.image_tag }}
+
+      - name: Deploy the web task definition
+        id: deploy-web
+        if: success() && inputs.image_tag != '' && (inputs.service == 'web' || inputs.service == 'both')
+        uses: aws-actions/amazon-ecs-deploy-task-definition@a00d4d57ac0de1a99b39fe469f3d898d38717c2b # v2.6.4
+        with:
+          task-definition: ${{ steps.render-web.outputs.task-definition }}
+          service: ${{ vars.ECS_CLUSTER }}-web
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: "15"
+
+      - name: Write the rollback summary
+        if: success() && inputs.image_tag != ''
+        env:
+          SERVICE: ${{ inputs.service }}
+          API_FROM: ${{ steps.resolve.outputs.api_from }}
+          WEB_FROM: ${{ steps.resolve.outputs.web_from }}
+          API_DIGEST: ${{ steps.resolve.outputs.api_digest }}
+          WEB_DIGEST: ${{ steps.resolve.outputs.web_digest }}
+          API_TO: ${{ steps.deploy-api.outputs.task-definition-arn }}
+          WEB_TO: ${{ steps.deploy-web.outputs.task-definition-arn }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$API_TO" ]]; then
+            echo "::add-mask::${API_TO}"
+          fi
+          if [[ -n "$WEB_TO" ]]; then
+            echo "::add-mask::${WEB_TO}"
+          fi
+          {
+            echo "### Rollback"
+            echo ""
+            echo "| Service | From revision | To revision | Image digest |"
+            echo "| --- | --- | --- | --- |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          row() {
+            local svc=$1
+            local from=$2
+            local to_arn=$3
+            local digest=$4
+            local to="${to_arn##*:}"
+            echo "| ${svc} | ${from} | ${to} | ${digest} |" >> "$GITHUB_STEP_SUMMARY"
+          }
+          case "$SERVICE" in
+            api|both) row api "$API_FROM" "$API_TO" "$API_DIGEST" ;;
+          esac
+          case "$SERVICE" in
+            web|both) row web "$WEB_FROM" "$WEB_TO" "$WEB_DIGEST" ;;
+          esac
+
+      - name: Smoke test
+        env:
+          ALB_DNS: ${{ vars.P07_ALB_DNS }}
+        run: |
+          set -euo pipefail
+          projects/07-github-actions-ecs-cicd-pipeline/scripts/smoke-test.sh "$ALB_DNS" any
