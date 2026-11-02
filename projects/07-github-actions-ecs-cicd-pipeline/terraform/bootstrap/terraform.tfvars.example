@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars. That file is gitignored. Do not commit a real address.
+budget_alert_email = "you@example.com"
+
+# Leave false. The GitHub OIDC provider already exists and is shared.
+# This stack only looks it up. terraform destroy must not delete it.
+create_github_oidc_provider = false

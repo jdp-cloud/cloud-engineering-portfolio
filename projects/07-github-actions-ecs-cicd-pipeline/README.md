@@ -1,6 +1,6 @@
 # GitHub Actions to ECS CI/CD pipeline
 
-Phase 1 is two small services and a local nginx stand-in for the load balancer path split. Terraform, GitHub Actions, and the portfolio write-up come in later phases. Nothing in this folder has been deployed to AWS.
+Phase 1 is two small services and a local nginx stand-in for the load balancer path split. Phase 2 adds Terraform under `terraform/`. It has not been applied. GitHub Actions and the portfolio write-up come in later phases. Nothing in this folder has been deployed to AWS.
 
 A small SaaS company runs a Next.js web app and a Node.js API. They deploy by hand from a laptop. This project is a working reference for a pipeline the whole team can run. The pipeline itself is not in the repo yet.
 
@@ -16,6 +16,8 @@ A small SaaS company runs a Next.js web app and a Node.js API. They deploy by ha
 | `apps/api` | Express API. `GET /health` and `GET /api/health` return `{ "status": "ok", "version": "<APP_VERSION>" }`. `GET /api/hello` returns `{ "message": "<GREETING>" }`. Missing values fall back to `dev` and `hello`. |
 | `apps/web` | Next.js app, `output: "standalone"`. The page shows `APP_VERSION` and the browser calls `/api/hello`. `GET /healthz` returns `{ "status": "ok", "version": "<APP_VERSION>" }`. |
 | `apps/docker-compose.yml` | Local only. nginx sends `/api/` to the API and everything else to web, on `127.0.0.1:8080`. |
+| `terraform/` | Bootstrap (roles, ECR, budget) and the staging and production stacks. Not applied. The GitHub OIDC provider is looked up, not created. |
+| `docs/first-deploy-order.md` | Order of operations: bootstrap, first image push, staging, production, then teardown. |
 
 `APP_VERSION` and `GREETING` are read when a request arrives. They are not written into the image at build time.
 

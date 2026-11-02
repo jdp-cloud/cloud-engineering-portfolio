@@ -99,6 +99,42 @@ Project 06's Terraform (`terraform/main.tf`, one S3 bucket with a KMS key) is a 
 
 These are production features that a scan target does not need. They are listed here and left unfixed.
 
+## Project 07: Terraform (not applied)
+
+Scanned locally on 2026-11-02 with Checkov 3.4.2, Terraform framework, `--download-external-modules false`. Nothing in this project has been applied.
+
+| Root | Passed | Failed | Skipped |
+| --- | --- | --- | --- |
+| `terraform/bootstrap` | 92 | 0 | 2 |
+| `terraform/envs/staging` | 88 | 6 | 13 |
+| `terraform/envs/production` | 88 | 6 | 13 |
+
+`checkov -d projects/07-github-actions-ecs-cicd-pipeline/terraform` in one shot printed **181 passed, 6 failed, 23 skipped** (42 resources). That walk does not add the two environments. Staging and production are the same module, and the per-root rows above are the counts for each stack. The one-shot skipped count is higher than one environment because Checkov records some inline skips twice.
+
+Bootstrap's two skips are `CKV_AWS_136` on `p07-web` and `p07-api`. Each environment's 13 skips are the rows below. `force_delete = true` on the repositories did not produce a check in 3.4.2, so there is no skip for it. The reason is the comment on the resource: destroy has to delete a repository that still holds images.
+
+### Skipped on purpose (inline `checkov:skip`)
+
+| Finding | Checks | Why it is there |
+| --- | --- | --- |
+| HTTP listener, HTTP target groups, no TLS policy, no redirect to HTTPS, port 80 open to the allowed CIDR (the lab default is `0.0.0.0/0`) | `CKV_AWS_2`, `CKV_AWS_103`, `CKV_AWS_378`, `CKV2_AWS_20`, `CKV_AWS_260` | No domain or certificate. A production version would terminate TLS on the load balancer. |
+| Tasks get a public IP | `CKV_AWS_333` | No NAT. Tasks reach ECR, SSM, and CloudWatch over HTTPS from that address. |
+| No WAF on the public load balancer | `CKV2_AWS_28` | Extra cost for a demo listener. |
+| Load balancer access logging off | `CKV_AWS_91` | Would need a log bucket. |
+| No customer-managed key on ECR, the log groups, or the example SecureString | `CKV_AWS_136`, `CKV_AWS_158`, `CKV_AWS_337` | ECR is AES256. Log groups use the AWS-owned key. `EXAMPLE_SECRET` uses the AWS-managed `aws/ssm` key. The execution role has no `kms:Decrypt` for that reason. |
+
+### Recorded, not skipped
+
+These stay as failures. They are not in the set of trade-offs this lab suppresses in code.
+
+| Finding | Checks | Count per environment | Why it stays a failure |
+| --- | --- | --- | --- |
+| VPC flow logs off | `CKV2_AWS_11` | 1 | Not built. Adding them is a later logging change, not a skip. |
+| Load balancer deletion protection off | `CKV_AWS_150` | 1 | Off so `terraform destroy` can remove the lab. |
+| Log retention is 7 days, not 365 | `CKV_AWS_338` | 2 | The stack requires 7 days. The check wants a year. |
+| Container Insights off | `CKV_AWS_65` | 1 | Off to avoid the metric charge for two tasks. |
+| `GREETING` is a `String` parameter | `CKV2_AWS_34` | 1 | It is the default greeting, not a secret. `EXAMPLE_SECRET` is the SecureString. |
+
 ## Projects 01 and 02: Kubernetes (18 failed checks)
 
 Both are local Minikube labs, not production deployments. 17 findings are in the Splunk StatefulSet and pod (project 01). One is the demo ConfigMap in project 02, which uses the `default` namespace.
