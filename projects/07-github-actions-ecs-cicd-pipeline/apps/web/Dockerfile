@@ -15,7 +15,6 @@ FROM node@sha256:c86ecead9e55a5210ac1727de38a4ca840bf03dcaf34dc9749addbf383b1920
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    HOSTNAME=0.0.0.0 \
     PORT=3000
 # Standalone output already contains the traced production dependencies.
 # Files stay root-owned. The node user can read them and cannot change them.
@@ -30,4 +29,9 @@ USER node
 EXPOSE 3000
 HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=10 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:3000/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-CMD ["node", "server.js"]
+# HOSTNAME is set here, not with an image ENV. On Fargate the runtime overrides
+# an image ENV HOSTNAME with the task hostname. The Next.js standalone server
+# then listens only on that address, and the container health check against
+# 127.0.0.1:3000 fails. /usr/bin/env applies this value for node and execs it,
+# so node still receives SIGTERM directly.
+CMD ["/usr/bin/env", "HOSTNAME=0.0.0.0", "node", "server.js"]

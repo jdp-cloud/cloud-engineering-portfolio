@@ -122,6 +122,44 @@ jobs:
             -t "p07-${APP}:ci" \
             "projects/07-github-actions-ecs-cicd-pipeline/apps/${APP}"
 
+      - name: Prove the container health check
+        env:
+          APP: ${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          # Fargate overrides an image ENV HOSTNAME with the task hostname.
+          # The server must still pass its container health check on 127.0.0.1.
+          name="p07-${APP}-health"
+          docker rm -f "$name" >/dev/null 2>&1 || true
+          args=(
+            -d
+            --name "$name"
+            -e HOSTNAME=ip-10-70-0-37.ec2.internal
+            -e APP_VERSION=ci
+          )
+          if [[ "$APP" == "api" ]]; then
+            args+=(-e GREETING=ci)
+          fi
+          docker run "${args[@]}" "p07-${APP}:ci"
+          deadline=$((SECONDS + 60))
+          status="starting"
+          while [[ "$SECONDS" -lt "$deadline" ]]; do
+            status="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$name")"
+            echo "health=${status}"
+            if [[ "$status" == "healthy" ]]; then
+              docker rm -f "$name" >/dev/null
+              exit 0
+            fi
+            if [[ "$status" == "unhealthy" ]]; then
+              break
+            fi
+            sleep 2
+          done
+          echo "container did not become healthy (last status: ${status})" >&2
+          docker logs "$name" >&2 || true
+          docker rm -f "$name" >/dev/null || true
+          exit 1
+
       - name: Scan the image
         env:
           APP: ${{ matrix.app }}
