@@ -6,10 +6,10 @@ The runtime stages delete npm, npx, and corepack. The process never calls npm, a
 
 ## Phase 3 CI gate
 
-The pipeline will run Trivy on the built images and fail the job when a fixable finding is HIGH or CRITICAL:
+The `image-scan` job in `.github/workflows/p07-ci.yml` builds each image and scans the tarball with Trivy 0.76.1. The scanner is `aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c`, the digest `docker pull aquasec/trivy:0.76.1` printed on 2026-11-02. The job runs:
 
 ```bash
-trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 <image>
+trivy image --input <tarball> --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1
 ```
 
 `--exit-code 1` makes any remaining HIGH or CRITICAL finding fail the job. `--ignore-unfixed` keeps that gate on vulnerabilities that already have a fixed version.

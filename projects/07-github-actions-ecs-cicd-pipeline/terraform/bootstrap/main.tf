@@ -6,8 +6,7 @@ locals {
 
   # Environment jobs get sub repo:ORG/REPO:environment:NAME. That sub does
   # not contain the branch, so these policies do not limit deploys to main.
-  # GitHub environment branch rules do. The write-up of those rules belongs
-  # in the Phase 3 github-setup notes.
+  # GitHub environment branch rules do. Those rules are in docs/github-setup.md.
   staging_sub    = "repo:${local.github_repo}:environment:staging"
   production_sub = "repo:${local.github_repo}:environment:production"
 

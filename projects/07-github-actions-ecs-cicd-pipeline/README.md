@@ -1,13 +1,14 @@
 # GitHub Actions to ECS CI/CD pipeline
 
-Phase 1 is two small services and a local nginx stand-in for the load balancer path split. Phase 2 adds Terraform under `terraform/`. It has not been applied. GitHub Actions and the portfolio write-up come in later phases. Nothing in this folder has been deployed to AWS.
+Phase 1 is two small services and a local nginx stand-in for the load balancer path split. Phase 2 is Terraform under `terraform/`. Phase 3 is the workflows `.github/workflows/p07-ci.yml`, `p07-build-and-deploy.yml`, and `p07-rollback.yml`. The portfolio write-up comes later.
 
-A small SaaS company runs a Next.js web app and a Node.js API. They deploy by hand from a laptop. This project is a working reference for a pipeline the whole team can run. The pipeline itself is not in the repo yet.
+A small SaaS company runs a Next.js web app and a Node.js API. They deploy by hand from a laptop. This project is a working reference for a pipeline the whole team can run. The clicks for environments, variables, and the required check are in `docs/github-setup.md`.
 
-## TODO before Phase 3
+## TODO before the first merge
 
-1. Upgrade `next` from 16.4.4 to the Next.js security release scheduled for November 3, 2026 before any image from this project is pushed or deployed. That release covers seven medium vulnerabilities. Do this before Phase 3 deploys anything to AWS.
-2. Smoke tests must call `/healthz` and `/api/health` through the ALB, and both `version` fields must match the deployed image tag. The ALB sends `/api/*` to the API and every other path to web, so `/health` on the public URL lands on web. The API route `GET /health` is only for the target group health check, which hits the task directly. `/api/health` returns the same body on a path the ALB sends to the API.
+Upgrade `next` and `eslint-config-next` from 16.4.4 to the Next.js security release scheduled for November 3, 2026 before any image from this project is pushed or deployed. That release covers seven medium vulnerabilities. Checked 2026-11-02: `npm view next dist-tags.latest` is still 16.4.4, so the pin stays. Do not merge to main until that release is in.
+
+The deploy workflow runs `scripts/smoke-test.sh` against the load balancer. It calls `/healthz` and `/api/health`, and both `version` fields must match `v1.0.<run number>`. Rollback passes `any`, which only checks that the two versions match each other. The ALB sends `/api/*` to the API and every other path to web, so `/health` on the public URL lands on web. The API route `GET /health` is only for the target group health check, which hits the task directly. `/api/health` returns the same body on a path the ALB sends to the API.
 
 ## What is here
 
@@ -16,8 +17,9 @@ A small SaaS company runs a Next.js web app and a Node.js API. They deploy by ha
 | `apps/api` | Express API. `GET /health` and `GET /api/health` return `{ "status": "ok", "version": "<APP_VERSION>" }`. `GET /api/hello` returns `{ "message": "<GREETING>" }`. Missing values fall back to `dev` and `hello`. |
 | `apps/web` | Next.js app, `output: "standalone"`. The page shows `APP_VERSION` and the browser calls `/api/hello`. `GET /healthz` returns `{ "status": "ok", "version": "<APP_VERSION>" }`. |
 | `apps/docker-compose.yml` | Local only. nginx sends `/api/` to the API and everything else to web, on `127.0.0.1:8080`. |
-| `terraform/` | Bootstrap (roles, ECR, budget) and the staging and production stacks. Not applied. The GitHub OIDC provider is looked up, not created. |
-| `docs/first-deploy-order.md` | Order of operations: bootstrap, first image push, staging, production, then teardown. |
+| `terraform/` | Bootstrap (roles, ECR, budget) and the staging and production stacks. Bootstrap is applied. Apply both environments before the first merge. The GitHub OIDC provider is looked up, not created. |
+| `docs/first-deploy-order.md` | Order of operations: bootstrap, first image push, staging, production, GitHub setup, then teardown. |
+| `docs/github-setup.md` | Environments, variables, and the `p07-ci-result` ruleset. |
 
 `APP_VERSION` and `GREETING` are read when a request arrives. They are not written into the image at build time.
 

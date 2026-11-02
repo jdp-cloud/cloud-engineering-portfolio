@@ -1,6 +1,6 @@
 # First deploy order
 
-Terraform is in the repo. Nothing in this project has been applied.
+Terraform is in the repo. Bootstrap is already applied. Staging and production are applied before the first merge to main.
 
 Apply bootstrap, push the first images, then apply staging, then production. Staging and production both need an image digest. They have no default image.
 
@@ -56,7 +56,7 @@ This was done on 2026-11-02. `Project` is Status Active. Spend from before that 
 
 ## 2. Push the first images
 
-Phase 3 is what will use `p07-gha-ecr-push`. This push uses your own AWS credentials. Build `linux/amd64`. The task definition is `X86_64`, and an Apple Silicon build without `--platform` will not start on Fargate.
+Later pushes use the `p07-gha-ecr-push` role from the build workflow. This first push uses your own AWS credentials, so the task definitions have a digest before that workflow runs. Build `linux/amd64`. The task definition is `X86_64`, and an Apple Silicon build without `--platform` will not start on Fargate.
 
 Tags are immutable. Use a new tag if you push again. The task definition stores the digest, not the tag.
 
@@ -127,6 +127,18 @@ aws logs filter-log-events --region us-east-1 \
 ```
 
 Pass the target group ARNs from the second command to `aws elbv2 describe-target-health --target-group-arn`.
+
+## 4. Before the first merge to main
+
+The deploy workflow on main updates both environments. It reads the live task definition and registers a new revision. It does not create the cluster, the services, or the load balancer. Do these before merging that workflow to main.
+
+Apply production with the same seed digests used for staging. The commands are in section 3.
+
+If `allowed_ingress_cidrs` was narrowed to your IP, remove that line from `terraform.tfvars` and apply. Do this in staging and in production if both were narrowed. With the line removed, the variable uses its default, `0.0.0.0/0`. GitHub-hosted runners are not on a home IP, and the smoke test calls the load balancer from the runner.
+
+Apply the bootstrap update that adds `ecr:DescribeImages` on the two deploy roles before using rollback with an image tag. The next bootstrap plan shows an in-place change on each deploy role policy. The forecast notification on the budget, if it is still pending, is the separate update described in section 1. Rolling back to the previous revision does not need `DescribeImages`.
+
+Set up the GitHub environments, variables, and the main branch ruleset in `docs/github-setup.md`.
 
 ## Teardown
 
