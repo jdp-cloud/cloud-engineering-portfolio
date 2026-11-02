@@ -16,9 +16,10 @@ WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3001
 COPY package.json package-lock.json ./
-# Production dependencies only. The TypeScript build already happened above.
-RUN npm ci --omit=dev && npm cache clean --force
-COPY --from=build --chown=node:node /app/dist ./dist
+# Production dependencies only, root-owned, so the node user can read them and cannot change them.
+# --ignore-scripts: this image does not need package install scripts.
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY --from=build /app/dist ./dist
 USER node
 EXPOSE 3001
 HEALTHCHECK --interval=5s --timeout=3s --start-period=5s --retries=10 \

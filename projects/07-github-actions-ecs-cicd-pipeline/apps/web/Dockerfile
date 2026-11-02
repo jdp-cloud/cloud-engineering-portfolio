@@ -18,9 +18,12 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PORT=3000
 # Standalone output already contains the traced production dependencies.
-COPY --from=build --chown=node:node /app/.next/standalone ./
-COPY --from=build --chown=node:node /app/.next/static ./.next/static
-COPY --from=build --chown=node:node /app/public ./public
+# Files stay root-owned. The node user can read them and cannot change them.
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+# Next writes image and fetch cache here at runtime. This directory is the only one node owns.
+RUN mkdir -p /app/.next/cache && chown node:node /app/.next/cache
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=10 \
