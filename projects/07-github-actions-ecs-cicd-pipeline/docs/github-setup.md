@@ -61,11 +61,16 @@ terraform -chdir=projects/07-github-actions-ecs-cicd-pipeline/terraform/envs/pro
 
 ## Branch ruleset
 
+Create this ruleset after the Project 07 pull request is open and `p07-ci` has finished once, and before that pull request is merged. The check name is not in the picker until that run exists.
+
 1. Settings → Rules → Rulesets → New ruleset → New branch ruleset.
 2. Ruleset name: `main`. Enforcement status: Active.
 3. Leave the bypass list empty.
 4. Target branches → Add target → Include default branch. The default branch is `main`.
-5. Enable Require status checks to pass.
-6. Add the check named `p07-ci-result`.
+5. Enable Require a pull request before merging. Set Required approvals to 0.
+6. Enable Require status checks to pass.
+7. Add the check named `p07-ci-result`.
 
-That name is the `p07-ci-result` job in the workflow "p07 CI". The search box lists it after the workflow has run once on a pull request. The job runs on every pull request to main, including one that does not change Project 07, so the check does not stay pending. Do not require `changes`, `test`, or `image-scan`. Those are skipped when the pull request does not touch this project, and a skipped required check would block the merge.
+Require a pull request before merging, even with zero approvals, because a direct push to main does not run a `pull_request` workflow. Without that rule, a push to main skips `p07-ci`.
+
+`p07-ci-result` is the job of that name in the workflow "p07 CI". It runs on every pull request to main, including one that does not change Project 07, so the check does not stay pending. Do not require `changes`, `test`, or `image-scan`. Those are skipped when the pull request does not touch this project, and a skipped required check would block the merge.

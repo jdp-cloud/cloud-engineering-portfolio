@@ -28,10 +28,12 @@ jobs:
     concurrency:
       group: p07-build
       cancel-in-progress: false
+    # Digests only. A job output that contains the masked registry is dropped,
+    # so the deploy jobs would receive an empty image.
     outputs:
       version: ${{ steps.meta.outputs.version }}
-      api_image: ${{ steps.push.outputs.api_image }}
-      web_image: ${{ steps.push.outputs.web_image }}
+      api_digest: ${{ steps.push.outputs.api_digest }}
+      web_digest: ${{ steps.push.outputs.web_digest }}
     steps:
       - name: Mask the push role ARN
         env:
@@ -124,7 +126,7 @@ jobs:
               echo "ECR did not return a digest for p07-${app}." >&2
               exit 1
             fi
-            echo "${app}_image=${repo}@${digest}" >> "$GITHUB_OUTPUT"
+            echo "${app}_digest=${digest}" >> "$GITHUB_OUTPUT"
           }
           push_app api
           push_app web
@@ -149,19 +151,14 @@ jobs:
         env:
           ALB_DNS: ${{ vars.P07_ALB_DNS }}
           ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          API_IMAGE: ${{ needs.build.outputs.api_image }}
-          WEB_IMAGE: ${{ needs.build.outputs.web_image }}
         run: |
           set -euo pipefail
-          mask() {
-            if [[ -n "$1" ]]; then
-              echo "::add-mask::$1"
-            fi
-          }
-          mask "$ALB_DNS"
-          mask "$ROLE_ARN"
-          mask "${API_IMAGE%%@*}"
-          mask "${WEB_IMAGE%%@*}"
+          if [[ -n "$ALB_DNS" ]]; then
+            echo "::add-mask::${ALB_DNS}"
+          fi
+          if [[ -n "$ROLE_ARN" ]]; then
+            echo "::add-mask::${ROLE_ARN}"
+          fi
 
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -174,6 +171,33 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
           mask-aws-account-id: true
+
+      # Step outputs stay inside this job, so GitHub does not drop the URI.
+      # mask-aws-account-id already masked the account. Mask the registry too.
+      - name: Build the image URIs
+        id: images
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          API_DIGEST: ${{ needs.build.outputs.api_digest }}
+          WEB_DIGEST: ${{ needs.build.outputs.web_digest }}
+        run: |
+          set -euo pipefail
+          if [[ "$AWS_REGION" != "us-east-1" ]]; then
+            echo "AWS_REGION must be us-east-1." >&2
+            exit 1
+          fi
+          account=$(aws sts get-caller-identity --query Account --output text)
+          registry="${account}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          echo "::add-mask::${registry}"
+          echo "::add-mask::${registry}/p07-api"
+          echo "::add-mask::${registry}/p07-web"
+          uri=projects/07-github-actions-ecs-cicd-pipeline/scripts/image-uri.sh
+          api_image=$("$uri" "$registry" api "$API_DIGEST")
+          web_image=$("$uri" "$registry" web "$WEB_DIGEST")
+          {
+            echo "api_image=${api_image}"
+            echo "web_image=${web_image}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Fetch the live api task definition
         env:
@@ -201,7 +225,7 @@ jobs:
         with:
           task-definition: ${{ runner.temp }}/api-task-definition.json
           container-name: api
-          image: ${{ needs.build.outputs.api_image }}
+          image: ${{ steps.images.outputs.api_image }}
           environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
 
       - name: Deploy the api task definition
@@ -232,7 +256,7 @@ jobs:
         with:
           task-definition: ${{ runner.temp }}/web-task-definition.json
           container-name: web
-          image: ${{ needs.build.outputs.web_image }}
+          image: ${{ steps.images.outputs.web_image }}
           environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
 
       - name: Deploy the web task definition
@@ -300,19 +324,14 @@ jobs:
         env:
           ALB_DNS: ${{ vars.P07_ALB_DNS }}
           ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          API_IMAGE: ${{ needs.build.outputs.api_image }}
-          WEB_IMAGE: ${{ needs.build.outputs.web_image }}
         run: |
           set -euo pipefail
-          mask() {
-            if [[ -n "$1" ]]; then
-              echo "::add-mask::$1"
-            fi
-          }
-          mask "$ALB_DNS"
-          mask "$ROLE_ARN"
-          mask "${API_IMAGE%%@*}"
-          mask "${WEB_IMAGE%%@*}"
+          if [[ -n "$ALB_DNS" ]]; then
+            echo "::add-mask::${ALB_DNS}"
+          fi
+          if [[ -n "$ROLE_ARN" ]]; then
+            echo "::add-mask::${ROLE_ARN}"
+          fi
 
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -325,6 +344,33 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
           mask-aws-account-id: true
+
+      # Step outputs stay inside this job, so GitHub does not drop the URI.
+      # mask-aws-account-id already masked the account. Mask the registry too.
+      - name: Build the image URIs
+        id: images
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          API_DIGEST: ${{ needs.build.outputs.api_digest }}
+          WEB_DIGEST: ${{ needs.build.outputs.web_digest }}
+        run: |
+          set -euo pipefail
+          if [[ "$AWS_REGION" != "us-east-1" ]]; then
+            echo "AWS_REGION must be us-east-1." >&2
+            exit 1
+          fi
+          account=$(aws sts get-caller-identity --query Account --output text)
+          registry="${account}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          echo "::add-mask::${registry}"
+          echo "::add-mask::${registry}/p07-api"
+          echo "::add-mask::${registry}/p07-web"
+          uri=projects/07-github-actions-ecs-cicd-pipeline/scripts/image-uri.sh
+          api_image=$("$uri" "$registry" api "$API_DIGEST")
+          web_image=$("$uri" "$registry" web "$WEB_DIGEST")
+          {
+            echo "api_image=${api_image}"
+            echo "web_image=${web_image}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Fetch the live api task definition
         env:
@@ -352,7 +398,7 @@ jobs:
         with:
           task-definition: ${{ runner.temp }}/api-task-definition.json
           container-name: api
-          image: ${{ needs.build.outputs.api_image }}
+          image: ${{ steps.images.outputs.api_image }}
           environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
 
       - name: Deploy the api task definition
@@ -383,7 +429,7 @@ jobs:
         with:
           task-definition: ${{ runner.temp }}/web-task-definition.json
           container-name: web
-          image: ${{ needs.build.outputs.web_image }}
+          image: ${{ steps.images.outputs.web_image }}
           environment-variables: APP_VERSION=${{ needs.build.outputs.version }}
 
       - name: Deploy the web task definition

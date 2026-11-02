@@ -221,7 +221,7 @@ jobs:
           resolve_one() {
             local svc=$1
             local family="${ECS_CLUSTER}-${svc}"
-            local current from digest
+            local current from digest uri
             current=$(aws ecs describe-services \
               --region "$AWS_REGION" \
               --cluster "$ECS_CLUSTER" \
@@ -242,10 +242,8 @@ jobs:
               echo "No image with that tag in p07-${svc}." >&2
               exit 1
             fi
-            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-              echo "ECR did not return a digest for p07-${svc}." >&2
-              exit 1
-            fi
+            echo "::add-mask::${registry}/p07-${svc}"
+            uri=$(projects/07-github-actions-ecs-cicd-pipeline/scripts/image-uri.sh "$registry" "$svc" "$digest")
             aws ecs describe-task-definition \
               --region "$AWS_REGION" \
               --task-definition "$family" \
@@ -254,7 +252,7 @@ jobs:
             {
               echo "${svc}_from=${from}"
               echo "${svc}_digest=${digest}"
-              echo "${svc}_image=${registry}/p07-${svc}@${digest}"
+              echo "${svc}_image=${uri}"
             } >> "$GITHUB_OUTPUT"
           }
           if [[ "$SERVICE" == "api" || "$SERVICE" == "both" ]]; then
