@@ -16,6 +16,9 @@ locals {
 }
 
 resource "aws_ecs_task_definition" "web" {
+  # The rollback workflow needs earlier revisions to stay ACTIVE. Without
+  # this, Terraform deregisters revision 1 when the task definition is replaced.
+  skip_destroy             = true
   family                   = "p07-${var.environment}-web"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -87,6 +90,9 @@ resource "aws_ecs_task_definition" "web" {
 }
 
 resource "aws_ecs_task_definition" "api" {
+  # The rollback workflow needs earlier revisions to stay ACTIVE. Without
+  # this, Terraform deregisters revision 1 when the task definition is replaced.
+  skip_destroy             = true
   family                   = "p07-${var.environment}-api"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"

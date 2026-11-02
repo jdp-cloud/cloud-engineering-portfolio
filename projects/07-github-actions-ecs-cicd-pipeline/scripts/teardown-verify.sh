@@ -9,6 +9,10 @@
 # repositories, and the environment stacks (VPCs, load balancers, ECS
 # services, log groups, SSM parameters, budget).
 #
+# Task definitions set skip_destroy, so ACTIVE p07-* revisions can remain.
+# The script lists them and prints the deregister and delete commands.
+# It does not run those commands.
+#
 # Usage: ./scripts/teardown-verify.sh
 # Requires: AWS CLI v2 with credentials for the account that was used.
 
@@ -148,6 +152,39 @@ else
   echo "  not found. This project does not create it. Teardown does not require it to be gone."
 fi
 echo "  Not counted. Only the p07-* roles, ECR repositories, and environment stacks are removed."
+
+echo
+echo "=== ACTIVE task definitions ==="
+echo "Task definitions set skip_destroy, so terraform destroy leaves revisions ACTIVE."
+echo "This script only lists them. It does not deregister or delete them."
+# shellcheck disable=SC2016
+if ! td_raw=$(aws ecs list-task-definitions --region "$REGION" --status ACTIVE \
+  --query 'taskDefinitionArns[?contains(@, `:task-definition/p07-`)]' --output text 2>&1); then
+  printf '  %-22s %s\n' "task definitions" "ERROR: ${td_raw}"
+  leftovers=$((leftovers + 1))
+else
+  td_raw=$(printf '%s' "$td_raw" | tr '\t' '\n')
+  td_arns=()
+  while IFS= read -r arn; do
+    [[ -z "$arn" || "$arn" == "None" ]] && continue
+    td_arns+=("$arn")
+  done <<<"$td_raw"
+  if [[ "${#td_arns[@]}" -eq 0 ]]; then
+    echo "  none"
+  else
+    echo "  STILL PRESENT:"
+    for arn in "${td_arns[@]}"; do
+      echo "  ${arn}"
+    done
+    leftovers=$((leftovers + 1))
+    echo
+    echo "  Run these yourself:"
+    for arn in "${td_arns[@]}"; do
+      echo "  aws ecs deregister-task-definition --region ${REGION} --task-definition ${arn}"
+    done
+    echo "  aws ecs delete-task-definitions --region ${REGION} --task-definitions ${td_arns[*]}"
+  fi
+fi
 
 echo
 if [[ "$leftovers" -eq 0 ]]; then

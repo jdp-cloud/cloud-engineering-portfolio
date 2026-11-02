@@ -24,6 +24,8 @@ COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 # Next writes image and fetch cache here at runtime. This directory is the only one node owns.
 RUN mkdir -p /app/.next/cache && chown node:node /app/.next/cache
+# Runtime never uses npm. Removing it drops the 6 HIGH findings in npm's own dependencies.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=10 \

@@ -4,6 +4,13 @@ resource "aws_ssm_parameter" "greeting" {
   name  = "/p07/${var.environment}/api/GREETING"
   type  = "String"
   value = "hello"
+
+  # Terraform sets the initial value. After that, change it with
+  # aws ssm put-parameter --overwrite and a new deployment (the Phase 4 SSM
+  # proof). A later apply must not revert that value.
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 resource "aws_ssm_parameter" "example_secret" {

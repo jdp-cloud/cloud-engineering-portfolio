@@ -10,16 +10,23 @@ COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
 
+# Production dependencies only. The runtime stage copies these as root-owned files.
+# --ignore-scripts: this image does not need package install scripts.
+FROM node@sha256:c86ecead9e55a5210ac1727de38a4ca840bf03dcaf34dc9749addbf383b1920c AS prod-deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
+
 # node:24.22.2-bookworm-slim
 FROM node@sha256:c86ecead9e55a5210ac1727de38a4ca840bf03dcaf34dc9749addbf383b1920c AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3001
 COPY package.json package-lock.json ./
-# Production dependencies only, root-owned, so the node user can read them and cannot change them.
-# --ignore-scripts: this image does not need package install scripts.
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+# Runtime never uses npm. Removing it drops the 6 HIGH findings in npm's own dependencies.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 USER node
 EXPOSE 3001
 HEALTHCHECK --interval=5s --timeout=3s --start-period=5s --retries=10 \

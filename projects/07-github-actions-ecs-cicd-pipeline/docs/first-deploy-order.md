@@ -35,6 +35,25 @@ terraform apply tfplan
 
 Bootstrap creates the three `p07-gha-*` roles, the `p07-web` and `p07-api` repositories, and the monthly budget. It does not create a VPC.
 
+Bootstrap is already applied (11 resources). The forecast notification added to that budget is a one-resource in-place update on the next `terraform plan`. That update is expected.
+
+### Activate the Project cost allocation tag
+
+The budget filters on `Project=p07-ecs-cicd`. A tag-filtered budget sees no spend until `Project` is an active cost allocation tag.
+
+```bash
+aws ce list-cost-allocation-tags --tag-keys Project
+```
+
+The key can take up to 24 hours to appear after the first tagged resource exists. When it does:
+
+```bash
+aws ce update-cost-allocation-tags-status \
+  --cost-allocation-tags-status TagKey=Project,Status=Active
+```
+
+This was done on 2026-11-02. `Project` is Status Active. Spend from before that activation is not backfilled into the budget.
+
 ## 2. Push the first images
 
 Phase 3 is what will use `p07-gha-ecr-push`. This push uses your own AWS credentials. Build `linux/amd64`. The task definition is `X86_64`, and an Apple Silicon build without `--platform` will not start on Fargate.
@@ -84,7 +103,30 @@ terraform apply tfplan
 
 Repeat in `terraform/envs/production` after staging is up.
 
-`APP_VERSION` is not in the task definition. The apps report `dev` until a later deploy sets it. `GREETING` is the SSM parameter `/p07/<environment>/api/GREETING` (`hello`). `/p07/<environment>/api/EXAMPLE_SECRET` is created as the placeholder `replace-me`. Terraform ignores later changes to that value. Set a real value with `aws ssm put-parameter --overwrite` if you want one. Do not put it in the repo.
+`APP_VERSION` is not in the task definition. The apps report `dev` until a later deploy sets it. Terraform creates `/p07/<environment>/api/GREETING` as the String `hello` and `/p07/<environment>/api/EXAMPLE_SECRET` as the SecureString placeholder `replace-me`. Both parameters ignore later changes to `value`. Change `GREETING` with `aws ssm put-parameter --overwrite` and a new deployment (the Phase 4 SSM proof). A later apply must not revert it. Do not put a real secret in the repo.
+
+### Verify on first staging deploy
+
+- Both ECS tasks are `RUNNING`, and the running count matches the desired count.
+- Both target groups report healthy targets.
+- Neither `/p07/staging/web` nor `/p07/staging/api` contains `EACCES` or `EROFS`. That confirms the Fargate volumes for `/tmp` and `/app/.next/cache` are writable by uid 1000. A local read-only container cannot prove the Fargate mount.
+
+```bash
+aws ecs describe-services --region us-east-1 --cluster p07-staging \
+  --services p07-staging-web p07-staging-api \
+  --query 'services[].{name:serviceName,status:status,running:runningCount,desired:desiredCount}'
+
+aws elbv2 describe-target-groups --region us-east-1 \
+  --names p07-staging-web p07-staging-api \
+  --query 'TargetGroups[].TargetGroupArn' --output text
+
+aws logs filter-log-events --region us-east-1 \
+  --log-group-name /p07/staging/web --filter-pattern '?"EACCES" ?"EROFS"'
+aws logs filter-log-events --region us-east-1 \
+  --log-group-name /p07/staging/api --filter-pattern '?"EACCES" ?"EROFS"'
+```
+
+Pass the target group ARNs from the second command to `aws elbv2 describe-target-health --target-group-arn`.
 
 ## Teardown
 
@@ -103,9 +145,9 @@ terraform destroy
 
 The GitHub OIDC provider is expected to remain. It is shared and pre-existing, it is not in this state, and `terraform destroy` on bootstrap does not delete it. Do not delete it by hand as part of this teardown.
 
-What this teardown removes: the `p07-*` roles (the three GitHub roles and both task execution roles), the ECR repositories `p07-web` and `p07-api`, and the environment stacks (VPC, load balancer, ECS services, log groups, and SSM parameters). The budget is part of bootstrap and is removed with it.
+What this teardown removes: the `p07-*` roles (the three GitHub roles and both task execution roles), the ECR repositories `p07-web` and `p07-api`, and the environment stacks (VPC, load balancer, ECS services, log groups, and SSM parameters). The budget is part of bootstrap and is removed with it. Task definition revisions stay `ACTIVE` until the commands printed by the verify script are run.
 
-ECS keeps deregistered task definition revisions in `INACTIVE` state. Terraform deregisters them. The verify script does not treat inactive revisions as leftovers.
+Both task definitions set `skip_destroy`. Terraform leaves revisions `ACTIVE` so a rollback can still use them, and so a replace does not deregister revision 1. `scripts/teardown-verify.sh` lists any `ACTIVE` `p07-*` revisions that remain and prints `deregister-task-definition` and `delete-task-definitions` commands. The script does not run those commands.
 
 ```bash
 cd projects/07-github-actions-ecs-cicd-pipeline

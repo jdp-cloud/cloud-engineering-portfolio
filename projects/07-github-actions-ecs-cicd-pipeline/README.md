@@ -25,7 +25,7 @@ Both images use Node.js 24.22.2 (`node:24.22.2-bookworm-slim`), pinned by digest
 
 ## Known dev-only advisories
 
-The web app pins ESLint at 9.39.5 because `eslint-config-next` 16.4.4 depends on `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y`, and those plugins' peer ranges stop at ESLint `^9`. The API uses ESLint 10.14.0 with `@eslint/js` 10.0.1 (there is no `@eslint/js` 10.14.0). Full `npm audit` still reports a moderate `minimatch` advisory (GHSA-g3hv-75wg-m249, versions below 11.0.1) through those devDependencies in both apps. `npm audit --omit=dev` reports 0 vulnerabilities in each. No devDependencies ship in the runtime images: the API image runs `npm ci --omit=dev`, and the web image keeps only the files Next traces for the standalone server.
+The web app pins ESLint at 9.39.5 because `eslint-config-next` 16.4.4 depends on `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y`, and those plugins' peer ranges stop at ESLint `^9`. The API uses ESLint 10.14.0 with `@eslint/js` 10.0.1 (there is no `@eslint/js` 10.14.0). Full `npm audit` still reports a moderate `minimatch` advisory (GHSA-g3hv-75wg-m249, versions below 11.0.1) through those devDependencies in both apps. `npm audit --omit=dev` reports 0 vulnerabilities in each. No devDependencies ship in the runtime images. The API image copies `node_modules` from a production-only `npm ci --omit=dev` stage, and the web image keeps only the files Next traces for the standalone server. Both runtime stages delete npm, npx, and corepack.
 
 ## Run it locally
 
