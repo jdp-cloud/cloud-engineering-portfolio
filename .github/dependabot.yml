@@ -48,3 +48,27 @@ updates:
     directory: "/projects/06-jenkins-devsecops-ci-cd-pipeline/app"
     schedule:
       interval: "weekly"
+
+  # Keeps the API's pinned npm dependencies current for project 07.
+  - package-ecosystem: "npm"
+    directory: "/projects/07-github-actions-ecs-cicd-pipeline/apps/api"
+    schedule:
+      interval: "weekly"
+
+  # Keeps the web app's pinned npm dependencies current for project 07.
+  - package-ecosystem: "npm"
+    directory: "/projects/07-github-actions-ecs-cicd-pipeline/apps/web"
+    schedule:
+      interval: "weekly"
+
+  # Keeps the API image's pinned base current for project 07.
+  - package-ecosystem: "docker"
+    directory: "/projects/07-github-actions-ecs-cicd-pipeline/apps/api"
+    schedule:
+      interval: "weekly"
+
+  # Keeps the web image's pinned base current for project 07.
+  - package-ecosystem: "docker"
+    directory: "/projects/07-github-actions-ecs-cicd-pipeline/apps/web"
+    schedule:
+      interval: "weekly"
