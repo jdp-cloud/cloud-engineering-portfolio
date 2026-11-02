@@ -19,9 +19,11 @@ A small SaaS company runs a Next.js web app and a Node.js API. They deploy by ha
 
 `APP_VERSION` and `GREETING` are read when a request arrives. They are not written into the image at build time.
 
-Both images use Node.js 24.22.2 (`node:24.22.2-bookworm-slim`), pinned by digest. `engines` in both `package.json` files is `>=24.22.2 <25`. TypeScript is 5.9.3 because `typescript-eslint` 8.72.1 does not support TypeScript 6 or newer. The web app is on Next.js 16.4.4 until the upgrade in the TODO above.
+Both images use Node.js 24.22.2 (`node:24.22.2-bookworm-slim`), pinned by digest. `engines` in both `package.json` files is `>=24.22.2 <25`. Both apps use TypeScript 6.0.3. The web app is on Next.js 16.4.4 until the upgrade in the TODO above.
 
-ESLint is 9.39.5 in both apps. `npm audit` currently reports a moderate `minimatch` advisory through that devDependency. The runtime images do not install ESLint: the API image runs `npm ci --omit=dev`, and the web image keeps only the files Next traces for the standalone server.
+## Known dev-only advisories
+
+The web app pins ESLint at 9.39.5 because `eslint-config-next` 16.4.4 depends on `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y`, and those plugins' peer ranges stop at ESLint `^9`. The API uses ESLint 10.14.0 with `@eslint/js` 10.0.1 (there is no `@eslint/js` 10.14.0). Full `npm audit` still reports a moderate `minimatch` advisory (GHSA-g3hv-75wg-m249, versions below 11.0.1) through those devDependencies in both apps. `npm audit --omit=dev` reports 0 vulnerabilities in each. No devDependencies ship in the runtime images: the API image runs `npm ci --omit=dev`, and the web image keeps only the files Next traces for the standalone server.
 
 ## Run it locally
 
