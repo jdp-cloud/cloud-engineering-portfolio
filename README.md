@@ -7,7 +7,7 @@
 ![Focus](https://img.shields.io/badge/focus-cloud%20security-B71C1C)
 [![Secret scan](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/jdp-cloud/cloud-engineering-portfolio/actions/workflows/gitleaks.yml)
 
-Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security projects developed as part of my transition from regulated life-sciences operations into cloud engineering. I am targeting cloud security engineering and AI platform engineering roles.
+I'm a clinical operations leader (Associate Director level, Phase I–III, sponsor and CRO) building cloud, AI and security skills for regulated life sciences. This repository holds the hands-on cloud infrastructure, Kubernetes, CI/CD and security projects behind that work. My long-term focus is cloud security and AI platform engineering, especially where GxP, HIPAA and audit-readiness experience matters.
 
 [LinkedIn](https://www.linkedin.com/in/jacques-payne-1ba7b43) | [GitHub](https://github.com/jdp-cloud)
 
@@ -15,7 +15,7 @@ Hands-on cloud infrastructure, automation, Kubernetes, CI/CD, and security proje
 
 ## Start here
 
-Each project has its own README with an at-a-glance summary, architecture, validation steps and evidence. If you have two minutes, read the summary table at the top of one.
+Each project has its own README with an at-a-glance summary, architecture, validation steps and evidence. If you have two minutes, start with Project 02 (least-privilege GitOps), Project 04 (AI with deterministic guardrails) or Project 06 (security-gated CI/CD).
 
 | # | Project | What it shows | Technologies | Status |
 | --- | --- | --- | --- | --- |
@@ -89,6 +89,8 @@ Each README states its scope and limitations plainly. These are learning and por
 
 ## Background
 
-I bring more than 10 years of experience in regulated life-sciences operations, including risk management, audit readiness, vendor oversight, documented controls, and cross-functional delivery.
+I bring 15+ years in clinical drug development, most recently as Associate Director, Clinical Operations. That work included global Phase III oncology trials (on assignment to Merck), a first-in-human Phase I obesity and MASH trial, CRO and vendor oversight, GCP audits, SOP authorship, and preparing a pivotal site for FDA inspection supporting a successful NDA.
 
-My current focus is building and documenting hands-on cloud infrastructure skills that can be demonstrated directly through the projects in this repository.
+That background shapes how I build: documented controls, least privilege, traceable evidence, and a clear line between what was validated and what was not. The same discipline that keeps a clinical trial inspection-ready applies to cloud environments in regulated industries.
+
+My current focus is building and documenting hands-on cloud, AI and security skills that can be demonstrated directly through the projects in this repository.
