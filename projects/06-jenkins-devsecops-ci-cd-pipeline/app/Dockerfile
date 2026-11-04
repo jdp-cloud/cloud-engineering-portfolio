@@ -4,7 +4,7 @@
 #   test    -> runtime + test dependencies (the pipeline mounts the sources and runs pytest here)
 #   runtime -> what gets deployed: non-root, no test tooling, no shell-based entrypoint
 # Base image: python:3.12.15-slim-bookworm, pinned by digest (a trailing comment is not allowed on a FROM line).
-FROM python@sha256:54c85f3c47607a77f32adec749d3c81d1348bf25833671f512b26a9b6d778cb3 AS base
+FROM python@sha256:f17ec845ebdd4f3347431579e1c22eaeec82913f039f2a54b937c7ff870bacdb AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
