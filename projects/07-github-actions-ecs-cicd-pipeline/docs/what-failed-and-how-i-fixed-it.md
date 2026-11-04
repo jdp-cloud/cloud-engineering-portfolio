@@ -24,6 +24,10 @@ The web image set `HOSTNAME=0.0.0.0` with an image `ENV` instruction. Fargate ov
 
 The `image-scan` job in `.github/workflows/p07-ci.yml` starts the image it just built, after the build and before Trivy. It passes `-e HOSTNAME=ip-10-70-0-37.ec2.internal` and `APP_VERSION=ci`. The API run also passes `GREETING=ci`. The job waits up to 60 seconds for Docker's health status to become `healthy`. If it does not, the job prints `docker logs` and fails. The same step runs for web and for api.
 
+The local and CI reproduction is a stand-in, not an exact copy of Fargate. The fake hostname does not resolve off AWS, so the old image exits with `getaddrinfo ENOTFOUND`. On Fargate the hostname resolves and Next.js binds only the task IP. Both cases fail the guard, and the fixed image passes both.
+
 ### Lesson
 
 An ALB target health check and a container health check test different network paths. The target check reached the task IP. The container check reached `127.0.0.1`. Passing one does not prove the other.
+
+Verified on Fargate: pending the first pipeline deploy.

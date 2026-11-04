@@ -4,11 +4,9 @@ Phase 1 is two small services and a local nginx stand-in for the load balancer p
 
 A small SaaS company runs a Next.js web app and a Node.js API. They deploy by hand from a laptop. This project is a working reference for a pipeline the whole team can run. The clicks for environments, variables, and the required check are in `docs/github-setup.md`.
 
-## TODO before the first merge
+The web app is on Next.js 16.4.5. The November 2026 advisories are in [docs/dependency-security.md](docs/dependency-security.md).
 
-Upgrade `next` and `eslint-config-next` from 16.4.4 to the Next.js security release scheduled for November 3, 2026 before any image from this project is pushed or deployed. That release covers seven medium vulnerabilities. Checked 2026-11-02: `npm view next dist-tags.latest` is still 16.4.4, so the pin stays. Do not merge to main until that release is in.
-
-The deploy workflow runs `scripts/smoke-test.sh` against the load balancer. It calls `/healthz` and `/api/health`, and both `version` fields must match `v1.0.<run number>`. Rollback passes `any`, which only checks that the two versions match each other. The ALB sends `/api/*` to the API and every other path to web, so `/health` on the public URL lands on web. The API route `GET /health` is only for the target group health check, which hits the task directly. `/api/health` returns the same body on a path the ALB sends to the API.
+The smoke test is [scripts/smoke-test.sh](scripts/smoke-test.sh). The deploy workflow runs it against the load balancer. It calls `/healthz` and `/api/health`, and both `version` fields must match `v1.0.<run number>`. Rollback passes `any`, which only checks that the two versions match each other. The ALB sends `/api/*` to the API and every other path to web, so `/health` on the public URL lands on web. The API route `GET /health` is only for the target group health check, which hits the task directly. `/api/health` returns the same body on a path the ALB sends to the API.
 
 ## What is here
 
@@ -23,11 +21,11 @@ The deploy workflow runs `scripts/smoke-test.sh` against the load balancer. It c
 
 `APP_VERSION` and `GREETING` are read when a request arrives. They are not written into the image at build time.
 
-Both images use Node.js 24.22.2 (`node:24.22.2-bookworm-slim`), pinned by digest. `engines` in both `package.json` files is `>=24.22.2 <25`. Both apps use TypeScript 6.0.3. The web app is on Next.js 16.4.4 until the upgrade in the TODO above.
+Both images use Node.js 24.22.2 (`node:24.22.2-bookworm-slim`), pinned by digest. `engines` in both `package.json` files is `>=24.22.2 <25`. Both apps use TypeScript 6.0.3.
 
 ## Known dev-only advisories
 
-The web app pins ESLint at 9.39.5 because `eslint-config-next` 16.4.4 depends on `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y`, and those plugins' peer ranges stop at ESLint `^9`. The API uses ESLint 10.14.0 with `@eslint/js` 10.0.1 (there is no `@eslint/js` 10.14.0). Full `npm audit` still reports a moderate `minimatch` advisory (GHSA-g3hv-75wg-m249, versions below 11.0.1) through those devDependencies in both apps. `npm audit --omit=dev` reports 0 vulnerabilities in each. No devDependencies ship in the runtime images. The API image copies `node_modules` from a production-only `npm ci --omit=dev` stage, and the web image keeps only the files Next traces for the standalone server. Both runtime stages delete npm, npx, and corepack.
+The web app pins ESLint at 9.39.5 because `eslint-config-next` 16.4.5 depends on `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y`, and those plugins' peer ranges stop at ESLint `^9`. The API uses ESLint 10.14.0 with `@eslint/js` 10.0.1 (there is no `@eslint/js` 10.14.0). Full `npm audit` still reports a moderate `minimatch` advisory (GHSA-g3hv-75wg-m249, versions below 11.0.1) through those devDependencies in both apps. `npm audit --omit=dev` reports 0 vulnerabilities in each. No devDependencies ship in the runtime images. The API image copies `node_modules` from a production-only `npm ci --omit=dev` stage, and the web image keeps only the files Next traces for the standalone server. Both runtime stages delete npm, npx, and corepack.
 
 ## Run it locally
 
