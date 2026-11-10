@@ -25,6 +25,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | 04 | [WAF to Bedrock Threat Correlation to SOAR Pipeline](projects/04-waf-bedrock-threat-correlation-and-soar-pipeline/) | An AWS pipeline that turns WAF logs into scored findings, incidents and reports. Amazon Bedrock only explains. Deterministic code makes every decision, and containment is never automated. Cognito MFA and group-based access protect the API. | Terraform, AWS WAF, Lambda, Bedrock, EventBridge, DynamoDB, Cognito, Python | Deployed, verified and torn down. Based on a class group lab. Evidence is partial and the limitations are listed in the project README. |
 | 05 | [GCP to AWS HA VPN with BGP](projects/05-gcp-to-aws-ha-vpn-secure-connectivity/) | Four IPsec tunnels with BGP between a Google Cloud VPC and an AWS Transit Gateway, generated pre-shared keys and private test machines | Terraform, GCP HA VPN, Cloud Router, AWS Transit Gateway, Site-to-Site VPN | Deployed, verified and torn down. Based on a class group lab. |
 | 06 | [Local DevSecOps Pipeline with Jenkins](projects/06-jenkins-devsecops-ci-cd-pipeline/) | A 12-stage Jenkins pipeline, configured as code, that builds and tests a small Flask app, then scans it (SonarQube quality gate, gitleaks, Trivy, OWASP ZAP), deploys it to a local container and tears everything down. One run is blocked by Trivy on purpose and the fixed run passed on 2026-10-03 (a later run stopped at the image scan on a base-image package finding; after a Dockerfile fix it passed again on 2026-10-04, see the project README). | Jenkins, SonarQube, Trivy, gitleaks, OWASP ZAP, Docker Compose, Python | Run, verified and torn down. Based on a class exercise. |
+| 08 | [eTMF Readiness Checker](projects/08-etmf-readiness-checker/) | A serverless check of a synthetic eTMF index: missing documents, expired credentials, drafts past due, and an IRB approval filed after site activation. Critical findings cap the site score. Severity is code, not a model. | Terraform, S3, Lambda, EventBridge, CloudWatch, Python | Code complete, not deployed. Synthetic data only. pytest and terraform plan passed; apply was not run. |
 
 ### In progress
 
@@ -44,6 +45,7 @@ Each project has its own README with an at-a-glance summary, architecture, valid
 | Access control and least privilege | Projects 02, 03 and 04 |
 | Event-driven AWS (Lambda, EventBridge, DynamoDB, SNS) | Project 04 |
 | Generative AI with guardrails (Bedrock explains, code decides) | Project 04 |
+| Inspection-readiness checks (completeness, expiry, audit trail) | Project 08 |
 | API authentication and role-based access (Cognito, MFA, API Gateway authorizer) | Project 04 |
 | Secrets handling (kept out of Git) | Projects 01 and 02 |
 | Secrets handling in Terraform (generated pre-shared keys) | Project 05 |
