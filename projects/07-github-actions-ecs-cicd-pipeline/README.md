@@ -1,12 +1,42 @@
 # GitHub Actions to ECS CI/CD pipeline
 
-Phase 1 is two small services and a local nginx stand-in for the load balancer path split. Phase 2 is Terraform under `terraform/`. Phase 3 is the workflows `.github/workflows/p07-ci.yml`, `p07-build-and-deploy.yml`, and `p07-rollback.yml`. The portfolio write-up comes later.
-
-A small SaaS company runs a Next.js web app and a Node.js API. They deploy by hand from a laptop. This project is a working reference for a pipeline the whole team can run. The clicks for environments, variables, and the required check are in `docs/github-setup.md`.
+A small SaaS team runs a Next.js web app and a Node.js API and deploys both by hand from a laptop. The workflows build each image once, deploy that digest to ECS in staging, and deploy the same digest to production only after a required reviewer approves, assuming IAM roles with GitHub OIDC instead of stored AWS keys. A rollback workflow can move one service or both back to an earlier task definition. Bootstrap is applied, staging was applied and later destroyed after a failed web deployment, production was never applied, and the deploy workflow stays off unless `P07_DEPLOY_ENABLED` is `true`.
 
 ## Deployment status
 
-Bootstrap is applied. Automatic deploys stay off until the `P07_DEPLOY_ENABLED` repository variable is `true`. To run the live pipeline, I apply staging and production in the order in [docs/first-deploy-order.md](docs/first-deploy-order.md), complete [docs/github-setup.md](docs/github-setup.md), then set `P07_DEPLOY_ENABLED` to `true`.
+Bootstrap is applied. The apply added 11 resources, including the ECR repositories, the three GitHub Actions roles, and the monthly budget ([evidence/02-bootstrap-apply.png](evidence/02-bootstrap-apply.png)). In that output the `Project` cost allocation tag was Inactive. It was set to Active on 2026-11-02 ([evidence/03-cost-allocation-tag-active.png](evidence/03-cost-allocation-tag-active.png)).
+
+I applied the staging stack with Terraform, not with GitHub Actions. Both services became stable, both target groups were healthy, and the load balancer returned version `dev` ([evidence/04-staging-first-deploy.png](evidence/04-staging-first-deploy.png)).
+
+A later deployment of `p07-staging-web` failed. The ECS console shows that web deployment as Failed and the API deployment as Completed ([evidence/09-web-deployment-failed-console.png](evidence/09-web-deployment-failed-console.png)). The service events show tasks stopped for failed container health checks. The web log shows Next.js bound to the task hostname `ip-10-70-0-37.ec2.internal`, not to `0.0.0.0` ([evidence/10-web-health-check-root-cause.png](evidence/10-web-health-check-root-cause.png)). Fargate replaces an image `ENV HOSTNAME` with the task hostname, and the container health check calls `127.0.0.1`. The Dockerfile fix and the CI guard are in [docs/what-failed-and-how-i-fixed-it.md](docs/what-failed-and-how-i-fixed-it.md). That doc says the fix is still pending a check on Fargate. No screenshot shows a successful staging deploy after the fix.
+
+I then destroyed staging. Terraform removed 32 resources, and the next lookup did not find a load balancer named `p07-staging` ([evidence/11-staging-destroy-verified.png](evidence/11-staging-destroy-verified.png)).
+
+The production stack was not applied. The GitHub `production` environment has required reviewer `jdp-cloud`, Prevent self-review off, and deploys limited to `main` ([evidence/07-production-environment-approval-gate.png](evidence/07-production-environment-approval-gate.png)). The staging environment has no required reviewer and is also limited to `main` ([evidence/05-staging-environment.png](evidence/05-staging-environment.png)). The clicks for environments, variables, and the required check are in [docs/github-setup.md](docs/github-setup.md).
+
+The build job runs only when the repository variable `P07_DEPLOY_ENABLED` is `true` ([p07-build-and-deploy.yml](../../.github/workflows/p07-build-and-deploy.yml)). The variables screenshot lists `AWS_REGION` and `P07_ECR_PUSH_ROLE_ARN` and does not show `P07_DEPLOY_ENABLED` ([evidence/08-actions-variables.png](evidence/08-actions-variables.png)). With that variable unset, the build job is skipped, and the staging and production jobs are skipped with it.
+
+## What the evidence shows
+
+- **Same digest from staging to production is the workflow design.** [p07-build-and-deploy.yml](../../.github/workflows/p07-build-and-deploy.yml) builds the linux/amd64 images once and passes those digests to staging, then to production, without rebuilding. Production was never applied, so that promotion has not run.
+- **The workflows assume roles with OIDC.** The build, deploy, and rollback jobs set `id-token: write` and `role-to-assume`. They do not store AWS access keys. Bootstrap recorded the existing GitHub OIDC provider ([evidence/02-bootstrap-apply.png](evidence/02-bootstrap-apply.png), [docs/github-setup.md](docs/github-setup.md)).
+- **Production has a required reviewer.** [evidence/07-production-environment-approval-gate.png](evidence/07-production-environment-approval-gate.png). The production deploy job uses the `production` environment, so that rule applies. Prevent self-review is off.
+- **The cost allocation tag is active.** `Project` is Status Active ([evidence/03-cost-allocation-tag-active.png](evidence/03-cost-allocation-tag-active.png)). Spend from before that activation is not backfilled ([docs/first-deploy-order.md](docs/first-deploy-order.md)).
+- **The failed staging web deployment has a recorded cause.** The web service failed container health checks while the API deployment completed ([evidence/09-web-deployment-failed-console.png](evidence/09-web-deployment-failed-console.png), [evidence/10-web-health-check-root-cause.png](evidence/10-web-health-check-root-cause.png)). The image `ENV HOSTNAME` was replaced by the Fargate task hostname. The fix is in the web image command, and it has not been shown succeeding on Fargate ([docs/what-failed-and-how-i-fixed-it.md](docs/what-failed-and-how-i-fixed-it.md)).
+- **Staging teardown removed the stack.** Terraform destroyed 32 resources, and the load balancer was not found afterwards ([evidence/11-staging-destroy-verified.png](evidence/11-staging-destroy-verified.png)). Bootstrap was not destroyed.
+- **Pull request 59's image scan blocked a fixable base-image CVE.** Trivy reported HIGH CVE-2026-109518 in Debian 12.15 packages `apt` and `libapt-pkg6.0` (installed 2.6.1, fixed in 2.6.2). The app code and `node_modules` were clean. The runtime stage upgrades those two packages, and local `dpkg-query` reported 2.6.2 ([docs/what-failed-and-how-i-fixed-it.md](docs/what-failed-and-how-i-fixed-it.md)).
+
+## Limitations
+
+- Production was never applied. The approval gate is configured. No production deploy has run.
+- Bootstrap is still applied: the IAM roles, the ECR repositories, and the budget. Staging is destroyed.
+- The web and API apps are minimal demo services. They serve health and hello routes. They have no database and no authentication.
+- The web health-check fix has not been verified on Fargate. [docs/what-failed-and-how-i-fixed-it.md](docs/what-failed-and-how-i-fixed-it.md) says that check is pending the first pipeline deploy. No screenshot shows a healthy staging deploy after the fix.
+- The healthy staging run in [evidence/04-staging-first-deploy.png](evidence/04-staging-first-deploy.png) is a Terraform apply. There is no screenshot of a successful GitHub Actions deploy.
+- The first image push uses the operator's own AWS credentials. Later pushes are meant to use the OIDC role ([docs/first-deploy-order.md](docs/first-deploy-order.md)).
+- Prevent self-review is off, so the account that starts a production run can approve it ([docs/github-setup.md](docs/github-setup.md)).
+- The CI image scan ignores unfixed findings. On 2026-11-02, `--ignore-unfixed` reported 0, and the same images had 33 ungated HIGH or CRITICAL Debian findings without that flag ([docs/image-scanning.md](docs/image-scanning.md)).
+- The GitHub OIDC provider and the Terraform state bucket already existed. This project looks them up. It does not create them, and teardown does not delete the provider ([docs/first-deploy-order.md](docs/first-deploy-order.md)).
 
 The web app is on Next.js 16.4.5. The November 2026 advisories are in [docs/dependency-security.md](docs/dependency-security.md).
 
@@ -19,7 +49,7 @@ The smoke test is [scripts/smoke-test.sh](scripts/smoke-test.sh). The deploy wor
 | `apps/api` | Express API. `GET /health` and `GET /api/health` return `{ "status": "ok", "version": "<APP_VERSION>" }`. `GET /api/hello` returns `{ "message": "<GREETING>" }`. Missing values fall back to `dev` and `hello`. |
 | `apps/web` | Next.js app, `output: "standalone"`. The page shows `APP_VERSION` and the browser calls `/api/hello`. `GET /healthz` returns `{ "status": "ok", "version": "<APP_VERSION>" }`. |
 | `apps/docker-compose.yml` | Local only. nginx sends `/api/` to the API and everything else to web, on `127.0.0.1:8080`. |
-| `terraform/` | Bootstrap (roles, ECR, budget) and the staging and production stacks. Bootstrap is applied. Apply both environments before the first merge. The GitHub OIDC provider is looked up, not created. |
+| `terraform/` | Bootstrap (roles, ECR, budget) and the staging and production stacks. Bootstrap is applied. Staging was applied and later destroyed. Production was not applied. The GitHub OIDC provider is looked up, not created. |
 | `docs/first-deploy-order.md` | Order of operations: bootstrap, first image push, staging, production, GitHub setup, then teardown. |
 | `docs/github-setup.md` | Environments, variables, and the `p07-ci-result` ruleset. |
 
