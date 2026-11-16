@@ -4,6 +4,10 @@ Phase 1 is two small services and a local nginx stand-in for the load balancer p
 
 A small SaaS company runs a Next.js web app and a Node.js API. They deploy by hand from a laptop. This project is a working reference for a pipeline the whole team can run. The clicks for environments, variables, and the required check are in `docs/github-setup.md`.
 
+## Deployment status
+
+Bootstrap is applied. Automatic deploys stay off until the `P07_DEPLOY_ENABLED` repository variable is `true`. To run the live pipeline, I apply staging and production in the order in [docs/first-deploy-order.md](docs/first-deploy-order.md), complete [docs/github-setup.md](docs/github-setup.md), then set `P07_DEPLOY_ENABLED` to `true`.
+
 The web app is on Next.js 16.4.5. The November 2026 advisories are in [docs/dependency-security.md](docs/dependency-security.md).
 
 The smoke test is [scripts/smoke-test.sh](scripts/smoke-test.sh). The deploy workflow runs it against the load balancer. It calls `/healthz` and `/api/health`, and both `version` fields must match `v1.0.<run number>`. Rollback passes `any`, which only checks that the two versions match each other. The ALB sends `/api/*` to the API and every other path to web, so `/health` on the public URL lands on web. The API route `GET /health` is only for the target group health check, which hits the task directly. `/api/health` returns the same body on a path the ALB sends to the API.
