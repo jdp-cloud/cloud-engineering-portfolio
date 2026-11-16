@@ -1,0 +1,21 @@
+# Local check output and Lambda zip. The checker zip is built by Terraform.
+build/
+out/
+*.zip
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# Terraform local state and saved plans. Commit terraform.tfvars.example only.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+tfplan
+*.tfplan
+crash.log
+.DS_Store

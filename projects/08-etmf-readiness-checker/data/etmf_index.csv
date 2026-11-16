@@ -1,0 +1,154 @@
+study_id,country,site_id,zone,artifact,document_name,version,effective_date,expiry_date,status,filed_date
+SYNTH-PH3-001,United States,101,05 Site Management,Site selection and qualification,Site selection and qualification - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,101,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,101,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,101,05 Site Management,PI CV,PI CV - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,101,05 Site Management,Medical license,Medical license - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,101,05 Site Management,Financial disclosure,Financial disclosure - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,101,05 Site Management,GCP training certificate,GCP training certificate - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,101,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,101,08 Central and Local Testing,Normal ranges,Normal ranges - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,101,06 IP,IP receipt,IP receipt - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,101,06 IP,IP accountability,IP accountability - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,101,06 IP,IP return and destruction,IP return and destruction - Site 101 – Riverside Research Center.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,05 Site Management,Site selection and qualification,Site selection and qualification - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,05 Site Management,PI CV,PI CV - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,2026-08-01,Final,2026-05-20
+SYNTH-PH3-001,United States,102,05 Site Management,Medical license,Medical license - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,102,05 Site Management,Form FDA 1572,Form FDA 1572 - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,05 Site Management,Financial disclosure,Financial disclosure - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,05 Site Management,GCP training certificate,GCP training certificate - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,102,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,102,08 Central and Local Testing,Normal ranges,Normal ranges - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,06 IP,IP receipt,IP receipt - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,06 IP,IP accountability,IP accountability - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,102,06 IP,IP return and destruction,IP return and destruction - Site 102 – Harbor View Clinical.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,05 Site Management,Site selection and qualification,Site selection and qualification - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-06-15
+SYNTH-PH3-001,United States,103,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,05 Site Management,PI CV,PI CV - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,103,05 Site Management,Medical license,Medical license - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,103,05 Site Management,Form FDA 1572,Form FDA 1572 - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,05 Site Management,Financial disclosure,Financial disclosure - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,05 Site Management,GCP training certificate,GCP training certificate - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,103,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,103,08 Central and Local Testing,Normal ranges,Normal ranges - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,06 IP,IP receipt,IP receipt - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,06 IP,IP accountability,IP accountability - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,103,06 IP,IP return and destruction,IP return and destruction - Site 103 – Lakewood Medical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,05 Site Management,Site selection and qualification,Site selection and qualification - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,05 Site Management,PI CV,PI CV - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,104,05 Site Management,Medical license,Medical license - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,104,05 Site Management,Financial disclosure,Financial disclosure - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,05 Site Management,GCP training certificate,GCP training certificate - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,104,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United States,104,08 Central and Local Testing,Normal ranges,Normal ranges - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,06 IP,IP receipt,IP receipt - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,06 IP,IP accountability,IP accountability - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United States,104,06 IP,IP return and destruction,IP return and destruction - Site 104 – Summit Clinical Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,05 Site Management,Site selection and qualification,Site selection and qualification - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,05 Site Management,PI CV,PI CV - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,05 Site Management,Medical license,Medical license - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,05 Site Management,Financial disclosure,Financial disclosure - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,05 Site Management,GCP training certificate,GCP training certificate - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,2027-06-01,Draft,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,08 Central and Local Testing,Normal ranges,Normal ranges - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,06 IP,IP receipt,IP receipt - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,06 IP,IP accountability,IP accountability - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,105,06 IP,IP return and destruction,IP return and destruction - Site 105 – Northbridge Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,05 Site Management,Site selection and qualification,Site selection and qualification - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,05 Site Management,PI CV,PI CV - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,05 Site Management,Medical license,Medical license - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,05 Site Management,Financial disclosure,Financial disclosure - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,05 Site Management,GCP training certificate,GCP training certificate - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,2026-12-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,08 Central and Local Testing,Normal ranges,Normal ranges - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,06 IP,IP receipt,IP receipt - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,06 IP,IP accountability,IP accountability - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,106,06 IP,IP return and destruction,IP return and destruction - Site 106 – Kingsford Clinical Unit.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,05 Site Management,Site selection and qualification,Site selection and qualification - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,05 Site Management,PI CV,PI CV - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,05 Site Management,Medical license,Medical license - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,05 Site Management,GCP training certificate,GCP training certificate - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,08 Central and Local Testing,Normal ranges,Normal ranges - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,06 IP,IP receipt,IP receipt - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,06 IP,IP accountability,IP accountability - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,107,06 IP,IP return and destruction,IP return and destruction - Site 107 – Meadow Clinical Centre.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,05 Site Management,Site selection and qualification,Site selection and qualification - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,05 Site Management,PI CV,PI CV - Site 108 – Portside Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,05 Site Management,Medical license,Medical license - Site 108 – Portside Research.pdf,1.0,2026-05-15,2027-01-05,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,05 Site Management,Financial disclosure,Financial disclosure - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,05 Site Management,GCP training certificate,GCP training certificate - Site 108 – Portside Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 108 – Portside Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,08 Central and Local Testing,Normal ranges,Normal ranges - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,06 IP,IP receipt,IP receipt - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,06 IP,IP accountability,IP accountability - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,United Kingdom,108,06 IP,IP return and destruction,IP return and destruction - Site 108 – Portside Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,05 Site Management,Site selection and qualification,Site selection and qualification - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,05 Site Management,PI CV,PI CV - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,05 Site Management,Medical license,Medical license - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,2026-07-15,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,05 Site Management,Financial disclosure,Financial disclosure - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,05 Site Management,GCP training certificate,GCP training certificate - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,08 Central and Local Testing,Normal ranges,Normal ranges - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,06 IP,IP receipt,IP receipt - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,06 IP,IP accountability,IP accountability - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,109,06 IP,IP return and destruction,IP return and destruction - Site 109 – Sakura Hills Clinic.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,05 Site Management,Site selection and qualification,Site selection and qualification - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,05 Site Management,PI CV,PI CV - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,05 Site Management,Medical license,Medical license - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,05 Site Management,Financial disclosure,Financial disclosure - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,05 Site Management,GCP training certificate,GCP training certificate - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,08 Central and Local Testing,Normal ranges,Normal ranges - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,06 IP,IP receipt,IP receipt - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,06 IP,IP accountability,IP accountability - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,110,06 IP,IP return and destruction,IP return and destruction - Site 110 – Bay Clinical Research.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,05 Site Management,Site selection and qualification,Site selection and qualification - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,05 Site Management,PI CV,PI CV - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,05 Site Management,Medical license,Medical license - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,05 Site Management,Financial disclosure,Financial disclosure - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,05 Site Management,GCP training certificate,GCP training certificate - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,2026-09-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,08 Central and Local Testing,Normal ranges,Normal ranges - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,06 IP,IP receipt,IP receipt - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,06 IP,IP accountability,IP accountability - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,111,06 IP,IP return and destruction,IP return and destruction - Site 111 – Cedar Trial Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,05 Site Management,Site selection and qualification,Site selection and qualification - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,04 IRB/IEC,IRB/IEC approval letter,IRB/IEC approval letter - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,04 IRB/IEC,Approved informed consent form,Approved informed consent form - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,05 Site Management,PI CV,PI CV - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,05 Site Management,Medical license,Medical license - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,05 Site Management,Investigator regulatory form,Investigator regulatory form - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,05 Site Management,Financial disclosure,Financial disclosure - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,05 Site Management,GCP training certificate,GCP training certificate - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,08 Central and Local Testing,Lab certification (CAP/CLIA),Lab certification (CAP/CLIA) - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,2027-06-01,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,08 Central and Local Testing,Normal ranges,Normal ranges - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,06 IP,IP receipt,IP receipt - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,06 IP,IP accountability,IP accountability - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20
+SYNTH-PH3-001,Japan,112,06 IP,IP return and destruction,IP return and destruction - Site 112 – Maple Investigative Site.pdf,1.0,2026-05-15,,Final,2026-05-20

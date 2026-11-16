@@ -1,0 +1,102 @@
+# Expected documents for synthetic study SYNTH-PH3-001.
+# Zones follow the DIA TMF Reference Model.
+# Zone 08 is Central and Local Testing. Zone 09 is Third Parties and is not used here.
+# Form FDA 1572 is required only in the United States.
+
+study_id: SYNTH-PH3-001
+compound: EX-100
+protocol: EXAMPLE-001
+as_of: "2026-11-09"
+expiry_soon_days: 60
+critical_score_cap: 49
+
+artifacts:
+  - id: site_selection
+    zone: "05 Site Management"
+    name: "Site selection and qualification"
+    required_at: site_activation
+    expires: false
+
+  - id: irb_approval
+    zone: "04 IRB/IEC"
+    name: "IRB/IEC approval letter"
+    required_at: site_activation
+    expires: false
+    timing_check: filed_on_or_before_activation
+
+  - id: approved_icf
+    zone: "04 IRB/IEC"
+    name: "Approved informed consent form"
+    required_at: site_activation
+    expires: false
+
+  - id: pi_cv
+    zone: "05 Site Management"
+    name: "PI CV"
+    required_at: site_activation
+    expires: true
+
+  - id: medical_license
+    zone: "05 Site Management"
+    name: "Medical license"
+    required_at: site_activation
+    expires: true
+
+  - id: form_fda_1572
+    zone: "05 Site Management"
+    name: "Form FDA 1572"
+    required_at: site_activation
+    expires: false
+    countries:
+      - United States
+
+  - id: investigator_regulatory_form
+    zone: "05 Site Management"
+    name: "Investigator regulatory form"
+    required_at: site_activation
+    expires: false
+    countries:
+      - United Kingdom
+      - Japan
+
+  - id: financial_disclosure
+    zone: "05 Site Management"
+    name: "Financial disclosure"
+    required_at: site_activation
+    expires: false
+
+  - id: gcp_training
+    zone: "05 Site Management"
+    name: "GCP training certificate"
+    required_at: site_activation
+    expires: true
+
+  - id: lab_certification
+    zone: "08 Central and Local Testing"
+    name: "Lab certification (CAP/CLIA)"
+    required_at: site_activation
+    expires: true
+
+  - id: normal_ranges
+    zone: "08 Central and Local Testing"
+    name: "Normal ranges"
+    required_at: site_activation
+    expires: false
+
+  - id: ip_receipt
+    zone: "06 IP"
+    name: "IP receipt"
+    required_at: site_activation
+    expires: false
+
+  - id: ip_accountability
+    zone: "06 IP"
+    name: "IP accountability"
+    required_at: ongoing
+    expires: false
+
+  - id: ip_return
+    zone: "06 IP"
+    name: "IP return and destruction"
+    required_at: close_out
+    expires: false
