@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars. That file is gitignored.
+# Replace ACCOUNT and the digests after the first push. ACCOUNT is not a real
+# account id. The digest must be 64 hex characters from the image you pushed.
+# Do not put a real account id in this example file.
+
+api_image = "ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/p07-api@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+web_image = "ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/p07-web@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+
+# allowed_ingress_cidrs = ["0.0.0.0/0"]
