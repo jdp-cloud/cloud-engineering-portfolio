@@ -346,6 +346,12 @@ jobs:
       - name: Smoke test
         env:
           ALB_DNS: ${{ vars.P07_ALB_DNS }}
+          SERVICE: ${{ inputs.service }}
         run: |
           set -euo pipefail
-          projects/07-github-actions-ecs-cicd-pipeline/scripts/smoke-test.sh "$ALB_DNS" any
+          if [[ "$SERVICE" == "both" ]]; then
+            expected=any
+          else
+            expected=independent
+          fi
+          projects/07-github-actions-ecs-cicd-pipeline/scripts/smoke-test.sh "$ALB_DNS" "$expected"

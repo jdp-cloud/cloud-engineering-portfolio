@@ -5,8 +5,10 @@
 #
 # expected_version is the APP_VERSION of this deploy (v1.0.<run number>).
 # Pass "any" to require only that /healthz and /api/health report the same
-# version. The rollback workflow uses that, because the previous revision's
+# version. Rollback of both services uses that, because the previous revision's
 # version is not the tag that was just built.
+# Pass "independent" when only one service is rolled back. Both endpoints must
+# return HTTP 200 and a non-empty version. The versions do not have to match.
 #
 # Retries cover the target-group deregistration delay: the service can be
 # stable while the ALB still has a connection to the previous task.
@@ -93,7 +95,7 @@ if expected == "any":
         raise SystemExit(
             f"versions differ: /healthz {healthz['version']!r} /api/health {api['version']!r}"
         )
-else:
+elif expected != "independent":
     for label, body in (("/healthz", healthz), ("/api/health", api)):
         if body["version"] != expected:
             raise SystemExit(f"{label} version {body['version']!r} != {expected!r}")

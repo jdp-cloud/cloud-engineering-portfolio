@@ -31,3 +31,39 @@ The local and CI reproduction is a stand-in, not an exact copy of Fargate. The f
 An ALB target health check and a container health check test different network paths. The target check reached the task IP. The container check reached `127.0.0.1`. Passing one does not prove the other.
 
 Verified on Fargate: pending the first pipeline deploy.
+
+## 2. CI image scan blocked on base-OS apt CVE
+
+### Symptom
+
+Trivy reported HIGH CVE-2026-109518 on the Debian 12.15 packages `apt` and `libapt-pkg6.0`. Both were installed at 2.6.1. The fixed version is 2.6.2. The image-scan jobs for api and web failed. The app code and `node_modules` were clean.
+
+### Root cause
+
+The pinned `node:24.22.2-bookworm-slim` digest was built before the Debian security update that shipped apt 2.6.2.
+
+### Fix
+
+The runtime stage in `apps/api/Dockerfile` and `apps/web/Dockerfile` upgrades `apt` and `libapt-pkg6.0` as root, before `USER node`. The pinned node digest is unchanged. `dpkg-query` on the local images reported 2.6.2 for both packages.
+
+### Lesson
+
+Pinned digests need periodic bumps. The scan gate caught this before deploy.
+
+## 3. Single-service rollback smoke test required matching versions
+
+### Symptom
+
+The rollback workflow always passed `any` to the smoke test. That mode requires `/healthz` and `/api/health` to report the same version. Rolling back only api or only web leaves the other service on its current version, so the check fails when both endpoints are healthy.
+
+### Root cause
+
+`any` is the right check when both services move together. It is the wrong check when one service is rolled back and the other stays put.
+
+### Fix
+
+The smoke test accepts `independent`. Both endpoints must still return HTTP 200 and a non-empty version, and the versions are not compared. `p07-rollback.yml` passes `any` only when `service` is `both`, and `independent` otherwise.
+
+### Lesson
+
+A version-equality check is only valid when the rollback moved both services to the same version.
