@@ -16,7 +16,7 @@ The production stack was not applied. The GitHub `production` environment has re
 
 The build job runs only when the repository variable `P07_DEPLOY_ENABLED` is `true` ([p07-build-and-deploy.yml](../../.github/workflows/p07-build-and-deploy.yml)). The variables screenshot lists `AWS_REGION` and `P07_ECR_PUSH_ROLE_ARN` and does not show `P07_DEPLOY_ENABLED` ([evidence/08-actions-variables.png](evidence/08-actions-variables.png)). With that variable unset, the build job is skipped, and the staging and production jobs are skipped with it.
 
-## What I proved
+## What the evidence shows
 
 - **Same digest from staging to production is the workflow design.** [p07-build-and-deploy.yml](../../.github/workflows/p07-build-and-deploy.yml) builds the linux/amd64 images once and passes those digests to staging, then to production, without rebuilding. Production was never applied, so that promotion has not run.
 - **The workflows assume roles with OIDC.** The build, deploy, and rollback jobs set `id-token: write` and `role-to-assume`. They do not store AWS access keys. Bootstrap recorded the existing GitHub OIDC provider ([evidence/02-bootstrap-apply.png](evidence/02-bootstrap-apply.png), [docs/github-setup.md](docs/github-setup.md)).
