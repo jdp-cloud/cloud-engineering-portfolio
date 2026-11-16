@@ -1,0 +1,4 @@
+# Local tests and the cross-check of the YAML subset loader.
+# The Lambda zip does not install these. boto3 is provided by the Lambda runtime.
+pytest==8.3.4
+PyYAML==6.0.2

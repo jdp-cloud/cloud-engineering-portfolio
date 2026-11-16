@@ -1,0 +1,37 @@
+study_id,country,site_id,site_name,investigator,milestone,milestone_date
+SYNTH-PH3-001,United States,101,Site 101 – Riverside Research Center,Dr. A. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United States,101,Site 101 – Riverside Research Center,Dr. A. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United States,101,Site 101 – Riverside Research Center,Dr. A. Example,close_out,2027-03-01
+SYNTH-PH3-001,United States,102,Site 102 – Harbor View Clinical,Dr. B. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United States,102,Site 102 – Harbor View Clinical,Dr. B. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United States,102,Site 102 – Harbor View Clinical,Dr. B. Example,close_out,2027-03-01
+SYNTH-PH3-001,United States,103,Site 103 – Lakewood Medical Research,Dr. C. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United States,103,Site 103 – Lakewood Medical Research,Dr. C. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United States,103,Site 103 – Lakewood Medical Research,Dr. C. Example,close_out,2027-03-01
+SYNTH-PH3-001,United States,104,Site 104 – Summit Clinical Site,Dr. D. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United States,104,Site 104 – Summit Clinical Site,Dr. D. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United States,104,Site 104 – Summit Clinical Site,Dr. D. Example,close_out,2027-03-01
+SYNTH-PH3-001,United Kingdom,105,Site 105 – Northbridge Research,Dr. E. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United Kingdom,105,Site 105 – Northbridge Research,Dr. E. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United Kingdom,105,Site 105 – Northbridge Research,Dr. E. Example,close_out,2027-03-01
+SYNTH-PH3-001,United Kingdom,106,Site 106 – Kingsford Clinical Unit,Dr. F. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United Kingdom,106,Site 106 – Kingsford Clinical Unit,Dr. F. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United Kingdom,106,Site 106 – Kingsford Clinical Unit,Dr. F. Example,close_out,2027-03-01
+SYNTH-PH3-001,United Kingdom,107,Site 107 – Meadow Clinical Centre,Dr. G. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United Kingdom,107,Site 107 – Meadow Clinical Centre,Dr. G. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United Kingdom,107,Site 107 – Meadow Clinical Centre,Dr. G. Example,close_out,2027-03-01
+SYNTH-PH3-001,United Kingdom,108,Site 108 – Portside Research,Dr. H. Example,site_activation,2026-06-01
+SYNTH-PH3-001,United Kingdom,108,Site 108 – Portside Research,Dr. H. Example,ongoing,2026-09-01
+SYNTH-PH3-001,United Kingdom,108,Site 108 – Portside Research,Dr. H. Example,close_out,2027-03-01
+SYNTH-PH3-001,Japan,109,Site 109 – Sakura Hills Clinic,Dr. I. Example,site_activation,2026-06-01
+SYNTH-PH3-001,Japan,109,Site 109 – Sakura Hills Clinic,Dr. I. Example,ongoing,2026-09-01
+SYNTH-PH3-001,Japan,109,Site 109 – Sakura Hills Clinic,Dr. I. Example,close_out,2027-03-01
+SYNTH-PH3-001,Japan,110,Site 110 – Bay Clinical Research,Dr. J. Example,site_activation,2026-06-01
+SYNTH-PH3-001,Japan,110,Site 110 – Bay Clinical Research,Dr. J. Example,ongoing,2026-09-01
+SYNTH-PH3-001,Japan,110,Site 110 – Bay Clinical Research,Dr. J. Example,close_out,2027-03-01
+SYNTH-PH3-001,Japan,111,Site 111 – Cedar Trial Site,Dr. K. Example,site_activation,2026-06-01
+SYNTH-PH3-001,Japan,111,Site 111 – Cedar Trial Site,Dr. K. Example,ongoing,2026-09-01
+SYNTH-PH3-001,Japan,111,Site 111 – Cedar Trial Site,Dr. K. Example,close_out,2027-03-01
+SYNTH-PH3-001,Japan,112,Site 112 – Maple Investigative Site,Dr. L. Example,site_activation,2026-06-01
+SYNTH-PH3-001,Japan,112,Site 112 – Maple Investigative Site,Dr. L. Example,ongoing,2026-09-01
+SYNTH-PH3-001,Japan,112,Site 112 – Maple Investigative Site,Dr. L. Example,close_out,2027-03-01

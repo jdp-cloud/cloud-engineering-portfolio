@@ -1,0 +1,6 @@
+aws_region                     = "us-east-1"
+budget_alert_email            = "you@example.com"
+force_destroy                 = true
+upload_sample_index           = true
+enable_bedrock                = false
+enable_cloudtrail_data_events = false
